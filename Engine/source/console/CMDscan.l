@@ -201,6 +201,8 @@ HEXDIGIT [a-fA-F0-9]
 "for"       { CMDlval.i = MakeToken< int >( rwFOR, lineIndex ); return(rwFOR); }
 "continue"  { CMDlval.i = MakeToken< int >( rwCONTINUE, lineIndex ); return(rwCONTINUE); }
 "function"  { CMDlval.i = MakeToken< int >( rwDEFINE, lineIndex ); return(rwDEFINE); }
+"clientcmd" { CMDlval.i = MakeToken< int >( rwCLIENTCMD, lineIndex ); return(rwCLIENTCMD); }
+"servercmd" { CMDlval.i = MakeToken< int >( rwSERVERCMD, lineIndex ); return(rwSERVERCMD); }
 "new"       { CMDlval.i = MakeToken< int >( rwDECLARE, lineIndex ); return(rwDECLARE); }
 "singleton" { CMDlval.i = MakeToken< int >( rwDECLARESINGLETON, lineIndex ); return(rwDECLARESINGLETON); }
 "datablock" { CMDlval.i = MakeToken< int >( rwDATABLOCK, lineIndex ); return(rwDATABLOCK); }

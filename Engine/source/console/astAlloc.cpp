@@ -427,3 +427,21 @@ FunctionDeclStmtNode *FunctionDeclStmtNode::alloc( S32 lineNumber, StringTableEn
    ret->package = NULL;
    return ret;
 }
+
+FunctionDeclStmtNode *ClientFunctionDeclStmtNode::alloc( S32 lineNumber, StringTableEntry fnName, StringTableEntry nameSpace, VarNode *args, StmtNode *stmts )
+{
+   static const char* prefix = "clientCmd";
+   int len = dStrlen(fnName) + dStrlen(prefix) + 1;
+   char *name = Con::getArgBuffer(len);
+   dSprintf(name, len, "%s%s", prefix, fnName);
+   return FunctionDeclStmtNode::alloc(lineNumber, StringTable->insert(name), nameSpace, args, stmts);
+}
+
+FunctionDeclStmtNode *ServerFunctionDeclStmtNode::alloc( S32 lineNumber, StringTableEntry fnName, StringTableEntry nameSpace, VarNode *args, StmtNode *stmts )
+{
+   static const char* prefix = "serverCmd";
+   int len = dStrlen(fnName) + dStrlen(prefix) + 1;
+   char *name = Con::getArgBuffer(len);
+   dSprintf(name, len, "%s%s", prefix, fnName);
+   return FunctionDeclStmtNode::alloc(lineNumber, StringTable->insert(name), nameSpace, args, stmts);
+}

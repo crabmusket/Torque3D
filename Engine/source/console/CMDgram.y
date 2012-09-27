@@ -44,7 +44,7 @@ struct Token
 %{
         /* Reserved Word Definitions */
 %}
-%token <i> rwDEFINE rwENDDEF rwDECLARE rwDECLARESINGLETON
+%token <i> rwDEFINE rwCLIENTCMD rwSERVERCMD rwENDDEF rwDECLARE rwDECLARESINGLETON
 %token <i> rwBREAK rwELSE rwCONTINUE rwGLOBAL
 %token <i> rwIF rwNIL rwRETURN rwWHILE rwDO
 %token <i> rwENDIF rwENDWHILE rwENDFOR rwDEFAULT
@@ -227,6 +227,10 @@ fn_decl_stmt
       { $$ = FunctionDeclStmtNode::alloc( $1.lineNumber, $2.value, NULL, $4, $7 ); }
     | rwDEFINE IDENT opCOLONCOLON IDENT '(' var_list_decl ')' '{' statement_list '}'
      { $$ = FunctionDeclStmtNode::alloc( $1.lineNumber, $4.value, $2.value, $6, $9 ); }
+   | rwCLIENTCMD IDENT '(' var_list_decl ')' '{' statement_list '}'
+     { $$ = ClientFunctionDeclStmtNode::alloc( $1.lineNumber, $2.value, NULL, $4, $7 ); }
+   | rwSERVERCMD IDENT '(' var_list_decl ')' '{' statement_list '}'
+     { $$ = ServerFunctionDeclStmtNode::alloc( $1.lineNumber, $2.value, NULL, $4, $7 ); }
    ;
 
 var_list_decl
