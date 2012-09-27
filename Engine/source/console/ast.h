@@ -576,6 +576,16 @@ struct FunctionDeclStmtNode : StmtNode
    DBG_STMT_TYPE(FunctionDeclStmtNode);
 };
 
+struct ClientFunctionDeclStmtNode : FunctionDeclStmtNode
+{
+   static FunctionDeclStmtNode *alloc( S32 lineNumber, StringTableEntry fnName, StringTableEntry nameSpace, VarNode *args, StmtNode *stmts );
+};
+
+struct ServerFunctionDeclStmtNode : FunctionDeclStmtNode
+{
+   static FunctionDeclStmtNode *alloc( S32 lineNumber, StringTableEntry fnName, StringTableEntry nameSpace, VarNode *args, StmtNode *stmts );
+};
+
 extern StmtNode *gStatementList;
 extern void createFunction(const char *fnName, VarNode *args, StmtNode *statements);
 extern ExprEvalState gEvalState;
