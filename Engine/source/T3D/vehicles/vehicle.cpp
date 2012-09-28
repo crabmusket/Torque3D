@@ -350,6 +350,8 @@ void VehicleData::packData(BitStream* stream)
 
    stream->write(collDamageThresholdVel);
    stream->write(collDamageMultiplier);
+
+   stream->writeInt(numSeats, 32);
 }
 
 void VehicleData::unpackData(BitStream* stream)
@@ -445,6 +447,8 @@ void VehicleData::unpackData(BitStream* stream)
 
    stream->read(&collDamageThresholdVel);
    stream->read(&collDamageMultiplier);
+
+   numSeats = stream->readInt(32);
 }
 
 
@@ -591,6 +595,9 @@ void VehicleData::initPersistFields()
       "Sound to play when entering the water with speed >= hardSplashSoundVelocity." );
    addField( "waterWakeSound", TYPEID< SFXProfile >(), Offset(waterSound[Wake], VehicleData),
       "Looping sound to play while moving through the water." );
+
+   addField( "numSeats", TypeS32, Offset(numSeats, VehicleData),
+      "Number of seats this Vehicle makes available." );
 
    addField( "collDamageThresholdVel", TypeF32, Offset(collDamageThresholdVel, VehicleData),
       "Minimum collision velocity to cause damage to this vehicle.\nCurrently unused." );

@@ -123,6 +123,9 @@ struct VehicleData: public ShapeBaseData
    F32 splashFreqMod;
    F32 splashVelEpsilon;
 
+   // Seating information
+   U32 numSeats;
+
    //
    VehicleData();
    bool preload(bool server, String &errorStr);
