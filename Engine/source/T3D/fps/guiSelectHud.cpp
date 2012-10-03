@@ -53,7 +53,7 @@ class GuiSelectHud : public GuiControl {
    S32 mCurrentObject;
 
 protected:
-   void drawName( Point2I offset, const char *buf, F32 opacity);
+   void drawName(Point2I offset, const char *buf, F32 opacity);
 
 public:
    GuiSelectHud();
@@ -65,6 +65,9 @@ public:
    DECLARE_CONOBJECT(GuiSelectHud);
    DECLARE_CATEGORY("Gui Game");
    DECLARE_DESCRIPTION("Basic client-side object selection HUD.");
+
+   DECLARE_CALLBACK(void, onObjectSelected, (ShapeBase *obj));
+   DECLARE_CALLBACK(void, onObjectDeselected, ());
 };
 
 //-----------------------------------------------------------------------------
@@ -89,6 +92,14 @@ ConsoleDocClass(GuiSelectHud,
    
    "@ingroup GuiGame\n"
 );
+
+IMPLEMENT_CALLBACK(GuiSelectHud, onObjectSelected, void, (ShapeBase *obj), (obj),
+   "@brief Called when an object is first selected by the HUD.\n\n"
+   "@param obj The object that was selected.");
+
+IMPLEMENT_CALLBACK(GuiSelectHud, onObjectDeselected, void, (), (),
+   "@brief Called when an object is no longer selected by the HUD.\n\n"
+   "@param obj The object that was deselected.");
 
 /// Default distance for object's information to be displayed.
 static const F32 SelectDistance = 3.0f;
@@ -218,22 +229,23 @@ void GuiSelectHud::onRender( Point2I, const RectI &updateRect)
       {
          if(mCurrentObject != id)
          {
+            onObjectDeselected_callback();
             mCurrentObject = id;
-            //callback? object deselected, object selected
+            onObjectSelected_callback(best);
          }
       }
       else
       {
          mCurrentObject = id;
-         //callback? object selected
+         onObjectSelected_callback(best);
       }
    }
    else
    {
       if(mCurrentObject != -1)
       {
+         onObjectDeselected_callback();
          mCurrentObject = -1;
-         //callback?
       }
    }
 
