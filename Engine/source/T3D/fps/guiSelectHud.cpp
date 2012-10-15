@@ -109,7 +109,7 @@ static const U32 SelectMask = PlayerObjectType | VehicleObjectType | ItemObjectT
 
 GuiSelectHud::GuiSelectHud()
 {
-   mTextColor.set( 0, 1, 0, 1 );
+   mTextColor.set(0, 1, 0, 1);
    mVerticalOffset = 0.0f;
    mCutoff = 0.85f;
    mCurrentObject = -1;
@@ -118,14 +118,15 @@ GuiSelectHud::GuiSelectHud()
 void GuiSelectHud::initPersistFields()
 {
    addGroup("Colors");
-   addField( "textColor",  TypeColorF, Offset( mTextColor, GuiSelectHud ), "Color for the text on this control." );
+   addField("textColor",  TypeColorF, Offset( mTextColor, GuiSelectHud ), "Color for the text on this control.");
    endGroup("Colors");
 
    addGroup("Misc");
-   addField( "verticalOffset", TypeF32, Offset( mVerticalOffset, GuiSelectHud ), "Amount to vertically offset the control in relation to the ShapeBase object in focus." );
-   addField( "cutoff",         TypeF32, Offset( mCutoff,         GuiSelectHud ), "Cosine of angle above which objects are not selected." );
-   addField( "currentObject",  TypeS32, Offset( mCurrentObject,  GuiSelectHud ), "ID of the currently selected object." );
+   addField("verticalOffset", TypeF32, Offset(mVerticalOffset, GuiSelectHud), "Amount to vertically offset the control in relation to the ShapeBase object in focus.");
+   addField("cutoff",         TypeF32, Offset(mCutoff,         GuiSelectHud), "Cosine of angle above which objects are not selected.");
+   addField("currentObject",  TypeS32, Offset(mCurrentObject,  GuiSelectHud), "ID of the currently selected object.");
    endGroup("Misc");
+
    Parent::initPersistFields();
 }
 
@@ -166,9 +167,11 @@ void GuiSelectHud::onRender( Point2I, const RectI &updateRect)
    ShapeBase *best = NULL;
    F32 bestDot = mCutoff;
    gClientContainer.initRadiusSearch(camPos, SelectDistance, SelectMask);
-   while(SceneObject *sc = gClientContainer.containerSearchNextObject()) {
+   while (SceneObject *sc = gClientContainer.containerSearchNextObject())
+   {
       ShapeBase* shape = dynamic_cast<ShapeBase*>(sc);
-      if ( shape ) {
+      if (shape)
+      {
          if (shape != control) 
          {
             // Target pos to test, if it's a player run the LOS to his eye
@@ -200,7 +203,7 @@ void GuiSelectHud::onRender( Point2I, const RectI &updateRect)
                continue;
 
             // Is it the closest object we've seen so far?
-            if(dot > bestDot)
+            if (dot > bestDot)
             {
                best = shape;
                bestDot = dot;
@@ -209,7 +212,17 @@ void GuiSelectHud::onRender( Point2I, const RectI &updateRect)
       }
    }
 
-   if(best)
+   if (!best)
+   {
+      // If we haven't yet found an object, try a raycast.
+      RayInfo info;
+      if (gClientContainer.castRay(camPos, camPos + camDir * SelectDistance, SelectMask, &info))
+      {
+         best = dynamic_cast<ShapeBase*>(info.object);
+      }
+   }
+
+   if (best)
    {
       // Project the shape pos into screen space and calculate
       // the distance opacity used to fade the labels into the
@@ -217,17 +230,20 @@ void GuiSelectHud::onRender( Point2I, const RectI &updateRect)
       Point3F shapePos = best->getPosition();
       Point3F projPnt;
       shapePos.z += mVerticalOffset;
-      if (parent->project(shapePos, &projPnt))
+      if (!parent->project(shapePos, &projPnt))
       {
-         F32 opacity = 1.0;
-         // Render the shape's name
-         drawName(Point2I((S32)projPnt.x, (S32)projPnt.y), "Interact", opacity);
+         projPnt.x = updateRect.len_x() / 2;
+         projPnt.y = updateRect.len_y() / 2;
+         projPnt.z = 0.0f;
       }
+      F32 opacity = 1.0;
+      // Render the shape's name
+      drawName(Point2I((S32)projPnt.x, (S32)projPnt.y), "Interact", opacity);
       // Update current object and handle callbacks.
       S32 id = best->getId();
-      if(mCurrentObject != -1)
+      if (mCurrentObject != -1)
       {
-         if(mCurrentObject != id)
+         if (mCurrentObject != id)
          {
             onObjectDeselected_callback();
             mCurrentObject = id;
@@ -242,7 +258,7 @@ void GuiSelectHud::onRender( Point2I, const RectI &updateRect)
    }
    else
    {
-      if(mCurrentObject != -1)
+      if (mCurrentObject != -1)
       {
          onObjectDeselected_callback();
          mCurrentObject = -1;
