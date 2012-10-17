@@ -134,7 +134,7 @@ void GuiSelectHud::initPersistFields()
 /// Core rendering method for this control.
 ///
 /// @param   updateRect   Extents of control.
-void GuiSelectHud::onRender( Point2I, const RectI &updateRect)
+void GuiSelectHud::onRender(Point2I offset, const RectI &updateRect)
 {
    // Must be in a TS Control
    GuiTSCtrl *parent = dynamic_cast<GuiTSCtrl*>(getParent());
@@ -163,82 +163,68 @@ void GuiSelectHud::onRender( Point2I, const RectI &updateRect)
    static U32 losMask = TerrainObjectType | InteriorObjectType | ShapeBaseObjectType;
    control->disableCollision();
 
-   // Perform a container radius search for objects to display.
    ShapeBase *best = NULL;
-   F32 bestDot = mCutoff;
-   gClientContainer.initRadiusSearch(camPos, SelectDistance, SelectMask);
-   while (SceneObject *sc = gClientContainer.containerSearchNextObject())
+
+   RayInfo info;
+   if (gClientContainer.castRay(camPos, camPos + camDir * SelectDistance, SelectMask, &info))
    {
-      ShapeBase* shape = dynamic_cast<ShapeBase*>(sc);
-      if (shape)
+      best = dynamic_cast<ShapeBase*>(info.object);
+   }
+   
+   // If we're not looking directly at anything, try matching angles.
+   if(!best)
+   {
+      F32 bestDot = mCutoff;
+      gClientContainer.initRadiusSearch(camPos, SelectDistance, SelectMask);
+      while (SceneObject *sc = gClientContainer.containerSearchNextObject())
       {
-         if (shape != control) 
+         ShapeBase* shape = dynamic_cast<ShapeBase*>(sc);
+         if (!shape || shape == control)
+            continue;
+
+         // Target pos to test, if it's a player run the LOS to his eye
+         // point, otherwise we'll grab the generic box center.
+         Point3F shapePos;
+         shape->getRenderTransform().getColumn(3, &shapePos);
+         VectorF shapeDir = shapePos - camPos;
+
+         // Test to see if it's within our viewcone, this test doesn't
+         // actually match the viewport very well, should consider
+         // projection and box test.
+         shapeDir.normalize();
+         F32 dot = mDot(shapeDir, camDir);
+         if (dot < camFov)
+            continue;
+
+         // Test to see if it's behind something, and we want to
+         // ignore anything it's mounted on when we run the LOS.
+         RayInfo info;
+         shape->disableCollision();
+         SceneObject *mount = shape->getObjectMount();
+         if (mount)
+            mount->disableCollision();
+         bool los = !gClientContainer.castRay(camPos, shapePos,losMask, &info);
+         shape->enableCollision();
+         if (mount)
+            mount->enableCollision();
+         if (!los)
+            continue;
+
+         // Is it the closest object we've seen so far?
+         if (dot > bestDot)
          {
-            // Target pos to test, if it's a player run the LOS to his eye
-            // point, otherwise we'll grab the generic box center.
-            Point3F shapePos;
-            shape->getRenderTransform().getColumn(3, &shapePos);
-            VectorF shapeDir = shapePos - camPos;
-
-            // Test to see if it's within our viewcone, this test doesn't
-            // actually match the viewport very well, should consider
-            // projection and box test.
-            shapeDir.normalize();
-            F32 dot = mDot(shapeDir, camDir);
-            if (dot < camFov)
-               continue;
-
-            // Test to see if it's behind something, and we want to
-            // ignore anything it's mounted on when we run the LOS.
-            RayInfo info;
-            shape->disableCollision();
-            SceneObject *mount = shape->getObjectMount();
-            if (mount)
-               mount->disableCollision();
-            bool los = !gClientContainer.castRay(camPos, shapePos,losMask, &info);
-            shape->enableCollision();
-            if (mount)
-               mount->enableCollision();
-            if (!los)
-               continue;
-
-            // Is it the closest object we've seen so far?
-            if (dot > bestDot)
-            {
-               best = shape;
-               bestDot = dot;
-            }
+            best = shape;
+            bestDot = dot;
          }
       }
    }
-
-   if (!best)
-   {
-      // If we haven't yet found an object, try a raycast.
-      RayInfo info;
-      if (gClientContainer.castRay(camPos, camPos + camDir * SelectDistance, SelectMask, &info))
-      {
-         best = dynamic_cast<ShapeBase*>(info.object);
-      }
-   }
+   
+   Point3F projPnt;
+   if (best && !parent->project(best->getRenderWorldBox().getCenter(), &projPnt))
+      best = NULL;
 
    if (best)
    {
-      // Project the shape pos into screen space and calculate
-      // the distance opacity used to fade the labels into the
-      // distance.
-      Point3F shapePos = best->getPosition();
-      Point3F projPnt;
-      shapePos.z += mVerticalOffset;
-      if (!parent->project(shapePos, &projPnt))
-      {
-         projPnt.x = updateRect.len_x() / 2;
-         projPnt.y = updateRect.len_y() / 2;
-         projPnt.z = 0.0f;
-      }
-      F32 opacity = 1.0;
-      // Render the shape's name
-      drawName(Point2I((S32)projPnt.x, (S32)projPnt.y), "Interact", opacity);
       // Update current object and handle callbacks.
       S32 id = best->getId();
       if (mCurrentObject != -1)
@@ -264,9 +250,28 @@ void GuiSelectHud::onRender( Point2I, const RectI &updateRect)
          mCurrentObject = -1;
       }
    }
+   
+   // Update child control positions.
+   for (SimSet::iterator it = begin(); it != end(); it++)
+   {
+      GuiControl *gc = dynamic_cast<GuiControl*>(*it);
+      if(!gc)
+         continue;
+      if (best)
+      {
+         gc->setVisible(true);
+         gc->resize(Point2I((S32)projPnt.x, (S32)projPnt.y), gc->getExtent());
+      }
+      else
+      {
+         gc->setVisible(false);
+      }
+   }
 
-   // Restore control object collision
+   // Restore control object collision.
    control->enableCollision();
+
+   Parent::onRender(offset, updateRect);
 }
 
 //----------------------------------------------------------------------------
