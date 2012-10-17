@@ -260,7 +260,11 @@ void GuiSelectHud::onRender(Point2I offset, const RectI &updateRect)
       if (best)
       {
          gc->setVisible(true);
-         gc->resize(Point2I((S32)projPnt.x, (S32)projPnt.y), gc->getExtent());
+         Point2I extent = gc->getExtent();
+         Point2I pos((S32)projPnt.x, (S32)projPnt.y);
+         pos.x -= extent.x / 2;
+         pos.y -= extent.y / 2;
+         gc->resize(pos, extent);
       }
       else
       {
