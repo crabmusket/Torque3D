@@ -109,7 +109,7 @@ static const U32 SelectMask = PlayerObjectType | VehicleObjectType | ItemObjectT
 
 GuiSelectHud::GuiSelectHud()
 {
-   mTextColor.set( 0, 1, 0, 1 );
+   mTextColor.set(0, 1, 0, 1);
    mVerticalOffset = 0.0f;
    mCutoff = 0.85f;
    mCurrentObject = -1;
@@ -118,14 +118,15 @@ GuiSelectHud::GuiSelectHud()
 void GuiSelectHud::initPersistFields()
 {
    addGroup("Colors");
-   addField( "textColor",  TypeColorF, Offset( mTextColor, GuiSelectHud ), "Color for the text on this control." );
+   addField("textColor",  TypeColorF, Offset( mTextColor, GuiSelectHud ), "Color for the text on this control.");
    endGroup("Colors");
 
    addGroup("Misc");
-   addField( "verticalOffset", TypeF32, Offset( mVerticalOffset, GuiSelectHud ), "Amount to vertically offset the control in relation to the ShapeBase object in focus." );
-   addField( "cutoff",         TypeF32, Offset( mCutoff,         GuiSelectHud ), "Cosine of angle above which objects are not selected." );
-   addField( "currentObject",  TypeS32, Offset( mCurrentObject,  GuiSelectHud ), "ID of the currently selected object." );
+   addField("verticalOffset", TypeF32, Offset(mVerticalOffset, GuiSelectHud), "Amount to vertically offset the control in relation to the ShapeBase object in focus.");
+   addField("cutoff",         TypeF32, Offset(mCutoff,         GuiSelectHud), "Cosine of angle above which objects are not selected.");
+   addField("currentObject",  TypeS32, Offset(mCurrentObject,  GuiSelectHud), "ID of the currently selected object.");
    endGroup("Misc");
+
    Parent::initPersistFields();
 }
 
@@ -133,7 +134,7 @@ void GuiSelectHud::initPersistFields()
 /// Core rendering method for this control.
 ///
 /// @param   updateRect   Extents of control.
-void GuiSelectHud::onRender( Point2I, const RectI &updateRect)
+void GuiSelectHud::onRender(Point2I offset, const RectI &updateRect)
 {
    // Must be in a TS Control
    GuiTSCtrl *parent = dynamic_cast<GuiTSCtrl*>(getParent());
@@ -162,72 +163,73 @@ void GuiSelectHud::onRender( Point2I, const RectI &updateRect)
    static U32 losMask = TerrainObjectType | InteriorObjectType | ShapeBaseObjectType;
    control->disableCollision();
 
-   // Perform a container radius search for objects to display.
    ShapeBase *best = NULL;
-   F32 bestDot = mCutoff;
-   gClientContainer.initRadiusSearch(camPos, SelectDistance, SelectMask);
-   while(SceneObject *sc = gClientContainer.containerSearchNextObject()) {
-      ShapeBase* shape = dynamic_cast<ShapeBase*>(sc);
-      if ( shape ) {
-         if (shape != control) 
+
+   RayInfo info;
+   if (gClientContainer.castRay(camPos, camPos + camDir * SelectDistance, SelectMask, &info))
+   {
+      best = dynamic_cast<ShapeBase*>(info.object);
+   }
+   
+   // If we're not looking directly at anything, try matching angles.
+   if(!best)
+   {
+      F32 bestDot = mCutoff;
+      gClientContainer.initRadiusSearch(camPos, SelectDistance, SelectMask);
+      while (SceneObject *sc = gClientContainer.containerSearchNextObject())
+      {
+         ShapeBase* shape = dynamic_cast<ShapeBase*>(sc);
+         if (!shape || shape == control)
+            continue;
+
+         // Target pos to test, if it's a player run the LOS to his eye
+         // point, otherwise we'll grab the generic box center.
+         Point3F shapePos;
+         shape->getRenderTransform().getColumn(3, &shapePos);
+         VectorF shapeDir = shapePos - camPos;
+
+         // Test to see if it's within our viewcone, this test doesn't
+         // actually match the viewport very well, should consider
+         // projection and box test.
+         shapeDir.normalize();
+         F32 dot = mDot(shapeDir, camDir);
+         if (dot < camFov)
+            continue;
+
+         // Test to see if it's behind something, and we want to
+         // ignore anything it's mounted on when we run the LOS.
+         RayInfo info;
+         shape->disableCollision();
+         SceneObject *mount = shape->getObjectMount();
+         if (mount)
+            mount->disableCollision();
+         bool los = !gClientContainer.castRay(camPos, shapePos,losMask, &info);
+         shape->enableCollision();
+         if (mount)
+            mount->enableCollision();
+         if (!los)
+            continue;
+
+         // Is it the closest object we've seen so far?
+         if (dot > bestDot)
          {
-            // Target pos to test, if it's a player run the LOS to his eye
-            // point, otherwise we'll grab the generic box center.
-            Point3F shapePos;
-            shape->getRenderTransform().getColumn(3, &shapePos);
-            VectorF shapeDir = shapePos - camPos;
-
-            // Test to see if it's within our viewcone, this test doesn't
-            // actually match the viewport very well, should consider
-            // projection and box test.
-            shapeDir.normalize();
-            F32 dot = mDot(shapeDir, camDir);
-            if (dot < camFov)
-               continue;
-
-            // Test to see if it's behind something, and we want to
-            // ignore anything it's mounted on when we run the LOS.
-            RayInfo info;
-            shape->disableCollision();
-            SceneObject *mount = shape->getObjectMount();
-            if (mount)
-               mount->disableCollision();
-            bool los = !gClientContainer.castRay(camPos, shapePos,losMask, &info);
-            shape->enableCollision();
-            if (mount)
-               mount->enableCollision();
-            if (!los)
-               continue;
-
-            // Is it the closest object we've seen so far?
-            if(dot > bestDot)
-            {
-               best = shape;
-               bestDot = dot;
-            }
+            best = shape;
+            bestDot = dot;
          }
       }
    }
+   
+   Point3F projPnt;
+   if (best && !parent->project(best->getRenderWorldBox().getCenter(), &projPnt))
+      best = NULL;
 
-   if(best)
+   if (best)
    {
-      // Project the shape pos into screen space and calculate
-      // the distance opacity used to fade the labels into the
-      // distance.
-      Point3F shapePos = best->getPosition();
-      Point3F projPnt;
-      shapePos.z += mVerticalOffset;
-      if (parent->project(shapePos, &projPnt))
-      {
-         F32 opacity = 1.0;
-         // Render the shape's name
-         drawName(Point2I((S32)projPnt.x, (S32)projPnt.y), "Interact", opacity);
-      }
       // Update current object and handle callbacks.
       S32 id = best->getId();
-      if(mCurrentObject != -1)
+      if (mCurrentObject != -1)
       {
-         if(mCurrentObject != id)
+         if (mCurrentObject != id)
          {
             onObjectDeselected_callback();
             mCurrentObject = id;
@@ -242,15 +244,38 @@ void GuiSelectHud::onRender( Point2I, const RectI &updateRect)
    }
    else
    {
-      if(mCurrentObject != -1)
+      if (mCurrentObject != -1)
       {
          onObjectDeselected_callback();
          mCurrentObject = -1;
       }
    }
+   
+   // Update child control positions.
+   for (SimSet::iterator it = begin(); it != end(); it++)
+   {
+      GuiControl *gc = dynamic_cast<GuiControl*>(*it);
+      if(!gc)
+         continue;
+      if (best)
+      {
+         gc->setVisible(true);
+         Point2I extent = gc->getExtent();
+         Point2I pos((S32)projPnt.x, (S32)projPnt.y);
+         pos.x -= extent.x / 2;
+         pos.y -= extent.y / 2;
+         gc->resize(pos, extent);
+      }
+      else
+      {
+         gc->setVisible(false);
+      }
+   }
 
-   // Restore control object collision
+   // Restore control object collision.
    control->enableCollision();
+
+   Parent::onRender(offset, updateRect);
 }
 
 //----------------------------------------------------------------------------
