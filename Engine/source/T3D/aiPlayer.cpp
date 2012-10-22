@@ -85,7 +85,6 @@ ConsoleDocClass( AIPlayer,
 AIPlayer::AIPlayer()
 {
    mMoveDestination.set( 0.0f, 0.0f, 0.0f );
-   mMoveSpeed = 1.0f;
    mMoveTolerance = 0.25f;
    mMoveStuckTolerance = 0.01f;
    mMoveStuckTestDelay = 30;
@@ -148,16 +147,6 @@ bool AIPlayer::onAdd()
    mLastLocation = eye.getPosition();
 
    return true;
-}
-
-/**
- * Sets the speed at which this AI moves
- *
- * @param speed Speed to move, default player was 10
- */
-void AIPlayer::setMoveSpeed( F32 speed )
-{
-   mMoveSpeed = getMax(0.0f, getMin( 1.0f, speed ));
 }
 
 /**
@@ -375,7 +364,7 @@ bool AIPlayer::getAIMove(Move *movePtr)
          // to try and stop on the spot...
          if (mMoveSlowdown) 
          {
-            F32 speed = mMoveSpeed;
+            F32 speed = 1.0f;
             F32 dist = mSqrt(xDiff*xDiff + yDiff*yDiff);
             F32 maxDist = 5.0f;
             if (dist < maxDist)
@@ -387,9 +376,6 @@ bool AIPlayer::getAIMove(Move *movePtr)
          }
          else 
          {
-            movePtr->x *= mMoveSpeed;
-            movePtr->y *= mMoveSpeed;
-
             mMoveState = ModeMove;
          }
 
@@ -480,28 +466,6 @@ DefineEngineMethod( AIPlayer, clearAim, void, ( ),,
    "@see setAimObject()\n")
 {
    object->clearAim();
-}
-
-DefineEngineMethod( AIPlayer, setMoveSpeed, void, ( F32 speed ),,
-   "@brief Sets the move speed for an AI object.\n\n"
-
-   "@param speed A speed multiplier between 0.0 and 1.0.  "
-   "This is multiplied by the AIPlayer's base movement rates (as defined in "
-   "its PlayerData datablock)\n\n"
-   
-   "@see getMoveDestination()\n")
-{
-	object->setMoveSpeed(speed);
-}
-
-DefineEngineMethod( AIPlayer, getMoveSpeed, F32, ( ),,
-   "@brief Gets the move speed of an AI object.\n\n"
-
-   "@return A speed multiplier between 0.0 and 1.0.\n\n"
-
-   "@see setMoveSpeed()\n")
-{
-   return object->getMoveSpeed();
 }
 
 DefineEngineMethod( AIPlayer, setMoveDestination, void, ( Point3F goal, bool slowDown ), ( true ),

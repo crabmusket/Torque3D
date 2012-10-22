@@ -1644,6 +1644,8 @@ Player::Player()
       mShapeFPFlashThread[i] = 0;
       mShapeFPSpinThread[i] = 0;
    }
+
+   mMoveSpeed = 1.0f;
 }
 
 Player::~Player()
@@ -2217,6 +2219,17 @@ bool Player::getAIMove(Move* move)
    return false;
 }
 
+void Player::setMoveSpeed(F32 speed)
+{
+   mMoveSpeed = mClampF(speed, 0.0f, 1.0f);
+   setMaskBits(MoveMask);
+}
+
+F32 Player::getMoveSpeed() const
+{
+   return mMoveSpeed;
+}
+
 void Player::setState(ActionState state, U32 recoverTicks)
 {
    if (state != mState) {
@@ -2625,6 +2638,8 @@ void Player::updateMove(const Move* move)
       moveVec.set(0.0f, 0.0f, 0.0f);
       moveSpeed = 0.0f;
    }
+
+   moveSpeed *= mMoveSpeed;
 
    // Acceleration due to gravity
    VectorF acc(0.0f, 0.0f, mGravity * mGravityMod * TickSec);
@@ -3125,12 +3140,12 @@ bool Player::checkDismountPosition(const MatrixF& oldMat, const MatrixF& mat)
 
 bool Player::canJump()
 {
-   return mAllowJumping && mState == MoveState && mDamageState == Enabled && !isMounted() && !mJumpDelay && mEnergy >= mDataBlock->minJumpEnergy && mJumpSurfaceLastContact < JumpSkipContactsMax && !mSwimming && (mPose != SprintPose || mDataBlock->sprintCanJump);
+   return mAllowJumping && mState == MoveState && mDamageState == Enabled && !isMounted() && !mJumpDelay && mEnergy >= mDataBlock->minJumpEnergy && mJumpSurfaceLastContact < JumpSkipContactsMax && !mSwimming && (mPose != SprintPose || mDataBlock->sprintCanJump) && mMoveSpeed > 0.0f;
 }
 
 bool Player::canJetJump()
 {
-   return mAllowJetJumping && mState == MoveState && mDamageState == Enabled && !isMounted() && mEnergy >= mDataBlock->jetMinJumpEnergy && mDataBlock->jetJumpForce != 0.0f;
+   return mAllowJetJumping && mState == MoveState && mDamageState == Enabled && !isMounted() && mEnergy >= mDataBlock->jetMinJumpEnergy && mDataBlock->jetJumpForce != 0.0f && mMoveSpeed > 0.0f;
 }
 
 bool Player::canSwim()
@@ -5836,6 +5851,8 @@ void Player::writePacketData(GameConnection *connection, BitStream *stream)
    if (stream->writeFlag(mJumpDelay > 0))
       stream->writeInt(mJumpDelay,PlayerData::JumpDelayBits);
 
+   stream->write(mMoveSpeed);
+
    Point3F pos;
    getTransform().getColumn(3,&pos);
    if (stream->writeFlag(!isMounted())) {
@@ -5886,6 +5903,8 @@ void Player::readPacketData(GameConnection *connection, BitStream *stream)
       mJumpDelay = stream->readInt(PlayerData::JumpDelayBits);
    else
       mJumpDelay = 0;
+
+   stream->read(&mMoveSpeed);
 
    Point3F pos,rot;
    if (stream->readFlag()) {
@@ -5978,6 +5997,8 @@ U32 Player::packUpdate(NetConnection *con, U32 mask, BitStream *stream)
    if (stream->writeFlag(mask & MoveMask))
    {
       stream->writeFlag(mFalling);
+
+      stream->write(mMoveSpeed);
 
       stream->writeInt(mState,NumStateBits);
       if (stream->writeFlag(mState == RecoverState))
@@ -6072,6 +6093,8 @@ void Player::unpackUpdate(NetConnection *con, BitStream *stream)
    if (stream->readFlag()) {
       mPredictionCount = sMaxPredictionTicks;
       mFalling = stream->readFlag();
+
+      stream->read(&mMoveSpeed);
 
       ActionState actionState = (ActionState)stream->readInt(NumStateBits);
       if (stream->readFlag()) {
@@ -6520,6 +6543,18 @@ DefineEngineMethod( Player, getNumDeathAnimations, S32, ( ),,
             count++;
    }
    return count;
+}
+
+DefineEngineMethod(Player, setMoveSpeed, void, (F32 speed),,
+   "Sets movement speed.")
+{
+   object->setMoveSpeed(speed);
+}
+
+DefineEngineMethod(Player, getMoveSpeed, F32, (),,
+   "Gets movement speed.")
+{
+   return object->getMoveSpeed();
 }
 
 //----------------------------------------------------------------------------

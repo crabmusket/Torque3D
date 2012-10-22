@@ -559,6 +559,7 @@ protected:
    TSThread *mShapeFPFlashThread[ShapeBase::MaxMountedImages];
    TSThread *mShapeFPSpinThread[ShapeBase::MaxMountedImages];
 
+   F32 mMoveSpeed;
    
   public:
   
@@ -728,6 +729,8 @@ public:
    virtual void    setMomentum(const Point3F &momentum);
    virtual bool    displaceObject(const Point3F& displaceVector);
    virtual bool    getAIMove(Move*);
+   virtual void    setMoveSpeed(F32 speed);
+   virtual F32     getMoveSpeed() const;
 
    bool checkDismountPosition(const MatrixF& oldPos, const MatrixF& newPos);  ///< Is it safe to dismount here?
 

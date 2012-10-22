@@ -42,7 +42,6 @@ public:
 
 private:
    MoveState mMoveState;
-   F32 mMoveSpeed;
    F32 mMoveTolerance;                 // Distance from destination before we stop
    Point3F mMoveDestination;           // Destination for movement
    Point3F mLastLocation;              // For stuck check
@@ -82,8 +81,6 @@ public:
    void clearAim();
 
    // Movement sets/gets
-   void setMoveSpeed( const F32 speed );
-   F32 getMoveSpeed() const { return mMoveSpeed; }
    void setMoveTolerance( const F32 tolerance );
    F32 getMoveTolerance() const { return mMoveTolerance; }
    void setMoveDestination( const Point3F &location, bool slowdown );
