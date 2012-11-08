@@ -134,6 +134,7 @@ HEXDIGIT [a-fA-F0-9]
 "|="        { CMDlval.i = MakeToken< int >( opORASN, lineIndex ); return opORASN; }
 "<<="       { CMDlval.i = MakeToken< int >( opSLASN, lineIndex ); return opSLASN; }
 ">>="       { CMDlval.i = MakeToken< int >( opSRASN, lineIndex ); return opSRASN; }
+"@="        { CMDlval.i = MakeToken< int >( opCATASN, lineIndex ); return opCATASN; }
 "->"        { CMDlval.i = MakeToken< int >( opINTNAME, lineIndex ); return opINTNAME; }
 "-->"       { CMDlval.i = MakeToken< int >( opINTNAMER, lineIndex ); return opINTNAMER; }
 "NL"        { CMDlval.i = MakeToken< int >( '\n', lineIndex ); return '@'; }

@@ -75,7 +75,7 @@ struct Token
 %token <i> opMINUSMINUS opPLUSPLUS
 %token <i> STMT_SEP
 %token <i> opSHL opSHR opPLASN opMIASN opMLASN opDVASN opMODASN opANDASN
-%token <i> opXORASN opORASN opSLASN opSRASN opCAT
+%token <i> opXORASN opORASN opSLASN opSRASN opCAT opCATASN
 %token <i> opEQ opNE opGE opLE opAND opOR opSTREQ
 %token <i> opCOLONCOLON
 
@@ -138,7 +138,7 @@ struct Token
 %type <asn>    assign_op_struct
 
 %left '['
-%right opMODASN opANDASN opXORASN opPLASN opMIASN opMLASN opDVASN opMDASN opNDASN opNTASN opORASN opSLASN opSRASN '='
+%right opMODASN opANDASN opXORASN opPLASN opMIASN opMLASN opDVASN opMDASN opNDASN opNTASN opORASN opSLASN opSRASN opCATASN '='
 %left '?' ':'
 %left opOR
 %left opAND
@@ -504,6 +504,8 @@ assign_op_struct
       { $$.lineNumber = $1.lineNumber; $$.token = opSHL; $$.expr = $2; }
    | opSRASN expr
       { $$.lineNumber = $1.lineNumber; $$.token = opSHR; $$.expr = $2; }
+   | opCATASN expr
+      { $$.lineNumber = $1.lineNumber; $$.token = '@'; $$.expr = $2; }
    ;
 
 stmt_expr
