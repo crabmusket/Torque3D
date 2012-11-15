@@ -67,7 +67,7 @@ public:
    bool receiveEvents;
 
    /// Called when this action is begun, either for the first time or after being put on hold.
-   virtual Status start(SimObject *obj, const char *data, bool resume);
+   virtual void start(SimObject *obj, const char *data, bool resume);
    /// Called each 'tick'.
    virtual Status update(SimObject *obj, const char *data, F32 time);
    /// Called when an event happens in the BehaviorManager. Should not be called if receiveEvents is false.

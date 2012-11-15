@@ -79,16 +79,9 @@ void AIAction::onRemove()
    Parent::onRemove();
 }
 
-AIAction::Status AIAction::start(SimObject *obj, const char *data, bool resume)
+void AIAction::start(SimObject *obj, const char *data, bool resume)
 {
-   StringTableEntry result = onStart_callback(obj? obj->getId(): 0, data, resume);
-   Status s = getStatus(result);
-   if(s != Failed && s != Working && s != Complete)
-   {
-      Con::warnf("Warning: AIAction::start returned %s; counting as failure.", result);
-      s = Failed;
-   }
-   return s;
+   onStart_callback(obj? obj->getId(): 0, data, resume);
 }
 
 AIAction::Status AIAction::update(SimObject *obj, const char *data, F32 time)
@@ -123,7 +116,7 @@ void AIAction::end(SimObject *obj, const char *data, Status status)
 IMPLEMENT_CALLBACK(AIAction, onStart, StringTableEntry, (SimObjectId obj, const char *data, bool resume), (obj, data, resume),
                    "Called when this action starts to execute within a BehaviorManager.");
 IMPLEMENT_CALLBACK(AIAction, onUpdate, StringTableEntry, (SimObjectId obj, const char *data, F32 time), (obj, data, time),
-                   "Called every time this action is updated.");
+                   "Called every time this action is updated. Must return one of 'Completed', 'Failed', and 'Working'.");
 IMPLEMENT_CALLBACK(AIAction, onEvent, StringTableEntry, (SimObjectId obj, const char *data, const char *event), (obj, data, event),
                    "Called when a special event occurs.");
 IMPLEMENT_CALLBACK(AIAction, onEnd, void, (SimObjectId obj, const char *data, const char *status), (obj, data, status),
