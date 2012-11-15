@@ -170,4 +170,29 @@ DefineEngineMethod(BehaviorManager, stopAction, void, (AIAction *action, const c
 
 void BehaviorManager::stopActionsFrom(SimObject *from)
 {
+   if (!from || mLocked)
+      return;
+
+   mLocked = true;
+
+   for (ActionMap::iterator res = mResources.begin(); res != mResources.end(); res++)
+   {
+      ActionQueue &queue = res->second;
+      for (ActionQueue::iterator ac = queue.begin(); ac != queue.end(); ac++)
+      {
+         if (ac->from == from)
+         {
+            ac->action->end(NULL, ac->data, AIAction::Stopped);
+            ac = queue.erase(ac);
+         }
+      }
+   }
+
+   mLocked = false;
+}
+
+DefineEngineMethod(BehaviorManager, stopActionsFrom, void, (SimObject *from),,
+   "Stop all action instances from a specific origin.")
+{
+   object->stopActionsFrom(from);
 }
