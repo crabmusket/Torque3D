@@ -84,12 +84,12 @@ void AIAction::onRemove()
 
 void AIAction::start(SimObject *obj, const char *data, bool resume)
 {
-   onStart_callback(obj? obj->getId(): 0, data, resume);
+   onStart_callback(obj? obj->getId(): 0, data ? data : "", resume);
 }
 
 AIAction::Status AIAction::update(SimObject *obj, const char *data, F32 time)
 {
-   StringTableEntry result = onUpdate_callback(obj? obj->getId(): 0, data, time);
+   StringTableEntry result = onUpdate_callback(obj? obj->getId(): 0, data ? data : "", time);
    Status s = getStatus(result);
    if(s != Failed && s != Working && s != Complete)
    {
@@ -101,7 +101,7 @@ AIAction::Status AIAction::update(SimObject *obj, const char *data, F32 time)
 
 AIAction::Status AIAction::event(SimObject *obj, const char *data, const char *event)
 {
-   StringTableEntry result = onEvent_callback(obj? obj->getId(): 0, data, event);
+   StringTableEntry result = onEvent_callback(obj? obj->getId(): 0, data ? data : "", event);
    Status s = getStatus(result);
    if(s != Failed && s != Working && s != Complete)
    {
@@ -113,7 +113,7 @@ AIAction::Status AIAction::event(SimObject *obj, const char *data, const char *e
 
 void AIAction::end(SimObject *obj, const char *data, Status status)
 {
-   onEnd_callback(obj? obj->getId(): 0, data, getStatusName(status));
+   onEnd_callback(obj? obj->getId(): 0, data ? data : "", getStatusName(status));
 }
 
 IMPLEMENT_CALLBACK(AIAction, onStart, StringTableEntry, (SimObjectId obj, const char *data, bool resume), (obj, data, resume),
