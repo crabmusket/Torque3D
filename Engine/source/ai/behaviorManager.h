@@ -77,6 +77,9 @@ private:
 
    /// Action queues for all resources we provide.
    ActionMap mResources;
+
+   /// Stops actions being added while updates are going on.
+   bool mLocked;
 };
 
 #endif // _BEHAVIORMANAGER_H_

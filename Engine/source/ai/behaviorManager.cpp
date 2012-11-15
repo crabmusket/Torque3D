@@ -29,6 +29,7 @@ IMPLEMENT_CONOBJECT(BehaviorManager);
 
 BehaviorManager::BehaviorManager()
 {
+   mLocked = false;
    for (U32 i = 0; i < MaxResources; i++)
       mResourceNames[i] = NULL;
 }
@@ -70,12 +71,14 @@ void BehaviorManager::initPersistFields()
 
 bool BehaviorManager::startAction(AIAction *action, F32 priority, const char *data, SimObject *from)
 {
-   if (action == NULL)
+   if (action == NULL || mLocked)
       return false;
 
    ActionMap::iterator res = mResources.find(action->resource);
    if (res == mResources.end())
       return false;
+
+   mLocked = true;
 
    ActionInstance instance(action, priority, data, from);
 
@@ -125,6 +128,8 @@ bool BehaviorManager::startAction(AIAction *action, F32 priority, const char *da
       queue[0].action->start(NULL, data, false);
    }
 
+   mLocked = false;
+
    return true;
 }
 
@@ -136,6 +141,11 @@ DefineEngineMethod(BehaviorManager, startAction, bool, (AIAction *action, F32 pr
 
 void BehaviorManager::stopAction(AIAction *action, const char *data)
 {
+   if (!action || mLocked)
+      return;
+
+   mLocked = true;
+
    for (ActionMap::iterator res = mResources.begin(); res != mResources.end(); res++)
    {
       ActionQueue &queue = res->second;
@@ -148,6 +158,8 @@ void BehaviorManager::stopAction(AIAction *action, const char *data)
          }
       }
    }
+
+   mLocked = false;
 }
 
 DefineEngineMethod(BehaviorManager, stopAction, void, (AIAction *action, const char *data), (NULL),
