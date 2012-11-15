@@ -97,6 +97,7 @@ bool BehaviorManager::startAction(AIAction *action, F32 priority, const char *da
          }
          else
          {
+            mLocked = false;
             return false;
          }
       }
