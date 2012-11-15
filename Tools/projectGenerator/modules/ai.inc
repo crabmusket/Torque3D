@@ -23,7 +23,7 @@
 
 beginModule( 'ai' );
 
-	addEngineSrcDir( 'T3D/ai' );
+	addEngineSrcDir( 'ai' );
 
 endModule();
 
