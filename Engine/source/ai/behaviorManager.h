@@ -53,6 +53,8 @@ public:
 
    static void initPersistFields();
 
+   DECLARE_CONOBJECT(BehaviorManager);
+
 protected:
 private:
    struct ActionInstance {

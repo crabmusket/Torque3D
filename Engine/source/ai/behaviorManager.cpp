@@ -21,8 +21,11 @@
 //-----------------------------------------------------------------------------
 
 #include "behaviorManager.h"
+#include "console/engineAPI.h"
 
 #include <algorithm>
+
+IMPLEMENT_CONOBJECT(BehaviorManager);
 
 BehaviorManager::BehaviorManager()
 {
@@ -123,6 +126,12 @@ bool BehaviorManager::startAction(AIAction *action, F32 priority, const char *da
    }
 
    return true;
+}
+
+DefineEngineMethod(BehaviorManager, startAction, bool, (AIAction *action, F32 priority, const char *data, SimObject *from), (NULL, NULL),
+   "Start running an action with a given priority and data payload.")
+{
+   return object->startAction(action, priority, data, from);
 }
 
 void BehaviorManager::stopAction(AIAction *action, const char *data)
