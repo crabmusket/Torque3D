@@ -136,6 +136,24 @@ DefineEngineMethod(BehaviorManager, startAction, bool, (AIAction *action, F32 pr
 
 void BehaviorManager::stopAction(AIAction *action, const char *data)
 {
+   for (ActionMap::iterator res = mResources.begin(); res != mResources.end(); res++)
+   {
+      ActionQueue &queue = res->second;
+      for (ActionQueue::iterator ac = queue.begin(); ac != queue.end(); ac++)
+      {
+         if (ac->action == action && (data == NULL || ac->data == data))
+         {
+            ac->action->end(NULL, ac->data, AIAction::Stopped);
+            ac = queue.erase(ac);
+         }
+      }
+   }
+}
+
+DefineEngineMethod(BehaviorManager, stopAction, void, (AIAction *action, const char *data), (NULL),
+   "Stop all instances of a given action, optionally with a specific data payload.")
+{
+   object->stopAction(action, data);
 }
 
 void BehaviorManager::stopActionsFrom(SimObject *from)
