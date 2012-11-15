@@ -63,10 +63,15 @@ public:
    /// Is this action happy to wait in the queue?
    bool allowWait;
 
+   /// Does this action respond to special events?
+   bool receiveEvents;
+
    /// Called when this action is begun, either for the first time or after being put on hold.
    virtual Status start(SimObject *obj, const char *data, bool resume);
    /// Called each 'tick'.
    virtual Status update(SimObject *obj, const char *data, F32 time);
+   /// Called when an event happens in the BehaviorManager. Should not be called if receiveEvents is false.
+   virtual Status event(SimObject *obj, const char *data, const char *event);
    /// Called when the action is put on hold or ended.
    virtual void end(SimObject *obj, const char *data, AIAction::Status status);
 
@@ -74,6 +79,7 @@ public:
 
    DECLARE_CALLBACK(StringTableEntry, onStart, (SimObjectId obj, const char *data, bool resume));
    DECLARE_CALLBACK(StringTableEntry, onUpdate, (SimObjectId obj, const char *data, F32 time));
+   DECLARE_CALLBACK(StringTableEntry, onEvent, (SimObjectId obj, const char *data, const char *event));
    DECLARE_CALLBACK(void, onEnd, (SimObjectId obj, const char *data, const char *status));
 
    /// @name Inherited
