@@ -151,13 +151,16 @@ void BehaviorManager::stopAction(AIAction *action, const char *data)
    for (ActionMap::iterator res = mResources.begin(); res != mResources.end(); res++)
    {
       ActionQueue &queue = res->second;
-      for (ActionQueue::iterator ac = queue.begin(); ac != queue.end(); ac++)
+      ActionQueue::iterator ac = queue.begin();
+      while (ac != queue.end())
       {
          if (ac->action == action && (data == NULL || ac->data == data))
          {
             ac->action->end(NULL, ac->data, AIAction::Stopped);
             ac = queue.erase(ac);
          }
+         else
+            ac++;
       }
    }
 
@@ -180,13 +183,16 @@ void BehaviorManager::stopActionsFrom(SimObject *from)
    for (ActionMap::iterator res = mResources.begin(); res != mResources.end(); res++)
    {
       ActionQueue &queue = res->second;
-      for (ActionQueue::iterator ac = queue.begin(); ac != queue.end(); ac++)
+      ActionQueue::iterator ac = queue.begin();
+      while (ac != queue.end())
       {
          if (ac->from == from)
          {
             ac->action->end(NULL, ac->data, AIAction::Stopped);
             ac = queue.erase(ac);
          }
+         else
+            ac++;
       }
    }
 
