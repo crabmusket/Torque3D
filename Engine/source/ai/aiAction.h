@@ -60,6 +60,9 @@ public:
    /// Character 'resource' that we make use of.
    StringTableEntry resource;
 
+   /// Is this action happy to wait in the queue?
+   bool allowWait;
+
    /// Called when this action is begun, either for the first time or after being put on hold.
    virtual Status start(SimObject *obj, const char *data, bool resume);
    /// Called each 'tick'.

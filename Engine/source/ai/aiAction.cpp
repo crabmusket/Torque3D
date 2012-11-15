@@ -40,6 +40,7 @@ IMPLEMENT_CONOBJECT(AIAction);
 AIAction::AIAction()
 {
    resource = NULL;
+   allowWait = true;
 }
 
 AIAction::~AIAction()
@@ -52,6 +53,9 @@ void AIAction::initPersistFields()
 
    addField("resource", TypeString, Offset(resource, AIAction),
       "The resource that this action occupies while being executed.");
+
+   addField("allowWait", TypeBool, Offset(allowWait, AIAction),
+      "Will this action wait in the queue?");
 
    endGroup("Action parameters");
 

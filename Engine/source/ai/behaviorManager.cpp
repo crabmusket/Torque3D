@@ -83,16 +83,34 @@ bool BehaviorManager::startAction(AIAction *action, F32 priority, const char *da
       // Check whether this action displaces the currently-running action.
       if (priority < queue[0].priority)
       {
-         // It doesn't, so stick it somewhere in the queue.
-         queue.push_back(instance);
-         std::stable_sort(queue.begin(), queue.end());
+         // It doesn't, so stick it somewhere in the queue if it can wait.
+         if (action->allowWait)
+         {
+            queue.push_back(instance);
+            std::stable_sort(queue.begin(), queue.end());
+         }
+         else
+         {
+            return false;
+         }
       }
       else
       {
-         // Make the currently-working instance wait, because it's going to be replaced.
-         queue[0].action->end(NULL, queue[0].data, AIAction::Waiting);
-         // Add the new instance.
-         queue.insert(queue.begin(), instance);
+         // Is the current action happy to wait in the queue?
+         if (queue[0].action->allowWait)
+         {
+            // Make the currently-working instance wait, because it's going to be replaced.
+            queue[0].action->end(NULL, queue[0].data, AIAction::Waiting);
+            // Add the new instance.
+            queue.insert(queue.begin(), instance);
+         }
+         else
+         {
+            // Not happy to be replaced, so just end it.
+            queue[0].action->end(NULL, queue[0].data, AIAction::Stopped);
+            // And replace it with the new action.
+            queue[0] = instance;
+         }
          // Start up the incoming action.
          queue[0].action->start(NULL, data, false);
       }
