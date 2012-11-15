@@ -40,6 +40,8 @@ public:
    void stopAction(AIAction *action, const char *data = NULL);
    void stopActionsFrom(SimObject *from);
 
+   void event(const char *name);
+
    enum Constants {
       MaxResources = 8,
    };
@@ -58,6 +60,7 @@ public:
 protected:
 private:
    struct ActionInstance {
+      bool waiting;
       SimObjectPtr<SimObject> from;
       StringTableEntry data;
       AIAction *action;
@@ -68,6 +71,7 @@ private:
          data = d;
          action = ac;
          priority = p;
+         waiting = false;
       }
       bool operator<(const ActionInstance &rhs) const
       { return priority < rhs.priority; }

@@ -107,6 +107,7 @@ bool BehaviorManager::startAction(AIAction *action, F32 priority, const char *da
          {
             // Make the currently-working instance wait, because it's going to be replaced.
             queue[0].action->end(NULL, queue[0].data, AIAction::Waiting);
+            queue[0].waiting = true;
             // Add the new instance.
             queue.insert(queue.begin(), instance);
          }
@@ -195,4 +196,46 @@ DefineEngineMethod(BehaviorManager, stopActionsFrom, void, (SimObject *from),,
    "Stop all action instances from a specific origin.")
 {
    object->stopActionsFrom(from);
+}
+
+void BehaviorManager::event(const char *name)
+{
+   if (!name || mLocked)
+      return;
+
+   mLocked = true;
+
+   for (ActionMap::iterator res = mResources.begin(); res != mResources.end(); res++)
+   {
+      ActionQueue &queue = res->second;
+      if (!queue.size())
+         continue;
+
+      ActionQueue::iterator ac = queue.begin();
+      if (ac->action->receiveEvents)
+      {
+         // Notify the action of the event.
+         AIAction::Status s = ac->action->event(NULL, ac->data, name);
+         if (s != AIAction::Working)
+         {
+            // Action has ended because of the event.
+            ac->action->end(NULL, ac->data, s);
+            ac = queue.erase(ac);
+            // Give the next action in the queue a chance to run, if there is one.
+            if (ac != queue.end())
+            {
+               ac->action->start(NULL, ac->data, ac->waiting);
+               ac->waiting = false;
+            }
+         }
+      }
+   }
+
+   mLocked = false;
+}
+
+DefineEngineMethod(BehaviorManager, event, void, (const char *name),,
+   "Notify all running actions of an event.")
+{
+   object->event(name);
 }
