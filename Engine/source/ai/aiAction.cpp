@@ -58,6 +58,9 @@ void AIAction::initPersistFields()
    addField("allowWait", TypeBool, Offset(allowWait, AIAction),
       "Will this action wait in the queue?");
 
+   addField("receiveEvents", TypeBool, Offset(receiveEvents, AIAction),
+      "Will this action respond to events?");
+
    endGroup("Action parameters");
 
    Parent::initPersistFields();
