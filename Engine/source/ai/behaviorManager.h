@@ -39,6 +39,7 @@ public:
    bool startAction(AIAction *action, F32 priority, const char *data = NULL, SimObject *from = NULL);
    void stopAction(AIAction *action, const char *data = NULL);
    void stopActionsFrom(SimObject *from);
+   void stopAll();
 
    void event(const char *name);
 

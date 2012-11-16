@@ -54,6 +54,8 @@ bool BehaviorManager::onAdd()
 
 void BehaviorManager::onRemove()
 {
+   stopAll();
+
    Parent::onRemove();
 }
 
@@ -203,6 +205,39 @@ DefineEngineMethod(BehaviorManager, stopActionsFrom, void, (SimObject *from),,
    "Stop all action instances from a specific origin.")
 {
    object->stopActionsFrom(from);
+}
+
+void BehaviorManager::stopAll()
+{
+   if (mLocked)
+      return;
+
+   mLocked = true;
+
+   bool remainder;
+   do
+   {
+      remainder = false;
+      for (ActionMap::iterator res = mResources.begin(); res != mResources.end(); res++)
+      {
+         ActionQueue &queue = res->second;
+         ActionQueue::iterator ac = queue.begin();
+         if (ac != queue.end())
+         {
+            ac->action->end(NULL, ac->data, AIAction::Stopped);
+            ac = queue.erase(ac);
+         }
+         remainder |= queue.size() > 0;
+      }
+   } while (remainder);
+
+   mLocked = false;
+}
+
+DefineEngineMethod(BehaviorManager, stopAll, void, (),,
+   "Stop all running and queued actions.")
+{
+   object->stopAll();
 }
 
 void BehaviorManager::event(const char *name)
