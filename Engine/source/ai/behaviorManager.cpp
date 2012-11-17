@@ -99,6 +99,7 @@ bool BehaviorManager::startAction(AIAction *action, F32 priority, const char *da
          }
          else
          {
+            // Couldn't wait, so just fail.
             mLocked = false;
             return false;
          }
@@ -151,6 +152,7 @@ void BehaviorManager::stopAction(AIAction *action, const char *data)
 
    for (ActionMap::iterator res = mResources.begin(); res != mResources.end(); res++)
    {
+      // Search all actions in the queue for the right one.
       ActionQueue &queue = res->second;
       ActionQueue::iterator ac = queue.begin();
       while (ac != queue.end())
@@ -183,6 +185,7 @@ void BehaviorManager::stopActionsFrom(SimObject *from)
 
    for (ActionMap::iterator res = mResources.begin(); res != mResources.end(); res++)
    {
+      // Check all actions in the resource queue.
       ActionQueue &queue = res->second;
       ActionQueue::iterator ac = queue.begin();
       while (ac != queue.end())
@@ -214,11 +217,13 @@ void BehaviorManager::stopAll()
    mLocked = true;
 
    bool remainder;
+   // Destroy the currently-active actions first, then the next ones, etc.
    do
    {
       remainder = false;
       for (ActionMap::iterator res = mResources.begin(); res != mResources.end(); res++)
       {
+         // Destroy the first action in the resource queue.
          ActionQueue &queue = res->second;
          ActionQueue::iterator ac = queue.begin();
          if (ac != queue.end())
@@ -226,7 +231,9 @@ void BehaviorManager::stopAll()
             _endAction(*ac, AIAction::Stopped);
             ac = queue.erase(ac);
          }
+         // Need to keep iterating if there are still actions in the queue.
          remainder |= queue.size() > 0;
+         // No actions are started in this process.
       }
    } while (remainder);
 
@@ -246,6 +253,7 @@ void BehaviorManager::event(const char *name)
 
    mLocked = true;
 
+   // Iterate over every currently-running action and hand them all the event.
    for (ActionMap::iterator res = mResources.begin(); res != mResources.end(); res++)
    {
       ActionQueue &queue = res->second;
@@ -283,12 +291,15 @@ DefineEngineMethod(BehaviorManager, event, void, (const char *name),,
 
 void BehaviorManager::_endAction(ActionInstance &ac, AIAction::Status s)
 {
+   // Call the action's end function to let it do what it needs to.
    ac.action->end(NULL, ac.data, s);
+   // If it's just a temporary end, flag that.
    if (s == AIAction::Waiting)
       ac.waiting = true;
 }
 
 void BehaviorManager::_startAction(ActionInstance &ac)
 {
+   // Call the action's start function.
    ac.action->start(NULL, ac.data, ac.waiting);
 }
