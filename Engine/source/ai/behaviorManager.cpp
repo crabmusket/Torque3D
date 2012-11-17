@@ -157,7 +157,7 @@ void BehaviorManager::stopAction(AIAction *action, const char *data)
       ActionQueue::iterator ac = queue.begin();
       while (ac != queue.end())
       {
-         if (ac->action == action && (data == NULL || ac->data == data))
+         if (ac->action == action && (data == NULL || !dStrcmp(ac->data, data)))
          {
             _endAction(*ac, AIAction::Stopped);
             ac = queue.erase(ac);
