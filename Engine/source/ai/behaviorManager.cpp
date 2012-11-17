@@ -32,6 +32,7 @@ BehaviorManager::BehaviorManager()
    mLocked = false;
    for (U32 i = 0; i < MaxResources; i++)
       mResourceNames[i] = NULL;
+   mObject = NULL;
 }
 
 BehaviorManager::~BehaviorManager()
@@ -59,14 +60,40 @@ void BehaviorManager::onRemove()
    Parent::onRemove();
 }
 
+bool BehaviorManager::_setObject(void *object, const char *index, const char *data)
+{
+   BehaviorManager *b = static_cast<BehaviorManager*>(object);
+   S32 id = dAtoi(data);
+   if(id > 0)
+   {
+      if(SimObject *obj = Sim::findObject(id))
+         b->mObject = obj;
+   }
+   else
+   {
+      if(SimObject *obj = Sim::findObject(data))
+         b->mObject = obj;
+   }
+   return false;
+}
+
+const char *BehaviorManager::_getObject(void *object, const char *data)
+{
+   BehaviorManager *b = static_cast<BehaviorManager*>(object);
+   return b->mObject.isNull() ? "" : b->mObject->getIdString();
+}
+
 void BehaviorManager::initPersistFields()
 {
-   addGroup("Actions");
+   addGroup("BehaviorManager");
 
    addField("resources", TypeString, Offset(mResourceNames, BehaviorManager), MaxResources,
       "The names of the resources available to this BehaviorManager.");
 
-   endGroup("Actions");
+   addProtectedField("object", TypeString, NULL, &_setObject, &_getObject,
+      "Object this manager is controlling.");
+
+   endGroup("BehaviorManager");
 
    Parent::initPersistFields();
 }
@@ -292,7 +319,7 @@ DefineEngineMethod(BehaviorManager, event, void, (const char *name),,
 void BehaviorManager::_stopAction(ActionInstance &ac, AIAction::Status s)
 {
    // Call the action's end function to let it do what it needs to.
-   ac.action->end(NULL, ac.data, s);
+   ac.action->end(mObject.getPointer(), ac.data, s);
    // If it's just a temporary end, flag that.
    if (s == AIAction::Waiting)
       ac.waiting = true;
@@ -301,5 +328,5 @@ void BehaviorManager::_stopAction(ActionInstance &ac, AIAction::Status s)
 void BehaviorManager::_startAction(ActionInstance &ac)
 {
    // Call the action's start function.
-   ac.action->start(NULL, ac.data, ac.waiting);
+   ac.action->start(mObject.getPointer(), ac.data, ac.waiting);
 }

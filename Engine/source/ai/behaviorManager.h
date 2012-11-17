@@ -88,6 +88,11 @@ private:
 
    void _stopAction(ActionInstance &ac, AIAction::Status s);
    void _startAction(ActionInstance &ac);
+
+   /// Object we are associated with.
+   SimObjectPtr<SimObject> mObject;
+   static bool _setObject(void *object, const char *index, const char *data);
+   static const char *_getObject(void *object, const char *data);
 };
 
 #endif // _BEHAVIORMANAGER_H_
