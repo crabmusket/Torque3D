@@ -110,14 +110,14 @@ bool BehaviorManager::startAction(AIAction *action, F32 priority, const char *da
          if (queue[0].action->allowWait)
          {
             // Make the currently-working instance wait, because it's going to be replaced.
-            _endAction(*queue.begin(), AIAction::Waiting);
+            _stopAction(*queue.begin(), AIAction::Waiting);
             // Add the new instance.
             queue.insert(queue.begin(), instance);
          }
          else
          {
             // Not happy to be replaced, so just end it.
-            _endAction(*queue.begin(), AIAction::Stopped);
+            _stopAction(*queue.begin(), AIAction::Stopped);
             // And replace it with the new action.
             *queue.begin() = instance;
          }
@@ -159,7 +159,7 @@ void BehaviorManager::stopAction(AIAction *action, const char *data)
       {
          if (ac->action == action && (data == NULL || !dStrcmp(ac->data, data)))
          {
-            _endAction(*ac, AIAction::Stopped);
+            _stopAction(*ac, AIAction::Stopped);
             ac = queue.erase(ac);
          }
          else
@@ -192,7 +192,7 @@ void BehaviorManager::stopActionsFrom(SimObject *from)
       {
          if (ac->from == from)
          {
-            _endAction(*ac, AIAction::Stopped);
+            _stopAction(*ac, AIAction::Stopped);
             ac = queue.erase(ac);
          }
          else
@@ -228,7 +228,7 @@ void BehaviorManager::stopAll()
          ActionQueue::iterator ac = queue.begin();
          if (ac != queue.end())
          {
-            _endAction(*ac, AIAction::Stopped);
+            _stopAction(*ac, AIAction::Stopped);
             ac = queue.erase(ac);
          }
          // Need to keep iterating if there are still actions in the queue.
@@ -268,7 +268,7 @@ void BehaviorManager::event(const char *name)
          if (s != AIAction::Working)
          {
             // Action has ended because of the event.
-            _endAction(*ac, s);
+            _stopAction(*ac, s);
             ac = queue.erase(ac);
             // Give the next action in the queue a chance to run, if there is one.
             if (ac != queue.end())
@@ -289,7 +289,7 @@ DefineEngineMethod(BehaviorManager, event, void, (const char *name),,
    object->event(name);
 }
 
-void BehaviorManager::_endAction(ActionInstance &ac, AIAction::Status s)
+void BehaviorManager::_stopAction(ActionInstance &ac, AIAction::Status s)
 {
    // Call the action's end function to let it do what it needs to.
    ac.action->end(NULL, ac.data, s);

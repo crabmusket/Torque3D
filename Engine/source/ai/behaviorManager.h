@@ -86,7 +86,7 @@ private:
    /// Stops actions being added while updates are going on.
    bool mLocked;
 
-   void _endAction(ActionInstance &ac, AIAction::Status s);
+   void _stopAction(ActionInstance &ac, AIAction::Status s);
    void _startAction(ActionInstance &ac);
 };
 
