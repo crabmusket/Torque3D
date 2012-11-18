@@ -316,6 +316,40 @@ DefineEngineMethod(BehaviorManager, event, void, (const char *name),,
    object->event(name);
 }
 
+void BehaviorManager::dump()
+{
+   if (mLocked)
+      Con::printf("BehaviorManager is locked. Sorry!");
+
+   Con::printf("Resources:");
+
+   for (ActionMap::iterator res = mResources.begin(); res != mResources.end(); res++)
+   {
+      ActionQueue &queue = res->second;
+      StringTableEntry resName = res->first;
+      U32 s = queue.size();
+      if (!s)
+      {
+         Con::printf("   %s: no actions", resName);
+         continue;
+      }
+
+      ActionQueue::iterator ac = queue.begin();
+      if (s > 1)
+         Con::printf("   %s: %s (%f, %s) and %d more.",
+            resName, ac->action->getName(), ac->priority, ac->data, s);
+      else
+         Con::printf("   %s: %s (%f, %s).",
+         resName, ac->action->getName(), ac->priority, ac->data);
+   }
+}
+
+DefineEngineMethod(BehaviorManager, dump, void, (),,
+   "Print out the state of this manager's actions.")
+{
+   object->dump();
+}
+
 void BehaviorManager::_stopAction(ActionInstance &ac, AIAction::Status s)
 {
    // Call the action's end function to let it do what it needs to.

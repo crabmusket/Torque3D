@@ -43,6 +43,8 @@ public:
 
    void event(const char *name);
 
+   void dump();
+
    enum Constants {
       MaxResources = 8,
    };
