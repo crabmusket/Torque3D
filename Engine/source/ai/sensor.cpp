@@ -298,14 +298,7 @@ void Sensor::potentialEnterObject(GameBase *obj)
       return;
    if(!(obj->getTypeMask() & mDataBlock->typemask))
       return;
-   F32 vis = checkVisibility(obj);
-   if(vis > 0.1f && std::find(mContacts.begin(), mContacts.end(), obj) == mContacts.end())
-   {
-      mContacts.push_back(Contact());
-      mContacts.back().object = obj;
-      mContacts.back().visibility = vis;
-      throwCallback("onNewContact", obj, vis);
-   }
+   mPotentialContacts.push_back(obj);
 }
 
 const Point3F& Sensor::getObjectPosition()
@@ -354,6 +347,24 @@ void Sensor::processTick(const Move* move)
       }
       PROFILE_END();
    }
+
+   // potentialEnterObject pushes objects onto the potential contact list. Check that
+   // list now to see if we can make any real contacts out of it.
+   for(PotentialContactList::iterator c = mPotentialContacts.begin(); c != mPotentialContacts.end(); c++)
+   {
+      if(c->isNull())
+         continue;
+      GameBase *obj = c->getPointer();
+      F32 vis = checkVisibility(obj);
+      if(vis > 0.1f && std::find(mContacts.begin(), mContacts.end(), obj) == mContacts.end())
+      {
+         mContacts.push_back(Contact());
+         mContacts.back().object = obj;
+         mContacts.back().visibility = vis;
+         throwCallback("onNewContact", obj, vis);
+      }
+   }
+   mPotentialContacts.clear();
 
    // Update contacts.
    for(ContactList::iterator c = mContacts.begin(); c != mContacts.end(); c++)

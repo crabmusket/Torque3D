@@ -89,12 +89,8 @@ public:
 
    void potentialEnterObject(GameBase *);
 
-   /// @name Contacts
-   /// Mostly used for script interface.
-   /// @{
    /// Returns the current number of contacts
    U32 getContactCount();
-   /// @}
 
    const Point3F& getObjectPosition();
    const MatrixF& getObjectTransform();
@@ -171,6 +167,8 @@ private:
    };
    typedef std::vector<Contact> ContactList;
    ContactList mContacts;
+   typedef std::vector<SimObjectPtr<GameBase> > PotentialContactList;
+   PotentialContactList mPotentialContacts;
 
    void throwCallback(const char* callback, SceneObject* contact, F32 visibility);
 
