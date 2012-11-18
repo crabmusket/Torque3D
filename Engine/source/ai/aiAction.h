@@ -77,7 +77,7 @@ public:
 
    /// @}
 
-   DECLARE_CALLBACK(StringTableEntry, onStart, (SimObjectId obj, const char *data, bool resume));
+   DECLARE_CALLBACK(void, onStart, (SimObjectId obj, const char *data, bool resume));
    DECLARE_CALLBACK(StringTableEntry, onUpdate, (SimObjectId obj, const char *data, F32 time));
    DECLARE_CALLBACK(StringTableEntry, onEvent, (SimObjectId obj, const char *data, const char *event));
    DECLARE_CALLBACK(void, onEnd, (SimObjectId obj, const char *data, const char *status));
