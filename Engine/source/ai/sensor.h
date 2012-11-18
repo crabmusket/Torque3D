@@ -88,11 +88,12 @@ public:
    void setDebugRendering(bool render) { mDebugRender = render; }
 
    void potentialEnterObject(GameBase *);
+   void potentialExitObject(GameBase *);
 
    /// Returns the current number of contacts
    U32 getContactCount();
 
-   const Point3F& getObjectPosition();
+   Point3F getObjectPosition();
    const MatrixF& getObjectTransform();
 
    Sensor();

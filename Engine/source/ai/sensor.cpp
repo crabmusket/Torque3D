@@ -34,6 +34,8 @@
 #include "math/mTransform.h"
 #include "gfx/gfxDrawUtil.h"
 
+#include <algorithm>
+
 extern bool gEditingMission;
 
 SensorRule::Factory SensorRule::gSensorRuleMap;
@@ -303,7 +305,32 @@ void Sensor::potentialEnterObject(GameBase *obj)
    mPotentialContacts.push_back(obj);
 }
 
-const Point3F& Sensor::getObjectPosition()
+DefineEngineMethod(Sensor, potentialEnterObject, void, (GameBase *obj),,
+   "Manually add a potential contact to this Sensor.")
+{
+   object->potentialEnterObject(obj);
+}
+
+void Sensor::potentialExitObject(GameBase *obj)
+{
+   // Iterate over all potential contacts and remove ones that match.
+   PotentialContactList::iterator c = mPotentialContacts.begin();
+   while(c != mPotentialContacts.end())
+   {
+      if(c->getPointer() == obj)
+         c = mPotentialContacts.erase(c);
+      else
+         c++;
+   }
+}
+
+DefineEngineMethod(Sensor, potentialExitObject, void, (GameBase *obj),,
+   "Manually remove a potential contact from this Sensor.")
+{
+   object->potentialExitObject(obj);
+}
+
+Point3F Sensor::getObjectPosition()
 {
    return mObject.isNull()
       ? getPosition()
@@ -352,10 +379,14 @@ void Sensor::processTick(const Move* move)
 
    // potentialEnterObject pushes objects onto the potential contact list. Check that
    // list now to see if we can make any real contacts out of it.
-   for(PotentialContactList::iterator c = mPotentialContacts.begin(); c != mPotentialContacts.end(); c++)
+   PotentialContactList::iterator c = mPotentialContacts.begin();
+   while(c != mPotentialContacts.end())
    {
       if(c->isNull())
+      {
+         c++; // See what I did there?
          continue;
+      }
       GameBase *obj = c->getPointer();
       F32 vis = checkVisibility(obj);
       if(vis > 0.1f && std::find(mContacts.begin(), mContacts.end(), obj) == mContacts.end())
@@ -364,9 +395,11 @@ void Sensor::processTick(const Move* move)
          mContacts.back().object = obj;
          mContacts.back().visibility = vis;
          throwCallback("onNewContact", obj, vis);
+         c = mPotentialContacts.erase(c);
       }
+      else
+         c++;
    }
-   mPotentialContacts.clear();
 
    // Update contacts.
    for(ContactList::iterator c = mContacts.begin(); c != mContacts.end(); c++)
