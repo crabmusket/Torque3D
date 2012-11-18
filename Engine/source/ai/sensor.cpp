@@ -139,14 +139,17 @@ bool SensorData::preload(bool server, String &errorStr)
 
 F32 SensorData::test(SceneObject *obj, const MatrixF &trans, SceneObject *other, const MatrixF &otrans)
 {
+   // Probably a redundant test unless this is called from the console.
    if(other && !(other->getTypeMask() & typemask))
       return 0.0f;
    F32 total = 1.0f;
+   // Give each rule a chance to score the object.
    for(U32 i = 0; i < MaxRules; i++)
    {
       if(rules[i])
       {
          F32 vis = rules[i]->check(obj, trans, other, otrans);
+         // Scale the visibility modifier between range.x and range.y.
          vis = ranges[i].x + vis * (ranges[i].y - ranges[i].x);
          total *= vis;
          if(total == 0.0f)
@@ -156,12 +159,9 @@ F32 SensorData::test(SceneObject *obj, const MatrixF &trans, SceneObject *other,
    return total;
 }
 
-DefineEngineMethod(SensorData, test, F32, (SimObjectId objid, TransformF trans, SimObjectId othid, TransformF otrans),,
+DefineEngineMethod(SensorData, test, F32, (SceneObject *obj, TransformF trans, SceneObject *other, TransformF otrans),,
    "Test the visibility of a given object from a particular transform")
 {
-   SceneObject *obj, *other;
-   Sim::findObject(objid, obj);
-   Sim::findObject(othid, other);
    return object->test(obj, trans.getMatrix(), other, otrans.getMatrix());
 }
 
@@ -276,6 +276,7 @@ bool Sensor::onNewDataBlock(GameBaseData* dptr, bool reload)
    if(!mDataBlock || !Parent::onNewDataBlock(dptr, reload))
       return false;
 
+   // Rebuild Trigger polyhedron as a cube of given radius.
    Polyhedron p;
    p.buildBox(MatrixF(true), Box3F(mDataBlock->engagementRange * 2));
    setTriggerPolyhedron(p);
@@ -298,6 +299,7 @@ void Sensor::potentialEnterObject(GameBase *obj)
       return;
    if(!(obj->getTypeMask() & mDataBlock->typemask))
       return;
+   // The object will be tested in detail in processTick.
    mPotentialContacts.push_back(obj);
 }
 
@@ -369,18 +371,20 @@ void Sensor::processTick(const Move* move)
    // Update contacts.
    for(ContactList::iterator c = mContacts.begin(); c != mContacts.end(); c++)
    {
-      F32 oldvis = c->visibility;
-      F32 newvis = checkVisibility(c->object);
-      c->visibility = newvis;
+      // timeSinceUpdate is not currently used.
       c->timeSinceUpdate = 0;
+      F32 oldvis = c->visibility;
+      F32 newvis = c->visibility = checkVisibility(c->object);
       if(newvis > 0.0f)
       {
+         // Refresh contact information.
          c->lastLocation = c->object->getPosition();
          c->lastVelocity = c->object->getVelocity();
          c->timeSinceSeen = 0;
       }
       else
          c->timeSinceSeen++;
+      // Perform callbacks as appropriate.
       if(newvis == 0.0f && oldvis != 0.0f)
          throwCallback("onContactLost", c->object, newvis);
       else if(newvis != 0.0f && oldvis == 0.0f)
@@ -420,11 +424,13 @@ void Sensor::throwCallback(const char* callback, SceneObject* contact, F32 visib
    SimObject *obj = NULL;
    if(mCallbackObject.isNull())
    {
+      // Perform a standard callback on our datablock.
       call = mDataBlock;
       obj = this;
    }
    else
    {
+      // Treat the callback object as a datablock and object as its instance.
       call = mCallbackObject;
       obj = mObject;
    }
