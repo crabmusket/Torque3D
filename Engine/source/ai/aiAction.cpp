@@ -99,9 +99,10 @@ AIAction::Status AIAction::update(SimObject *obj, const char *data, F32 time)
    return s;
 }
 
-AIAction::Status AIAction::event(SimObject *obj, const char *data, const char *event)
+AIAction::Status AIAction::event(SimObject *obj, const char *data, const char *event, const char *evtData)
 {
-   StringTableEntry result = onEvent_callback(obj? obj->getId(): 0, data ? data : "", event);
+   StringTableEntry result = onEvent_callback(obj? obj->getId(): 0, data ? data : "",
+                                              event ? event : "", evtData ? evtData : "");
    Status s = getStatus(result);
    if(s != Failed && s != Working && s != Complete)
    {
@@ -120,7 +121,7 @@ IMPLEMENT_CALLBACK(AIAction, onStart, void, (SimObjectId obj, const char *data, 
                    "Called when this action starts to execute within a BehaviorManager.");
 IMPLEMENT_CALLBACK(AIAction, onUpdate, StringTableEntry, (SimObjectId obj, const char *data, F32 time), (obj, data, time),
                    "Called every time this action is updated. Must return one of 'Completed', 'Failed', and 'Working'.");
-IMPLEMENT_CALLBACK(AIAction, onEvent, StringTableEntry, (SimObjectId obj, const char *data, const char *event), (obj, data, event),
+IMPLEMENT_CALLBACK(AIAction, onEvent, StringTableEntry, (SimObjectId obj, const char *data, const char *event, const char *evtData), (obj, data, event, evtData),
                    "Called when a special event occurs.");
 IMPLEMENT_CALLBACK(AIAction, onEnd, void, (SimObjectId obj, const char *data, const char *status), (obj, data, status),
                    "Called when this action is ended by the BehaviorManager.");

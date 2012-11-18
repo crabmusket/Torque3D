@@ -42,7 +42,7 @@ public:
    void stopActionsFrom(SimObject *from);
    void stopAll();
 
-   void event(const char *name);
+   void event(const char *name, const char *data);
 
    void dump();
 
