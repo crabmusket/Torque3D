@@ -275,7 +275,7 @@ DefineEngineMethod(BehaviorManager, stopAll, void, (),,
    object->stopAll();
 }
 
-void BehaviorManager::event(const char *name)
+void BehaviorManager::event(const char *name, const char *data)
 {
    if (!name || mLocked)
       return;
@@ -293,7 +293,7 @@ void BehaviorManager::event(const char *name)
       if (ac->action->receiveEvents)
       {
          // Notify the action of the event.
-         AIAction::Status s = ac->action->event(NULL, ac->data, name);
+         AIAction::Status s = ac->action->event(NULL, ac->data, name, data);
          if (s != AIAction::Working)
          {
             // Action has ended because of the event.
@@ -309,10 +309,10 @@ void BehaviorManager::event(const char *name)
    mLocked = false;
 }
 
-DefineEngineMethod(BehaviorManager, event, void, (const char *name),,
+DefineEngineMethod(BehaviorManager, event, void, (const char *name, const char *data), (""),
    "Notify all running actions of an event.")
 {
-   object->event(name);
+   object->event(name, data);
 }
 
 void BehaviorManager::dump()
