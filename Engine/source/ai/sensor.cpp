@@ -216,7 +216,7 @@ bool Sensor::_setCallbackObject(void *obj, const char *array, const char *data)
 {
    Sensor *s = static_cast<Sensor*>(obj);
    S32 id = dAtoi(data);
-   SceneObject *ob;
+   SimObject *ob;
    if(id > 0)
    {
       if(Sim::findObject(id, ob))
