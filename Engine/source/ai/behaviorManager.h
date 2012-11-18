@@ -34,6 +34,7 @@
 class BehaviorManager : public ScriptObject
 {
    typedef ScriptObject Parent;
+   friend class BehaviorUpdateEvent;
 
 public:
    bool startAction(AIAction *action, F32 priority, const char *data = NULL, SimObject *from = NULL);
@@ -63,18 +64,18 @@ public:
 protected:
 private:
    struct ActionInstance {
-      bool waiting;
       SimObjectPtr<SimObject> from;
       StringTableEntry data;
       AIAction *action;
       F32 priority;
+      AIAction::Status status;
       ActionInstance(AIAction *ac, F32 p, StringTableEntry d, SimObject *f)
       {
          from = f;
          data = d;
          action = ac;
          priority = p;
-         waiting = false;
+         status = AIAction::Working;
       }
       bool operator<(const ActionInstance &rhs) const
       { return priority < rhs.priority; }
@@ -90,6 +91,11 @@ private:
 
    void _stopAction(ActionInstance &ac, AIAction::Status s);
    void _startAction(ActionInstance &ac);
+
+   U32 mUpdateEvent;
+   void _postBehaviorUpdateEvent();
+   void _notifyBehaviors();
+   ActionQueue mStoppedActions;
 
    /// Object we are associated with.
    SimObjectPtr<SimObject> mObject;

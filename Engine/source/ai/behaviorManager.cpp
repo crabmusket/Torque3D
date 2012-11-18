@@ -22,6 +22,7 @@
 
 #include "behaviorManager.h"
 #include "console/engineAPI.h"
+#include "console/simEvents.h"
 
 #include <algorithm>
 
@@ -33,6 +34,7 @@ BehaviorManager::BehaviorManager()
    for (U32 i = 0; i < MaxResources; i++)
       mResourceNames[i] = NULL;
    mObject = NULL;
+   mUpdateEvent = -1;
 }
 
 BehaviorManager::~BehaviorManager()
@@ -299,10 +301,7 @@ void BehaviorManager::event(const char *name)
             ac = queue.erase(ac);
             // Give the next action in the queue a chance to run, if there is one.
             if (ac != queue.end())
-            {
                _startAction(*ac);
-               ac->waiting = false;
-            }
          }
       }
    }
@@ -354,13 +353,49 @@ void BehaviorManager::_stopAction(ActionInstance &ac, AIAction::Status s)
 {
    // Call the action's end function to let it do what it needs to.
    ac.action->end(mObject.getPointer(), ac.data, s);
-   // If it's just a temporary end, flag that.
-   if (s == AIAction::Waiting)
-      ac.waiting = true;
+   ac.status = s;
+   // If it's a permanent end, schedule a notification of its behavior.
+   if (s != AIAction::Waiting && !ac.from.isNull())
+   {
+      mStoppedActions.push_back(ac);
+      _postBehaviorUpdateEvent();
+   }
 }
 
 void BehaviorManager::_startAction(ActionInstance &ac)
 {
    // Call the action's start function.
-   ac.action->start(mObject.getPointer(), ac.data, ac.waiting);
+   ac.action->start(mObject.getPointer(), ac.data, ac.status == AIAction::Waiting);
+   ac.status = AIAction::Working;
+}
+
+class BehaviorUpdateEvent : public SimEvent {
+public:
+   BehaviorUpdateEvent(BehaviorManager *bm)
+      : mManager(bm) {}
+
+   virtual void process(SimObject *object)
+   {
+      // I think this is redundant, since events should be canceled when an object is deleted.
+      if (mManager.isNull())
+         return;
+      mManager->_notifyBehaviors();
+   }
+
+protected:
+   SimObjectPtr<BehaviorManager> mManager;
+};
+
+void BehaviorManager::_postBehaviorUpdateEvent()
+{
+   // Not sure if that first check is quite right. Better come back to it.
+   if (mUpdateEvent != -1 && Sim::isEventPending(mUpdateEvent))
+      return;
+   mUpdateEvent = Sim::postCurrentEvent(this, new BehaviorUpdateEvent(this));
+}
+
+void BehaviorManager::_notifyBehaviors()
+{
+   mUpdateEvent = -1;
+   mStoppedActions.clear();
 }
