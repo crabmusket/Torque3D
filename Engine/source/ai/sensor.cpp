@@ -385,8 +385,19 @@ void Sensor::processTick(const Move* move)
          throwCallback("onContactLost", c->object, newvis);
       else if(newvis != 0.0f && oldvis == 0.0f)
          throwCallback("onContactSighted", c->object, newvis);
-      else if(mFabs(newvis - oldvis) / (oldvis > 0.0f? oldvis : 0.01f) > 0.5f)
-         throwCallback("onContactVisibilityChanged", c->object, newvis);
+      else
+      {
+         // This will probably go away. I just needed a quick constant.
+         static const F32 visStep = 0.2f;
+         for (F32 v = visStep; v < 1.0f; v += visStep)
+         {
+            if((newvis > v && oldvis <= v) || (newvis <= v && oldvis > v))
+            {
+               throwCallback("onContactVisibilityChanged", c->object, newvis);
+               break;
+            }
+         }
+      }
    }
    setMaskBits(ContactUpdateMask);
 
