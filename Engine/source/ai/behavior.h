@@ -20,3 +20,29 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
+#ifndef _BEHAVIOR_H_
+#define _BEHAVIOR_H_
+
+#include "console/scriptObjects.h"
+#include "platform/types.h"
+
+#include "aiAction.h"
+
+class Behavior : public ScriptObject {
+   typedef ScriptObject Parent;
+
+public:
+   Behavior();
+   ~Behavior();
+
+   virtual void actionStopped(AIAction *action, const char *data, S32 index, AIAction::Status s);
+   DECLARE_CALLBACK(void, onActionStopped, (AIAction *action, const char *data, S32 index, const char* s));
+
+   DECLARE_CONOBJECT(Behavior);
+   static void initPersistFields();
+
+protected:
+private:
+};
+
+#endif // _BEHAVIOR_H_

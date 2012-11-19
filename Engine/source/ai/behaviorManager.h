@@ -27,6 +27,7 @@
 #include "platform/types.h"
 
 #include "aiAction.h"
+#include "behavior.h"
 
 #include <map>
 #include <vector>
@@ -37,9 +38,9 @@ class BehaviorManager : public ScriptObject
    friend class BehaviorUpdateEvent;
 
 public:
-   bool startAction(AIAction *action, F32 priority, const char *data = NULL, SimObject *from = NULL);
+   bool startAction(AIAction *action, F32 priority, const char *data = NULL, Behavior *from = NULL, S32 id = -1);
    void stopAction(AIAction *action, const char *data = NULL);
-   void stopActionsFrom(SimObject *from);
+   void stopActionsFrom(Behavior *from);
    void stopAll();
 
    void event(const char *name, const char *data);
@@ -64,14 +65,16 @@ public:
 protected:
 private:
    struct ActionInstance {
-      SimObjectPtr<SimObject> from;
+      SimObjectPtr<Behavior> from;
+      S32 index;
       StringTableEntry data;
       AIAction *action;
       F32 priority;
       AIAction::Status status;
-      ActionInstance(AIAction *ac, F32 p, StringTableEntry d, SimObject *f)
+      ActionInstance(AIAction *ac, F32 p, StringTableEntry d, Behavior *f, S32 id)
       {
          from = f;
+         index = id;
          data = d;
          action = ac;
          priority = p;

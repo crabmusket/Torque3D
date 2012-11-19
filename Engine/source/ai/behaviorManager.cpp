@@ -100,7 +100,7 @@ void BehaviorManager::initPersistFields()
    Parent::initPersistFields();
 }
 
-bool BehaviorManager::startAction(AIAction *action, F32 priority, const char *data, SimObject *from)
+bool BehaviorManager::startAction(AIAction *action, F32 priority, const char *data, Behavior *from, S32 id)
 {
    if (action == NULL || mLocked)
       return false;
@@ -111,7 +111,7 @@ bool BehaviorManager::startAction(AIAction *action, F32 priority, const char *da
 
    mLocked = true;
 
-   ActionInstance instance(action, priority, data, from);
+   ActionInstance instance(action, priority, data, from, id);
 
    ActionQueue &queue = res->second;
    U32 size = queue.size();
@@ -166,10 +166,10 @@ bool BehaviorManager::startAction(AIAction *action, F32 priority, const char *da
    return true;
 }
 
-DefineEngineMethod(BehaviorManager, startAction, bool, (AIAction *action, F32 priority, const char *data, SimObject *from), (NULL, NULL),
+DefineEngineMethod(BehaviorManager, startAction, bool, (AIAction *action, F32 priority, const char *data, Behavior *from, S32 id), (NULL, NULL, -1),
    "Start running an action with a given priority and data payload.")
 {
-   return object->startAction(action, priority, data, from);
+   return object->startAction(action, priority, data, from, id);
 }
 
 void BehaviorManager::stopAction(AIAction *action, const char *data)
@@ -205,7 +205,7 @@ DefineEngineMethod(BehaviorManager, stopAction, void, (AIAction *action, const c
    object->stopAction(action, data);
 }
 
-void BehaviorManager::stopActionsFrom(SimObject *from)
+void BehaviorManager::stopActionsFrom(Behavior *from)
 {
    if (!from || mLocked)
       return;
@@ -232,7 +232,7 @@ void BehaviorManager::stopActionsFrom(SimObject *from)
    mLocked = false;
 }
 
-DefineEngineMethod(BehaviorManager, stopActionsFrom, void, (SimObject *from),,
+DefineEngineMethod(BehaviorManager, stopActionsFrom, void, (Behavior *from),,
    "Stop all action instances from a specific origin.")
 {
    object->stopActionsFrom(from);
@@ -397,5 +397,11 @@ void BehaviorManager::_postBehaviorUpdateEvent()
 void BehaviorManager::_notifyBehaviors()
 {
    mUpdateEvent = -1;
-   mStoppedActions.clear();
+   ActionQueue::iterator ac = mStoppedActions.begin();
+   for (; ac != mStoppedActions.end(); ac++)
+   {
+      if (ac->from.isNull())
+         continue;
+      ac->from->actionStopped(ac->action, ac->data, ac->index, ac->status);
+   }
 }
