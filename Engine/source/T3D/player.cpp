@@ -2520,7 +2520,7 @@ void Player::updateMove(const Move* move)
 
    // Update current orientation
    if (mDamageState == Enabled) {
-      F32 prevZRot = mRot.z;
+      delta.rotVec = mRot;
       delta.headVec = mHead;
 
       F32 p = move->pitch * (mPose == SprintPose ? mDataBlock->sprintPitchScale : 1.0f);
@@ -2532,9 +2532,8 @@ void Player::updateMove(const Move* move)
       F32 y = move->yaw * (mPose == SprintPose ? mDataBlock->sprintYawScale : 1.0f);
       if (y > M_PI_F)
          y -= M_2PI_F;
-
-      GameConnection* con = getControllingClient();
-      if (move->freeLook && ((isMounted() && getMountNode() == 0) || (con && !con->isFirstPerson())))
+      
+      if (move->freeLook)
       {
          mHead.z = mClampF(mHead.z + y,
                            -mDataBlock->maxFreelookAngle,
@@ -2543,22 +2542,30 @@ void Player::updateMove(const Move* move)
       else
       {
          mRot.z += y;
+         mRot.x = mClampF(mRot.x + p,
+            mDataBlock->minLookAngle,
+            mDataBlock->maxLookAngle);
          // Rotate the head back to the front, center horizontal
          // as well if we're controlling another object.
          mHead.z *= 0.5f;
          if (mControlObject)
             mHead.x *= 0.5f;
+         else
+            mHead.x += (mRot.x - mHead.x) * 0.5f;
       }
-
-      // constrain the range of mRot.z
+      
+      // constrain the range of mRot
       while (mRot.z < 0.0f)
          mRot.z += M_2PI_F;
       while (mRot.z > M_2PI_F)
          mRot.z -= M_2PI_F;
+      while (mRot.x < -M_PI_F)
+         mRot.x += M_PI_F;
+      while (mRot.x > M_PI_F)
+         mRot.x -= M_PI_F;
 
       delta.rot = mRot;
-      delta.rotVec.x = delta.rotVec.y = 0.0f;
-      delta.rotVec.z = prevZRot - mRot.z;
+      delta.rotVec -= mRot;
       if (delta.rotVec.z > M_PI_F)
          delta.rotVec.z -= M_2PI_F;
       else if (delta.rotVec.z < -M_PI_F)
@@ -3321,32 +3328,34 @@ void Player::updateDamageState()
 void Player::updateLookAnimation(F32 dT)
 {
    // Calculate our interpolated head position.
+   Point3F renderRot = delta.rot + delta.rotVec * dT;
    Point3F renderHead = delta.head + delta.headVec * dT;
 
    // Adjust look pos.  This assumes that the animations match
    // the min and max look angles provided in the datablock.
-   if (mArmAnimation.thread) 
+   if (mArmAnimation.thread)
    {
       // TG: Adjust arm position to avoid collision.
+      F32 dt = mDataBlock->maxLookAngle - mDataBlock->minLookAngle;
       F32 tp = mControlObject? 0.5:
-         (renderHead.x - mArmRange.min) / mArmRange.delta;
+         (renderRot.x - mDataBlock->minLookAngle) / dt;
       mShapeInstance->setPos(mArmAnimation.thread,mClampF(tp,0,1));
    }
-   
-   if (mHeadVThread) 
+
+   if (mHeadVThread)
    {
-      F32 tp = (renderHead.x - mHeadVRange.min) / mHeadVRange.delta;
+      F32 dt = mDataBlock->maxLookAngle - mDataBlock->minLookAngle;
+      F32 tp = (renderHead.x - mDataBlock->minLookAngle) / dt;
       mShapeInstance->setPos(mHeadVThread,mClampF(tp,0,1));
    }
-   
-   if (mHeadHThread) 
+
+   if (mHeadHThread)
    {
       F32 dt = 2 * mDataBlock->maxFreelookAngle;
       F32 tp = (renderHead.z + mDataBlock->maxFreelookAngle) / dt;
       mShapeInstance->setPos(mHeadHThread,mClampF(tp,0,1));
    }
 }
-
 
 //----------------------------------------------------------------------------
 // Methods to get delta (as amount to affect velocity by)
@@ -5867,6 +5876,7 @@ void Player::writePacketData(GameConnection *connection, BitStream *stream)
    }
    stream->write(mHead.x);
    stream->write(mHead.z);
+   stream->write(mRot.x);
    stream->write(mRot.z);
 
    if (mControlObject) {
@@ -5929,8 +5939,9 @@ void Player::readPacketData(GameConnection *connection, BitStream *stream)
       pos = delta.pos;
    stream->read(&mHead.x);
    stream->read(&mHead.z);
+   stream->read(&rot.x);
    stream->read(&rot.z);
-   rot.x = rot.y = 0;
+   rot.y = 0;
    setPosition(pos,rot);
    delta.head = mHead;
    delta.rot = rot;
@@ -6004,6 +6015,7 @@ U32 Player::packUpdate(NetConnection *con, U32 mask, BitStream *stream)
          stream->writeInt((S32)len, 13);
       }
       stream->writeFloat(mRot.z / M_2PI_F, 7);
+      stream->writeSignedFloat(mRot.x / M_PI_F, 7);
       stream->writeSignedFloat(mHead.x / mDataBlock->maxLookAngle, 6);
       stream->writeSignedFloat(mHead.z / mDataBlock->maxFreelookAngle, 6);
       delta.move.pack(stream);
@@ -6102,6 +6114,7 @@ void Player::unpackUpdate(NetConnection *con, BitStream *stream)
       
       rot.y = rot.x = 0.0f;
       rot.z = stream->readFloat(7) * M_2PI_F;
+      rot.x = stream->readSignedFloat(7) * M_PI_F;
       mHead.x = stream->readSignedFloat(6) * mDataBlock->maxLookAngle;
       mHead.z = stream->readSignedFloat(6) * mDataBlock->maxFreelookAngle;
       delta.move.unpack(stream);
@@ -6154,14 +6167,14 @@ void Player::unpackUpdate(NetConnection *con, BitStream *stream)
             {
                F32 dti = 1.0f / delta.dt;
                delta.posVec = (cp - pos) * dti;
-               delta.rotVec.z = mRot.z - rot.z;
+               delta.rotVec = mRot - rot;
 
                if(delta.rotVec.z > M_PI_F)
                   delta.rotVec.z -= M_2PI_F;
                else if(delta.rotVec.z < -M_PI_F)
                   delta.rotVec.z += M_2PI_F;
 
-               delta.rotVec.z *= dti;
+               delta.rotVec *= dti;
             }
             delta.pos = pos;
             delta.rot = rot;
