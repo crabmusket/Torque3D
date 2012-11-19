@@ -67,7 +67,7 @@ private:
    struct ActionInstance {
       SimObjectPtr<Behavior> from;
       S32 index;
-      StringTableEntry data;
+      String data;
       AIAction *action;
       F32 priority;
       AIAction::Status status;
