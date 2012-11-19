@@ -336,10 +336,10 @@ void BehaviorManager::dump()
       ActionQueue::iterator ac = queue.begin();
       if (s > 1)
          Con::printf("   %s: %s (%f, %s) and %d more.",
-            resName, ac->action->getName(), ac->priority, ac->data, s);
+         resName, ac->action->getName(), ac->priority, ac->data.c_str(), s);
       else
          Con::printf("   %s: %s (%f, %s).",
-         resName, ac->action->getName(), ac->priority, ac->data);
+         resName, ac->action->getName(), ac->priority, ac->data.c_str());
    }
 }
 
@@ -404,4 +404,5 @@ void BehaviorManager::_notifyBehaviors()
          continue;
       ac->from->actionStopped(ac->action, ac->data, ac->index, ac->status);
    }
+   mStoppedActions.clear();
 }
