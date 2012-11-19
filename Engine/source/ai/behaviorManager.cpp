@@ -404,4 +404,5 @@ void BehaviorManager::_notifyBehaviors()
          continue;
       ac->from->actionStopped(ac->action, ac->data, ac->index, ac->status);
    }
+   mStoppedActions.clear();
 }
