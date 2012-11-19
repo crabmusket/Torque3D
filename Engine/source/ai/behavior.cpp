@@ -20,3 +20,18 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
+#include "behavior.h"
+
+IMPLEMENT_CONOBJECT(Behavior);
+
+Behavior::Behavior()
+{
+}
+
+Behavior::~Behavior()
+{
+}
+
+void Behavior::actionStopped(AIAction *action, const char *data, S32 index)
+{
+}
