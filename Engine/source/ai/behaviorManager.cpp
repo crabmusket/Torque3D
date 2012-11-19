@@ -397,5 +397,11 @@ void BehaviorManager::_postBehaviorUpdateEvent()
 void BehaviorManager::_notifyBehaviors()
 {
    mUpdateEvent = -1;
-   mStoppedActions.clear();
+   ActionQueue::iterator ac = mStoppedActions.begin();
+   for (; ac != mStoppedActions.end(); ac++)
+   {
+      if (ac->from.isNull())
+         continue;
+      ac->from->actionStopped(ac->action, ac->data, ac->index, ac->status);
+   }
 }
