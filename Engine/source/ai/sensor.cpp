@@ -297,9 +297,15 @@ F32 Sensor::checkVisibility(SceneObject *potential)
 
 void Sensor::potentialEnterObject(GameBase *obj)
 {
+   // Don't add ourselves.
    if(obj == this || obj == mObject)
       return;
+   // Check typemask for quick rejections.
    if(!(obj->getTypeMask() & mDataBlock->typemask))
+      return;
+   // Don't add duplicates!
+   if(std::find(mPotentialContacts.begin(), mPotentialContacts.end(), obj) != mPotentialContacts.end() ||
+      std::find(mContacts.begin(),          mContacts.end(),          obj) != mContacts.end())
       return;
    // The object will be tested in detail in processTick.
    mPotentialContacts.push_back(obj);
