@@ -35,9 +35,12 @@ public:
    Behavior();
    ~Behavior();
 
-   virtual void actionStopped(AIAction *action, const char *data, S32 index);
+   virtual void actionStopped(AIAction *action, const char *data, S32 index, AIAction::Status s);
+   DECLARE_CALLBACK(void, onActionStopped, (AIAction *action, const char *data, S32 index, const char* s));
 
    DECLARE_CONOBJECT(Behavior);
+   static void initPersistFields();
+
 protected:
 private:
 };

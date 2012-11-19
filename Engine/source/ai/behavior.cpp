@@ -21,6 +21,7 @@
 //-----------------------------------------------------------------------------
 
 #include "behavior.h"
+#include "console/engineAPI.h"
 
 IMPLEMENT_CONOBJECT(Behavior);
 
@@ -32,6 +33,15 @@ Behavior::~Behavior()
 {
 }
 
-void Behavior::actionStopped(AIAction *action, const char *data, S32 index)
+void Behavior::initPersistFields()
 {
+   Parent::initPersistFields();
 }
+
+void Behavior::actionStopped(AIAction *action, const char *data, S32 index, AIAction::Status s)
+{
+   onActionStopped_callback(action, data, index, AIAction::getStatusName(s));
+}
+
+IMPLEMENT_CALLBACK(Behavior, onActionStopped, void, (AIAction *action, const char *data, S32 index, const char* s), (action, data, index, s),
+                   "Called when an action is stopped by a BehaviorManager.");
