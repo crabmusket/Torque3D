@@ -49,6 +49,7 @@ struct TriggerData: public GameBaseData {
   public:
    S32  tickPeriodMS;
    bool isClientSide;
+   bool allowProjectiles;
 
    TriggerData();
    

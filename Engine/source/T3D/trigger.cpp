@@ -86,6 +86,7 @@ TriggerData::TriggerData()
 {
    tickPeriodMS = 100;
    isClientSide = false;
+   allowProjectiles = false;
 }
 
 bool TriggerData::onAdd()
@@ -105,6 +106,8 @@ void TriggerData::initPersistFields()
          "@see onTickTrigger()\n");
       addField( "clientSide",    TypeBool,   Offset( isClientSide, TriggerData ),
          "Forces Trigger callbacks to only be called on clients.");
+      addField( "allowProjectiles", TypeBool, Offset( allowProjectiles, TriggerData ),
+         "Allows callbacks on Projectile objects.");
 
    endGroup("Callbacks");
 
@@ -118,6 +121,7 @@ void TriggerData::packData(BitStream* stream)
    Parent::packData(stream);
    stream->write(tickPeriodMS);
    stream->write(isClientSide);
+   stream->writeFlag(allowProjectiles);
 }
 
 void TriggerData::unpackData(BitStream* stream)
@@ -125,6 +129,7 @@ void TriggerData::unpackData(BitStream* stream)
    Parent::unpackData(stream);
    stream->read(&tickPeriodMS);
    stream->read(&isClientSide);
+   allowProjectiles = stream->readFlag();
 }
 
 
@@ -641,6 +646,8 @@ void Trigger::potentialEnterObject(GameBase* enter)
    if( (!mDataBlock || mDataBlock->isClientSide) && isServerObject() )
       return;
    if( (mDataBlock && !mDataBlock->isClientSide) && isGhost() )
+      return;
+   if( !mDataBlock->allowProjectiles && (enter->getType() & ProjectileObjectType) )
       return;
 
    for (U32 i = 0; i < mObjects.size(); i++) {

@@ -51,6 +51,7 @@
 #include "T3D/decal/decalData.h"
 #include "T3D/lightDescription.h"
 #include "console/engineAPI.h"
+#include "T3D/trigger.h"
 
 
 IMPLEMENT_CO_DATABLOCK_V1(ProjectileData);
@@ -1190,6 +1191,13 @@ void Projectile::simulate( F32 dt )
    mCurrBackDelta = mCurrPosition - newPosition;
    mCurrPosition = newPosition;
 
+   // Check triggers
+   if (getContainer()->castRay(oldPosition, mCurrPosition, TriggerObjectType, &rInfo))
+   {
+      Trigger *t = static_cast<Trigger*>(rInfo.object);
+      t->potentialEnterObject(this);
+   }
+   
    MatrixF xform( true );
    xform.setColumn( 3, mCurrPosition );
    setTransform( xform );
