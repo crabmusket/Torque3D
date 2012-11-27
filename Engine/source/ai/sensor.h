@@ -52,6 +52,9 @@ public:
    /// Maximum range to which we will consider contacts
    F32 engagementRange;
 
+   /// Increment in visibility levels used in onContactVisibilityChanged callback.
+   F32 visibilityStep;
+
    /// Determine how visible an object is under our sensor model.
    F32 test(SceneObject *obj, const MatrixF &trans,
             SceneObject *oth, const MatrixF &otrans);
