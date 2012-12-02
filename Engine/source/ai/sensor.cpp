@@ -419,7 +419,12 @@ void Sensor::processTick(const Move* move)
          // Refresh contact information.
          c->lastLocation = c->object->getPosition();
          c->lastVelocity = c->object->getVelocity();
-         c->timeSinceSeen = 0;
+         // When we can see a contact, timeSinceSeen counts how long we've been
+         // able to see them for.
+         if(oldvis == 0.0f)
+            c->timeSinceSeen = 0;
+         else
+            c->timeSinceSeen++;
       }
       else
          c->timeSinceSeen++;
