@@ -48,6 +48,7 @@ SensorData::SensorData()
 {
    engagementRange = 0.0f;
    typemask = -1;
+   visibilityStep = 0.2f;
 
    for(U32 i = 0; i < MaxRules; i++)
    {
@@ -69,6 +70,8 @@ void SensorData::initPersistFields()
 {
    addField("engagementRange", TypeF32, Offset(engagementRange, SensorData),
       "Maximum range at which objects are considered for detection by this sensor.");
+   addField("visibilityStep", TypeF32, Offset(visibilityStep, SensorData),
+      "Increment in visibility level used by onContactVisibilityChanged callback.");
 
    addField("rules", TypeRealString, Offset(ruleStrings, SensorData), MaxRules,
       "Rules for this sensor represented as strings.");
@@ -435,9 +438,7 @@ void Sensor::processTick(const Move* move)
          throwCallback("onContactSighted", c->object, newvis);
       else
       {
-         // This will probably go away. I just needed a quick constant.
-         static const F32 visStep = 0.2f;
-         for (F32 v = visStep; v < 1.0f; v += visStep)
+         for (F32 v = mDataBlock->visibilityStep; v < 1.0f; v += mDataBlock->visibilityStep)
          {
             if((newvis > v && oldvis <= v) || (newvis <= v && oldvis > v))
             {
