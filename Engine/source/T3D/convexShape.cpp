@@ -657,18 +657,19 @@ bool ConvexShape::buildPolyList( PolyListContext context, AbstractPolyList *plis
    {
       const ConvexShape::Face &face = faceList[i];		
 
-      plist->begin( 0, i );
+      S32 s = face.triangles.size();  
+      for ( S32 j = 0; j < s; j++ )  
+      {  
+         plist->begin( 0, s*i + j );  
 
-      plist->plane( PlaneF( face.centroid, face.normal ) );
+         plist->plane( PlaneF( face.centroid, face.normal ) );  
 
-      for ( S32 j = 0; j < face.triangles.size(); j++ )
-      {
-         plist->vertex( base + face.points[ face.triangles[j].p0 ] );
-         plist->vertex( base + face.points[ face.triangles[j].p1 ] );
-         plist->vertex( base + face.points[ face.triangles[j].p2 ] );
-      }      
+         plist->vertex( base + face.points[ face.triangles[j].p0 ] );  
+         plist->vertex( base + face.points[ face.triangles[j].p1 ] );  
+         plist->vertex( base + face.points[ face.triangles[j].p2 ] );  
 
-      plist->end();
+         plist->end();
+      }        
    }
 
    return true;
