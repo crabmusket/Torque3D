@@ -142,10 +142,10 @@ namespace Nav {
    {
       F32 dist = dAtof(data);
       if(dist == 0.0f || dist >= 0.9f)
-      {
-         Con::errorf("NavMesh::detailSampleDist must be 0 or greater than 0.9!");
+      {         
          return true;
       }
+      Con::errorf("NavMesh::detailSampleDist must be 0 or greater than 0.9!");
       return false;
    }
 
