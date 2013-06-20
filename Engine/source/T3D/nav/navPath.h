@@ -9,7 +9,7 @@
 #include "scene/sceneObject.h"
 #include "scene/simPath.h"
 #include "navMesh.h"
-#include "recast/DetourNavMeshQuery.h"
+#include <DetourNavMeshQuery.h>
 
 namespace Nav {
    static const U32 MaxPathLen = 1024;

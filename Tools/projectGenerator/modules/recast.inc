@@ -27,6 +27,11 @@ beginModule( 'recast' );
    addSrcDir(getEngineSrcDir() . 'T3D/nav/', true);
 
    includeLib( 'librecast' );
+   addLibIncludePath( 'recast/DebugUtils/Include' );
+   addLibIncludePath( 'recast/Recast/Include' );
+   addLibIncludePath( 'recast/Detour/Include' );
+   addLibIncludePath( 'recast/DetourTileCache/Include' );
+   addLibIncludePath( 'recast/DetourCrowd/Include' );
 
    if (inProjectConfig())
    {

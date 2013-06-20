@@ -18,7 +18,7 @@
 #include "core/stream/bitStream.h"
 #include "math/mathIO.h"
 
-#include "recast/DetourDebugDraw.h"
+#include <DetourDebugDraw.h>
 
 extern bool gEditingMission;
 

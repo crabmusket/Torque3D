@@ -18,9 +18,9 @@
 #include "navMeshLoader.h"
 #include "nav.h"
 
-#include "recast/Recast.h"
-#include "recast/DetourNavMesh.h"
-#include "recast/DetourNavMeshBuilder.h"
+#include <Recast.h>
+#include <DetourNavMesh.h>
+#include <DetourNavMeshBuilder.h>
 
 namespace Nav {
    static void RCtoPolyList(NavModelData *data, AbstractPolyList *list);

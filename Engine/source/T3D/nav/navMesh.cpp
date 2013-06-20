@@ -10,8 +10,8 @@
 
 #include "navMesh.h"
 #include "navMeshDraw.h"
-#include "recast/DetourDebugDraw.h"
-#include "recast/RecastDebugDraw.h"
+#include <DetourDebugDraw.h>
+#include <RecastDebugDraw.h>
 
 #include "math/mathUtils.h"
 #include "math/mRandom.h"

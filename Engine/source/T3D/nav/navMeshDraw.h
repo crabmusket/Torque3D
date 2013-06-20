@@ -9,7 +9,7 @@
 #define _NAVMESH_DRAW_H_
 
 #include "nav.h"
-#include "recast/DebugDraw.h"
+#include <DebugDraw.h>
 #include "gfx/gfxStateBlock.h"
 
 namespace Nav {
