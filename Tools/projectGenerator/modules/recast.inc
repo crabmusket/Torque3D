@@ -1,6 +1,6 @@
 <?php
 //-----------------------------------------------------------------------------
-// Copyright (c) 2012 GarageGames, LLC
+// Copyright (c) 2013 GarageGames, LLC
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -21,20 +21,19 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-beginModule( 'navigation' );	    
-		
-   addProjectDefine( "TORQUE_NAVIGATION" );
+beginModule( 'recast' );
 
+   addProjectDefine( 'TORQUE_RECAST_ENABLED' );
    addSrcDir(getEngineSrcDir() . 'T3D/nav/', true);
 
-   includeLib( 'libRecast' );     
+   includeLib( 'librecast' );
 
    if (inProjectConfig())
-   {		
-      addProjectDependency( 'libRecast' );
-      addSolutionProjectRef( 'libRecast' );
+   {
+      addProjectDependency( 'librecast' );
+      addSolutionProjectRef( 'librecast' );
    }
-   
+
 endModule();
 
 ?>
