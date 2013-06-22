@@ -480,7 +480,11 @@ static void clrbuf(U32* p, U32 s)
       *p++ = U32_MAX;
 }
 
+#ifdef TORQUE_RECAST_ENABLED
+bool TerrainBlock::buildPolyList(PolyListContext context, AbstractPolyList* polyList, const Box3F &box, const SphereF&)
+#else
 bool TerrainBlock::buildPolyList(PolyListContext, AbstractPolyList* polyList, const Box3F &box, const SphereF&)
+#endif // TORQUE_RECAST_ENABLED
 {
 	PROFILE_SCOPE( TerrainBlock_buildPolyList );
 
@@ -530,11 +534,28 @@ bool TerrainBlock::buildPolyList(PolyListContext, AbstractPolyList* polyList, co
 
       swap(vb[0],vb[1]);
       clrbuf(vb[1],xExt + 1);
+
+#ifdef TORQUE_RECAST_ENABLED
+      F32 wy1 = y * mSquareSize, wy2 = (y + 1) * mSquareSize;
+      if(((wy1 > osBox.maxExtents.y && wy2 > osBox.maxExtents.y) ||
+          (wy1 < osBox.minExtents.y && wy2 < osBox.minExtents.y)) &&
+           context == PLC_Navigation)
+         continue;
+#endif // TORQUE_RECAST_ENABLED
+
       //
       for (S32 x = xStart; x < xEnd; x++) 
       {
          S32 xi = x & BlockMask;
          const TerrainSquare *sq = mFile->findSquare( 0, xi, yi );
+
+#ifdef TORQUE_RECAST_ENABLED
+         F32 wx1 = x * mSquareSize, wx2 = (x + 1) * mSquareSize;
+         if(((wx1 > osBox.maxExtents.x && wx2 > osBox.maxExtents.x) ||
+             (wx1 < osBox.minExtents.x && wx2 < osBox.minExtents.x)) &&
+              context == PLC_Navigation)
+            continue;
+#endif // TORQUE_RECAST_ENABLED
 
          if ( x != xi || y != yi )
             continue;
