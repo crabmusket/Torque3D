@@ -22,7 +22,6 @@
 
 #include "torqueRecast.h"
 #include "navPath.h"
-#include "duDebugDrawTorque.h"
 
 #include "console/consoleTypes.h"
 #include "console/engineAPI.h"
@@ -198,11 +197,6 @@ bool NavPath::onAdd()
 
    // Set initial world bounds and stuff.
    resize();
-
-   // Server-side objects plan instantly. This has no effect if appropriate
-   // data has not been set already.
-   if(isServerObject())
-      plan();
 
    // Finally, add us to the simulation.
    addToScene();
@@ -599,18 +593,6 @@ DefineEngineMethod(NavPath, getCount, S32, (),,
    "@brief Return the number of nodes in this path.")
 {
    return object->getCount();
-}
-
-DefineEngineMethod(NavPath, onNavMeshBuild, void, (const char *data),,
-   "@brief Callback when this path's NavMesh is rebuilt.")
-{
-   object->plan();
-}
-
-DefineEngineMethod(NavPath, onNavMeshLoad, void, (const char *data),,
-   "@brief Callback when this path's NavMesh is loaded from a file.")
-{
-   object->plan();
 }
 
 DefineEngineMethod(NavPath, getNode, Point3F, (S32 idx),,

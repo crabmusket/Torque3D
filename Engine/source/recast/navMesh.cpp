@@ -162,8 +162,8 @@ bool NavMesh::onAdd()
    if(!Parent::onAdd())
       return false;
 
-   mObjBox.set(Point3F(-1.0f, -1.0f, -1.0f),
-      Point3F( 1.0f,  1.0f,  1.0f));
+   mObjBox.set(Point3F(-10.0f, -10.0f, -1.0f),
+      Point3F( 10.0f,  10.0f,  1.0f));
    resetWorldBox();
 
    addToScene();
