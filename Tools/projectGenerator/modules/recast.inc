@@ -24,7 +24,7 @@
 beginModule( 'recast' );
 
    addProjectDefine( 'TORQUE_RECAST_ENABLED' );
-   addSrcDir(getEngineSrcDir() . 'T3D/nav/', true);
+   addSrcDir(getEngineSrcDir() . 'recast', true);
 
    includeLib( 'librecast' );
    addLibIncludePath( 'recast/DebugUtils/Include' );
