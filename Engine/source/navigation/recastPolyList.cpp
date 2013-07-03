@@ -1,4 +1,4 @@
-#ifdef TORQUE_RECAST_ENABLED
+#ifdef TORQUE_NAVIGATION_ENABLED
 //-----------------------------------------------------------------------------
 // Copyright (c) 2012 Daniel Buckmaster
 //

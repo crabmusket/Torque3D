@@ -288,16 +288,16 @@ void GroundPlane::buildConvex( const Box3F& box, Convex* convex )
    }
 }
 
-#ifdef TORQUE_RECAST_ENABLED
+#ifdef TORQUE_NAVIGATION_ENABLED
 bool GroundPlane::buildPolyList( PolyListContext context, AbstractPolyList* polyList, const Box3F& box, const SphereF& )
 #else
 bool GroundPlane::buildPolyList( PolyListContext context, AbstractPolyList* polyList, const Box3F&, const SphereF& )
-#endif // TORQUE_RECAST_ENABLED
+#endif // TORQUE_NAVIGATION_ENABLED
 {
    polyList->setObject( this );
    polyList->setTransform( &MatrixF::Identity, Point3F( 1.0f, 1.0f, 1.0f ) );
 
-#ifdef TORQUE_RECAST_ENABLED
+#ifdef TORQUE_NAVIGATION_ENABLED
    if(context == PLC_Navigation)
    {
       F32 z = getPosition().z;
@@ -331,7 +331,7 @@ bool GroundPlane::buildPolyList( PolyListContext context, AbstractPolyList* poly
 
       return true;
    }
-#endif // TORQUE_RECAST_ENABLED
+#endif // TORQUE_NAVIGATION_ENABLED
 
    Box3F planeBox = getPlaneBox();
    polyList->addBox( planeBox, mMaterial );

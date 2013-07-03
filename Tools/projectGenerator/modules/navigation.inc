@@ -21,10 +21,10 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-beginModule( 'recast' );
+beginModule( 'navigation' );
 
-   addProjectDefine( 'TORQUE_RECAST_ENABLED' );
-   addSrcDir(getEngineSrcDir() . 'recast', true);
+   addProjectDefine( 'TORQUE_NAVIGATION_ENABLED' );
+   addSrcDir(getEngineSrcDir() . 'navigation', true);
 
    includeLib( 'librecast' );
    addLibIncludePath( 'recast/DebugUtils/Include' );

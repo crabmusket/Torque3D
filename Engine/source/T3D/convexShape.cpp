@@ -653,7 +653,7 @@ bool ConvexShape::buildPolyList( PolyListContext context, AbstractPolyList *plis
 
    const Vector< ConvexShape::Face > faceList = mGeometry.faces;
 
-#ifdef TORQUE_RECAST_ENABLED
+#ifdef TORQUE_NAVIGATION_ENABLED
    if(context == PLC_Navigation)
    {
       for(S32 i = 0; i < faceList.size(); i++)
@@ -676,7 +676,7 @@ bool ConvexShape::buildPolyList( PolyListContext context, AbstractPolyList *plis
       }
       return true;
    }
-#endif // TORQUE_RECAST_ENABLED
+#endif // TORQUE_NAVIGATION_ENABLED
 
    for ( S32 i = 0; i < faceList.size(); i++ )
    {
