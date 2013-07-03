@@ -1,6 +1,5 @@
-#ifdef TORQUE_NAVIGATION_ENABLED
 //-----------------------------------------------------------------------------
-// Copyright (c) 2012 Daniel Buckmaster
+// Copyright (c) 2013 GarageGames, LLC
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -98,5 +97,3 @@ private:
 };
 
 #endif // RECAST_POLYLIST
-
-#endif // TORQUE_NAVIGATION_ENABLED

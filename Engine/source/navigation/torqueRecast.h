@@ -1,11 +1,27 @@
 //-----------------------------------------------------------------------------
-// Walkabout Navigation Toolkit
-// Copyright (c) 2012 Daniel Buckmaster
-// Permission is NOT granted to freely distribute the contents of this file.
+// Copyright (c) 2013 GarageGames, LLC
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#ifndef _NAV_H_
-#define _NAV_H_
+#ifndef _TORQUE_RECAST_H_
+#define _TORQUE_RECAST_H_
 
 #include "console/simSet.h"
 #include "math/mPoint3.h"
@@ -34,55 +50,5 @@ inline void rcCol(unsigned int col, U8 &r, U8 &g, U8 &b, U8 &a)
    b = col % 256; col /= 256;
    a = col % 256;
 }
-
-enum PolyAreas {
-   GroundArea,
-   WaterArea,
-   OffMeshArea,
-   NumAreas
-};
-
-enum PolyFlags {
-   WalkFlag = 1 << 0,
-   SwimFlag = 1 << 1,
-   JumpFlag = 1 << 2,
-   LedgeFlag = 1 << 3,
-   DropFlag = 1 << 4,
-   ClimbFlag = 1 << 5,
-   TeleportFlag = 1 << 6,
-   AllFlags = 0xffff
-};
-
-/// Stores information about a link.
-struct LinkData {
-   bool walk;
-   bool jump;
-   bool drop;
-   bool swim;
-   bool ledge;
-   bool climb;
-   bool teleport;
-   LinkData(unsigned short flags = 0)
-   {
-      walk = flags & WalkFlag;
-      jump = flags & JumpFlag;
-      drop = flags & DropFlag;
-      swim = flags & SwimFlag;
-      ledge = flags & LedgeFlag;
-      climb = flags & ClimbFlag;
-      teleport = flags & TeleportFlag;
-   }
-   unsigned short getFlags() const
-   {
-      return
-         (walk ? WalkFlag : 0) |
-         (jump ? JumpFlag : 0) |
-         (drop ? DropFlag : 0) |
-         (swim ? SwimFlag : 0) |
-         (ledge ? LedgeFlag : 0) |
-         (climb ? ClimbFlag : 0) |
-         (teleport ? TeleportFlag : 0);
-   }
-};
 
 #endif
