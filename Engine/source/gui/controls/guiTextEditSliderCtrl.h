@@ -86,6 +86,8 @@ protected:
    bool mFocusOnMouseWheel;
 
    CtrlArea mTextAreaHit;
+
+   DECLARE_CALLBACK( void, onValueChanged, (S32 direction));
 };
 
 #endif //_GUITEXTEDITSLIDERCTRL_H_

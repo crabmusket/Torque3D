@@ -28,6 +28,7 @@
 #include "gui/core/guiCanvas.h"
 #include "gfx/gfxDevice.h"
 #include "gfx/gfxDrawUtil.h"
+#include "console/engineAPI.h"
 
 
 IMPLEMENT_CONOBJECT(GuiTextEditSliderBitmapCtrl);
@@ -81,6 +82,20 @@ ConsoleDocClass( GuiTextEditSliderBitmapCtrl,
    "@see GuiTextEditCtrl\n\n"
 
    "@ingroup GuiCore\n"
+);
+
+IMPLEMENT_CALLBACK( GuiTextEditSliderBitmapCtrl, onValueChanged, void, (S32 direction), (direction),
+   "@brief Called when the slider's value is changed by clicking one of the buttons.\n\n"
+   "@param direction +1 if the value was incremented; -1 if it was decremented.\n"
+   "@tsexample\n"
+   "// Button has been clicked, causing the callback to occur.\n"
+   "GuiTextEditBitmapCtrl::onValueChanged(%this,%dir)\n"
+   "	{\n"
+   "		//Code to run when the onValueChanged callback occurs\n"
+   "	}\n"
+   "@endtsexample\n\n"
+   "@see GuiTextEditSliderBitmapCtrl\n"
+   "@see GuiControl\n\n"
 );
 
 
@@ -186,6 +201,7 @@ void GuiTextEditSliderBitmapCtrl::onMouseDown(const GuiEvent &event)
 
       checkRange();
       setValue();
+      onValueChanged_callback(mTextAreaHit == ArrowUp ? 1 : -1);
       mouseLock();
 
       // We should get the focus and set the 

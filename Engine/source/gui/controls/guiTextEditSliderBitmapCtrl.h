@@ -90,6 +90,8 @@ protected:
 	StringTableEntry mBitmapName;
 
    CtrlArea mTextAreaHit;
+
+   DECLARE_CALLBACK( void, onValueChanged, (S32 direction));
 };
 
 #endif //_GUITEXTEDITSLIDERBITMAPCTRL_H_
