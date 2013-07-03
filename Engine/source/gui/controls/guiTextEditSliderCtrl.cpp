@@ -52,6 +52,20 @@ ConsoleDocClass( GuiTextEditSliderCtrl,
    "@ingroup GuiCore\n"
 );
 
+IMPLEMENT_CALLBACK( GuiTextEditSliderCtrl, onValueChanged, void, (S32 direction), (direction),
+   "@brief Called when the slider's value is changed by clicking one of the buttons.\n\n"
+   "@param direction +1 if the value was incremented; -1 if it was decremented.\n"
+   "@tsexample\n"
+   "// Button has been clicked, causing the callback to occur.\n"
+   "GuiTextEditCtrl::onValueChanged(%this,%dir)\n"
+   "	{\n"
+   "		//Code to run when the onValueChanged callback occurs\n"
+   "	}\n"
+   "@endtsexample\n\n"
+   "@see GuiTextEditSliderCtrl\n"
+   "@see GuiControl\n\n"
+);
+
 GuiTextEditSliderCtrl::GuiTextEditSliderCtrl()
 {
    mRange.set(0.0f, 1.0f);
@@ -152,6 +166,7 @@ void GuiTextEditSliderCtrl::onMouseDown(const GuiEvent &event)
 
       checkRange();
       setValue();
+      onValueChanged_callback(mTextAreaHit == ArrowUp ? 1 : -1);
       mouseLock();
 
       // We should get the focus and set the 
