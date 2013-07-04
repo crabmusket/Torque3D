@@ -20,8 +20,8 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#ifndef DU_DEBUG_DRAW_TORQUE_H_
-#define DU_DEBUG_DRAW_TORQUE_H_
+#ifndef _DU_DEBUG_DRAW_TORQUE_H_
+#define _DU_DEBUG_DRAW_TORQUE_H_
 
 #include "core/util/tVector.h"
 #include <DebugDraw.h>
@@ -154,4 +154,4 @@ private:
    void renderBuffer(Buffer &b);
 };
 
-#endif // DU_DEBUG_DRAW_TORQUE
+#endif

@@ -20,8 +20,8 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#ifndef RECAST_POLYLIST_H_
-#define RECAST_POLYLIST_H_
+#ifndef _RECAST_POLYLIST_H_
+#define _RECAST_POLYLIST_H_
 
 #include "collision/abstractPolyList.h"
 #include "core/util/tVector.h"
@@ -96,4 +96,4 @@ protected:
 private:
 };
 
-#endif // RECAST_POLYLIST
+#endif

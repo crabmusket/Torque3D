@@ -20,8 +20,8 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#ifndef NAVMESH_H_
-#define NAVMESH_H_
+#ifndef _NAVMESH_H_
+#define _NAVMESH_H_
 
 #include <queue>
 
