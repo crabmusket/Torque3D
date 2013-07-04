@@ -82,6 +82,8 @@ function EWCreatorWindow::init( %this )
       %this.registerMissionObject( "SpawnSphere",  "Observer Spawn Sphere", "ObserverDropPoint" );
       %this.registerMissionObject( "SFXSpace",      "Sound Space" );
       %this.registerMissionObject( "OcclusionVolume", "Occlusion Volume" );
+      %this.registerMissionObject("NavMesh", "Navigation mesh");
+      %this.registerMissionObject("NavPath", "Path");
       
    %this.endGroup();
    
@@ -90,13 +92,6 @@ function EWCreatorWindow::init( %this )
       %this.registerMissionObject( "SimGroup" );
       
    %this.endGroup();  
-   
-   %this.beginGroup("Navigation");  
-  
-	  %this.registerMissionObject("NavMesh", "Navigation mesh");  
-	  %this.registerMissionObject("NavPath", "Path");  
-  
-   %this.endGroup();  	   
 
    %this.beginGroup( "ExampleObjects" );
    
