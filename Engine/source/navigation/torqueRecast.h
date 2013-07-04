@@ -51,4 +51,22 @@ inline void rcCol(unsigned int col, U8 &r, U8 &g, U8 &b, U8 &a)
    a = col % 256;
 }
 
+enum PolyAreas {
+   GroundArea,
+   WaterArea,
+   OffMeshArea,
+   NumAreas
+};
+
+enum PolyFlags {
+   WalkFlag = 1 << 0,
+   SwimFlag = 1 << 1,
+   JumpFlag = 1 << 2,
+   LedgeFlag = 1 << 3,
+   DropFlag = 1 << 4,
+   ClimbFlag = 1 << 5,
+   TeleportFlag = 1 << 6,
+   AllFlags = 0xffff
+};
+
 #endif

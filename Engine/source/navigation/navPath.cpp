@@ -81,6 +81,19 @@ bool NavPath::setProtectedMesh(void *obj, const char *index, const char *data)
    return false;
 }
 
+const char *NavPath::getProtectedMesh(void *obj, const char *data)
+{
+   NavPath *object = static_cast<NavPath*>(obj);
+
+   if(object->mMesh.isNull())
+      return "";
+
+   if(object->mMesh->getName())
+      return object->mMesh->getName();
+   else
+      return object->mMesh->getIdString();
+}
+
 bool NavPath::setProtectedWaypoints(void *obj, const char *index, const char *data)
 {
    SimPath::Path *points = NULL;
@@ -163,7 +176,7 @@ void NavPath::initPersistFields()
       "World location this path should end at.");
 
    addProtectedField("mesh", TYPEID<NavMesh>(), Offset(mMesh, NavPath),
-      &setProtectedMesh, &defaultProtectedGetFn,
+      &setProtectedMesh, &getProtectedMesh,
       "NavMesh object this path travels within.");
    addProtectedField("waypoints", TYPEID<SimPath::Path>(), Offset(mWaypoints, NavPath),
       &setProtectedWaypoints, &defaultProtectedGetFn,
@@ -194,6 +207,10 @@ bool NavPath::onAdd()
    // Ghost immediately if the editor's already open.
    if(gEditingMission)
       mNetFlags.set(Ghostable);
+
+   // Automatically find a path if we can.
+   if(isServerObject())
+      plan();
 
    // Set initial world bounds and stuff.
    resize();
@@ -583,7 +600,7 @@ void NavPath::unpackUpdate(NetConnection *conn, BitStream *stream)
    }
 }
 
-DefineEngineMethod(NavPath, plan, bool, (),,
+DefineEngineMethod(NavPath, replan, bool, (),,
    "@brief Find a path using the already-specified path properties.")
 {
    return object->plan();
@@ -602,7 +619,7 @@ DefineEngineMethod(NavPath, getNode, Point3F, (S32 idx),,
 }
 
 DefineEngineMethod(NavPath, getLength, F32, (),,
-   "@brief Get the length of this path.")
+   "@brief Get the length of this path in Torque units (i.e. the total distance it covers).")
 {
    return object->getLength();
 }
