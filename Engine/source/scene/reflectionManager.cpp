@@ -189,11 +189,8 @@ void ReflectionManager::update(  F32 timeSlice,
          break;
    }
 
-   U32 totalElapsed = mTimer->getElapsedMs();
-
    // Set metric/debug related script variables...
 
-   U32 numEnabled = mReflectors.size();   
    U32 numVisible = 0;
    U32 numOccluded = 0;
 
@@ -208,6 +205,8 @@ void ReflectionManager::update(  F32 timeSlice,
    }
 
 #ifdef TORQUE_GATHER_METRICS
+   U32 numEnabled = mReflectors.size();   
+   U32 totalElapsed = mTimer->getElapsedMs();
    const GFXTextureProfileStats &stats = ReflectRenderTargetProfile.getStats();
    
    F32 mb = ( stats.activeBytes / 1024.0f ) / 1024.0f;
@@ -290,6 +289,7 @@ bool ReflectionManager::_handleDeviceEvent( GFXDevice::GFXDeviceEventType evt )
    switch( evt )
    {
    case GFXDevice::deStartOfFrame:
+   case GFXDevice::deStartOfField:
 
       mUpdateRefract = true;
       break;

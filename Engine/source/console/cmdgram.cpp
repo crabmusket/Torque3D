@@ -1298,7 +1298,14 @@ __yy_memcpy (char *from, char *to, int count)
 }
 
 #endif
-#endif
+{
+  YYUSE (yyvaluep);
+
+  if (!yymsg)
+    yymsg = "Deleting";
+  YY_SYMBOL_PRINT (yymsg, yytype, yyvaluep, yylocationp);
+
+}
 
 #line 192 "bison.simple"
 

@@ -198,9 +198,9 @@ namespace {
    static F32 sRestTol = 0.5;             // % of gravity energy to be at rest
    static int sRestCount = 10;            // Consecutive ticks before comming to rest
 
-   const U32 sCollisionMoveMask = (TerrainObjectType        | InteriorObjectType   |
-      PlayerObjectType         | StaticShapeObjectType    | VehicleObjectType    |
-      VehicleBlockerObjectType);
+   const U32 sCollisionMoveMask = ( TerrainObjectType     | PlayerObjectType  | 
+                                    StaticShapeObjectType | VehicleObjectType |
+                                    VehicleBlockerObjectType );
 
    const U32 sServerCollisionMask = sCollisionMoveMask; // ItemObjectType
    const U32 sClientCollisionMask = sCollisionMoveMask;
@@ -774,7 +774,8 @@ void RigidShape::processTick(const Move* move)
 
       // Update the physics based on the integration rate
       S32 count = mDataBlock->integration;
-      updateWorkingCollisionSet(getCollisionMask());
+      if (!mDisableMove)
+         updateWorkingCollisionSet(getCollisionMask());
       for (U32 i = 0; i < count; i++)
          updatePos(TickSec / count);
 

@@ -1895,16 +1895,18 @@ FILE *file;
 	b->yy_input_file = file;
 	b->yy_fill_buffer = 1;
 
-#if YY_ALWAYS_INTERACTIVE
-	b->yy_is_interactive = 1;
-#else
-#if YY_NEVER_INTERACTIVE
-	b->yy_is_interactive = 0;
-#else
-	b->yy_is_interactive = file ? (isatty( fileno(file) ) > 0) : 0;
-#endif
-#endif
-	}
+    /* If b is the current buffer, then CMD_init_buffer was _probably_
+     * called from CMDrestart() or through yy_get_next_buffer.
+     * In that case, we don't want to reset the lineno or column.
+     */
+    if (b != YY_CURRENT_BUFFER){
+        b->yy_bs_lineno = 1;
+        b->yy_bs_column = 0;
+    }
+
+    b->yy_is_interactive = file ? (isatty( fileno(file) ) > 0) : 0;
+	errno = oerrno;
+}
 
 
 #ifdef YY_USE_PROTOS
@@ -2204,7 +2206,7 @@ void CMDerror(char *format, ...)
    char tempBuf[BUFMAX];
    va_list args;
    va_start( args, format );
-#ifdef TORQUE_OS_WIN32
+#ifdef TORQUE_OS_WIN
    _vsnprintf( tempBuf, BUFMAX, format, args );
 #else
    vsnprintf( tempBuf, BUFMAX, format, args );

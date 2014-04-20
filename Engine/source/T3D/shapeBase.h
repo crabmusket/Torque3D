@@ -578,6 +578,12 @@ public:
    F32 cameraMaxFov;                ///< Max vertical FOV allowed in degrees.
    /// @}
 
+   /// @name Camera Misc
+   /// @{
+   bool cameraCanBank;              ///< If the derrived class supports it, allow the camera to bank
+   bool mountedImagesBank;          ///< Do mounted images bank along with the camera?
+   /// @}
+
    /// @name Data initialized on preload
    /// @{
 
@@ -1115,7 +1121,6 @@ protected:
    virtual void ejectShellCasing( U32 imageSlot );
    virtual void updateDamageLevel();
    virtual void updateDamageState();
-   virtual void blowUp();
    virtual void onImpact(SceneObject* obj, VectorF vec);
    virtual void onImpact(VectorF vec);
    /// @}
@@ -1300,6 +1305,9 @@ public:
 
    /// Returns the recharge rate
    F32  getRechargeRate() { return mRechargeRate; }
+
+   /// Makes the shape explode.
+   virtual void blowUp();
 
    /// @}
 
@@ -1618,7 +1626,7 @@ public:
 
    /// Returns the eye transform of this shape without including mounted images, IE the eyes of a player
    /// @param   mat   Eye transform (out)
-   virtual void getEyeBaseTransform(MatrixF* mat);
+   virtual void getEyeBaseTransform(MatrixF* mat, bool includeBank);
 
    /// The retraction transform is the muzzle transform in world space.
    ///
@@ -1671,7 +1679,7 @@ public:
    virtual void getRenderMuzzleVector(U32 imageSlot,VectorF* vec);
    virtual void getRenderMuzzlePoint(U32 imageSlot,Point3F* pos);
    virtual void getRenderEyeTransform(MatrixF* mat);
-   virtual void getRenderEyeBaseTransform(MatrixF* mat);
+   virtual void getRenderEyeBaseTransform(MatrixF* mat, bool includeBank);
    /// @}
 
 

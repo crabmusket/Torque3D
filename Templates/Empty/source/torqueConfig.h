@@ -31,29 +31,16 @@
 //general, the information here is global for your entire codebase, applying
 //not only to your game proper, but also to all of your tools.
 
-/// Since we can build different engine "products" out of the same
-/// base engine source we need a way to differentiate which product
-/// this particular game is using.
-///
-/// TGE       0001
-/// TGEA      0002
-/// TGB       0003
-/// TGEA 360  0004
-/// TGE WII   0005
-/// Torque 3D 0006
-///
-#define TORQUE_ENGINE_PRODUCT      0006
-
 /// What's the name of your application? Used in a variety of places.
 #define TORQUE_APP_NAME            "Empty"
 
 /// What version of the application specific source code is this?
 ///
 /// Version number is major * 1000 + minor * 100 + revision * 10.
-#define TORQUE_APP_VERSION         2009
+#define TORQUE_APP_VERSION         1000
 
 /// Human readable application version string.
-#define TORQUE_APP_VERSION_STRING  "2009"
+#define TORQUE_APP_VERSION_STRING  "1.0"
 
 /// Define me if you want to enable multithreading support.
 #ifndef TORQUE_MULTITHREAD
@@ -160,6 +147,13 @@
 /// FrameAllocator being used as temporary storage for bitmaps in the D3D9
 /// texture manager.
 #define TORQUE_FRAME_SIZE     16 << 20
+
+// Default keyboard layout for launching the game. It's fixed crash when a
+// game running with the extend unicode keyboard (cyrillic, for example).
+// Windows only.
+// @see For choice language >
+//      http://msdn.microsoft.com/en-us/library/windows/desktop/dd318693%28v=vs.85%29.aspx
+#define TORQUE_DEFAULT_KEYBOARD_LAYOUT  LANG_ENGLISH
 
 // Finally, we define some dependent #defines. This enables some subsidiary
 // functionality to get automatically turned on in certain configurations.

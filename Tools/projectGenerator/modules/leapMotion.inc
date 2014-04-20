@@ -61,7 +61,7 @@ beginModule( 'leapMotion' );
    }
 
    // Only Windows is supported at this time
-   if ( Generator::$platform == "win32" )
+   if ( T3D_Generator::$platform == "win32" )
    {
       // Source
       addEngineSrcDir( "platform/input/leapMotion" );
@@ -72,6 +72,12 @@ beginModule( 'leapMotion' );
       // Libs
       addProjectLibDir( $LEAPMOTION_SDK_PATH . "/lib/x86" );
       addProjectLibInput( "Leap.lib", "Leapd.lib" );
+      
+      // File Copy for Release
+      copyFileToProject( $LEAPMOTION_SDK_PATH . "/lib/x86/Leap.dll",  "/game/Leap.dll" );
+
+      // File Copy for Debug
+      copyFileToProject( $LEAPMOTION_SDK_PATH . "/lib/x86/Leapd.dll", "/game/Leapd.dll" );
    }
 
 endModule();

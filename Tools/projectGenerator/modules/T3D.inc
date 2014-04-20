@@ -23,7 +23,6 @@
 
 // 3D
 addEngineSrcDir('collision');
-addEngineSrcDir('interior');
 addEngineSrcDir('materials');
 addEngineSrcDir('lighting');
 addEngineSrcDir('lighting/common');
@@ -75,7 +74,7 @@ else
 	addEngineSrcDir('T3D/gameBase/std');
 
 // Plstform specific stuff.
-switch( Generator::$platform )
+switch( T3D_Generator::$platform )
 {
    case "360":
       addEngineSrcDir('ts/arch/360');
