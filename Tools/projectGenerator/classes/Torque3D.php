@@ -43,6 +43,7 @@ class Torque3D
         includeLib( 'collada_dom' );
         includeLib( 'pcre' ); 
         includeLib( 'convexDecomp' ); 
+        includeLib( 'assimp' );
 
         // Use FMOD on consoles
         if ( Generator::$platform != "360" && Generator::$platform != "ps3" )
@@ -104,6 +105,7 @@ class Torque3D
         addLibIncludePath( "opcode" );
         addLibIncludePath( "squish" );
         addLibIncludePath( 'convexDecomp' ); 
+        addLibIncludePath( 'assimp' );
         
         if ( Generator::$platform != "360" && Generator::$platform != "ps3" )
         {
@@ -120,6 +122,7 @@ class Torque3D
         includeModule( 'advancedLighting' );
         includeModule( 'basicLighting' );
         includeModule( 'collada' );
+        includeModule( 'assimp' );
         
         if ( Generator::$platform != "360" && Generator::$platform != "ps3" )
         {
@@ -144,6 +147,7 @@ class Torque3D
         addProjectDependency( 'collada_dom' );
         addProjectDependency( 'pcre' );
         addProjectDependency( 'convexDecomp' ); 
+        addProjectDependency( 'assimp' );
         
         if ( Generator::$platform != "360" && Generator::$platform != "ps3" )
         {
@@ -183,6 +187,7 @@ class Torque3D
             addProjectLibInput('shell32.lib');
             addProjectLibInput('oleaut32.lib');
             addProjectLibInput('version.lib');
+            addProjectLibInput('assimp.lib');
         }
         
         // Include project specific sources in the project/buildFiles/config/projectCode.conf
@@ -246,6 +251,7 @@ class Torque3D
               addSolutionProjectRef( 'tinyxml' );
               addSolutionProjectRef( 'zlib' );
               addSolutionProjectRef( 'convexDecomp' ); 
+              addSolutionProjectRef( 'assimp' );
               
               if (Generator::$platform == "win32")
               {
