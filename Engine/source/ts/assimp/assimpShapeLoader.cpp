@@ -32,6 +32,8 @@
 #include "platform/platform.h"
 
 #include "ts/assimp/assimpShapeLoader.h"
+#include "ts/assimp/assimpAppNode.h"
+#include "ts/assimp/assimpAppMaterial.h"
 
 #include "core/util/tVector.h"
 #include "core/strings/findMatch.h"
@@ -45,16 +47,17 @@
 #include "core/util/zip/zipVolume.h"
 #include "gfx/bitmap/gBitmap.h"
 
-// assimp include files. These three are usually needed.
+// assimp include files. 
 #include <assimp/cimport.h>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include <assimp/types.h>
 
 //-----------------------------------------------------------------------------
 
 AssimpShapeLoader::AssimpShapeLoader() 
 {
-
+   mScene = NULL;
 }
 
 AssimpShapeLoader::~AssimpShapeLoader()
@@ -62,27 +65,54 @@ AssimpShapeLoader::~AssimpShapeLoader()
 
 }
 
+void AssimpShapeLoader::releaseImport()
+{
+   aiReleaseImport(mScene);
+}
+
 void AssimpShapeLoader::enumerateScene()
 {
+   Con::printf("[ASSIMP] Attempting to load file: %s", shapePath.getFullPath().c_str());
 
+   // This is where assimp does all it's work. The flipUVs and
+   // flipWindingOrder flags correct the data output to work 
+   // with torque's method of handling things.
+   mScene = aiImportFile(shapePath.getFullPath().c_str(), 
+      aiProcessPreset_TargetRealtime_MaxQuality | 
+      aiProcess_FlipUVs |
+      aiProcess_FlipWindingOrder
+      );
+
+   if ( mScene )
+   {
+      Con::printf("[ASSIMP] Mesh Count: %d", mScene->mNumMeshes);
+      Con::printf("[ASSIMP] Material Count: %d", mScene->mNumMaterials);
+
+      // Load all the materials.
+      for ( U32 i = 0; i < mScene->mNumMaterials; i++ )
+         AppMesh::appMaterials.push_back(new AssimpAppMaterial(mScene->mMaterials[i]));
+
+      // Define the root node, and process down the chain.
+      AssimpAppNode* node = new AssimpAppNode(mScene, mScene->mRootNode, 0);
+      if (!processNode(node))
+         delete node;
+   } else {
+      Con::printf("[ASSIMP] Failed to load file.");
+   }
 }
 
 //-----------------------------------------------------------------------------
 /// This function is invoked by the resource manager based on file extension.
 TSShape* assimpLoadShape(const Torque::Path &path)
 {
-   Con::printf("[ASSIMP] Attempting to load file: %s", path.getFullPath().c_str());
-   const struct aiScene* scene = NULL;
-   scene = aiImportFile(path.getFullPath().c_str(), aiProcessPreset_TargetRealtime_MaxQuality);
-   if ( scene )
+   // TODO: add .cached.dts generation.
+
+   AssimpShapeLoader loader;
+   TSShape* tss = loader.generateShape(path);
+   if (tss)
    {
-      Con::printf("[ASSIMP] File loaded successfully.");
-      Con::printf("[ASSIMP] Mesh Count: %d", scene->mNumMeshes);
-      Con::printf("[ASSIMP] Material Count: %d", scene->mNumMaterials);
-      Con::printf("[ASSIMP] Texture Count: %d", scene->mNumTextures);
-      aiReleaseImport(scene);
-   } else {
-      Con::printf("[ASSIMP] Failed to load file.");
+      Con::printf("[ASSIMP] Shape created successfully.");
    }
-   return NULL;
+   loader.releaseImport();
+   return tss;
 }

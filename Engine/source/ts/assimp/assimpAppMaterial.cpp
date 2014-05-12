@@ -20,27 +20,36 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#ifndef _ASSIMP_SHAPELOADER_H_
-#define _ASSIMP_SHAPELOADER_H_
+#include "platform/platform.h"
+#include "ts/loader/appSequence.h"
+#include "ts/assimp/assimpAppMaterial.h"
+#include "ts/assimp/assimpAppMesh.h"
+#include "materials/materialManager.h"
+#include "ts/tsMaterialList.h"
 
-#ifndef _TSSHAPELOADER_H_
-#include "ts/loader/tsShapeLoader.h"
-#endif
+// assimp include files. 
+#include <assimp/cimport.h>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+#include <assimp/types.h>
 
-//-----------------------------------------------------------------------------
-class AssimpShapeLoader : public TSShapeLoader
+AssimpAppMaterial::AssimpAppMaterial(const char* matName)
 {
-   friend TSShape* assimpLoadShape(const Torque::Path &path);
+   name = matName;
 
-protected:
-   const struct aiScene* mScene;
-  
-public:
-   AssimpShapeLoader();
-   ~AssimpShapeLoader();
+   // Set some defaults
+   flags |= TSMaterialList::S_Wrap;
+   flags |= TSMaterialList::T_Wrap;
+}
 
-   void releaseImport();
-   void enumerateScene();
-};
+AssimpAppMaterial::AssimpAppMaterial(const struct aiMaterial* mtl)
+{
+   aiString matName;
+   mtl->Get(AI_MATKEY_NAME, matName);
+   Con::printf("[ASSIMP] Loaded Material: %s", matName.C_Str());
+   name = matName.C_Str();
 
-#endif // _ASSIMP_SHAPELOADER_H_
+   // Set some defaults
+   flags |= TSMaterialList::S_Wrap;
+   flags |= TSMaterialList::T_Wrap;
+}

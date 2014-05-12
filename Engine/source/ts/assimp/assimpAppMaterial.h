@@ -20,27 +20,25 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#ifndef _ASSIMP_SHAPELOADER_H_
-#define _ASSIMP_SHAPELOADER_H_
+#ifndef _ASSIMP_APPMATERIAL_H_
+#define _ASSIMP_APPMATERIAL_H_
 
-#ifndef _TSSHAPELOADER_H_
-#include "ts/loader/tsShapeLoader.h"
+#ifndef _APPMATERIAL_H_
+#include "ts/loader/appMaterial.h"
 #endif
 
-//-----------------------------------------------------------------------------
-class AssimpShapeLoader : public TSShapeLoader
+class AssimpAppMaterial : public AppMaterial
 {
-   friend TSShape* assimpLoadShape(const Torque::Path &path);
+   typedef AppMaterial Parent;
 
-protected:
-   const struct aiScene* mScene;
-  
+   String name; 
 public:
-   AssimpShapeLoader();
-   ~AssimpShapeLoader();
 
-   void releaseImport();
-   void enumerateScene();
+   AssimpAppMaterial(const char* matName);
+   AssimpAppMaterial(const struct aiMaterial* mtl);
+   ~AssimpAppMaterial() { }
+
+   String getName() const { return name; }
 };
 
-#endif // _ASSIMP_SHAPELOADER_H_
+#endif // _ASSIMP_APPMATERIAL_H_
