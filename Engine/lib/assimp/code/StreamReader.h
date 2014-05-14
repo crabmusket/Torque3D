@@ -86,7 +86,6 @@ public:
 	 *    stream is in little endian byte order. Otherwise the
 	 *    endianess information is contained in the @c SwapEndianess
 	 *    template parameter and this parameter is meaningless.  */
-
 	StreamReader(boost::shared_ptr<IOStream> stream, bool le = false)
 		: stream(stream)
 		, le(le)
@@ -194,7 +193,7 @@ public:
 
 	// ---------------------------------------------------------------------
 	/** Increase the file pointer (relative seeking)  */
-	void IncPtr(int plus)	{
+	void IncPtr(size_t plus)	{
 		current += plus;
 		if (current > limit) {
 			throw DeadlyImportError("End of file or read limit was reached");

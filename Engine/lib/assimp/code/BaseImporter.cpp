@@ -46,6 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "AssimpPCH.h"
 #include "BaseImporter.h"
 #include "FileSystemFilter.h"
+#include "../contrib/ConvertUTF/ConvertUTF.h"
 
 #include "Importer.h"
 
@@ -285,8 +286,6 @@ void BaseImporter::GetExtensionList(std::set<std::string>& extensions)
 	return false;
 }
 
-#include "../contrib/ConvertUTF/ConvertUTF.h"
-
 // ------------------------------------------------------------------------------------------------
 void ReportResult(ConversionResult res)
 {
@@ -377,6 +376,43 @@ void BaseImporter::ConvertToUTF8(std::vector<char>& data)
 		data.assign(output.begin(),output.begin()+outlen);
 		return;
 	}
+}
+
+// ------------------------------------------------------------------------------------------------
+// Convert to UTF8 data to ISO-8859-1
+void BaseImporter::ConvertUTF8toISO8859_1(std::string& data)
+{
+	unsigned int size = data.size();
+	unsigned int i = 0, j = 0;
+
+	while(i < size) {
+		if((unsigned char) data[i] < 0x80) {
+			data[j] = data[i];
+		} else if(i < size - 1) {
+			if((unsigned char) data[i] == 0xC2) {
+				data[j] = data[++i];
+			} else if((unsigned char) data[i] == 0xC3) {
+				data[j] = ((unsigned char) data[++i] + 0x40);
+			} else {
+				std::stringstream stream;
+
+				stream << "UTF8 code " << std::hex << data[i] << data[i + 1] << " can not be converted into ISA-8859-1.";
+
+				DefaultLogger::get()->error(stream.str());
+
+				data[j++] = data[i++];
+				data[j] = data[i];
+			}
+		} else {
+			DefaultLogger::get()->error("UTF8 code but only one character remaining");
+
+			data[j] = data[i];
+		}
+
+		i++; j++;
+	}
+
+	data.resize(j);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -533,7 +569,7 @@ void BatchLoader::LoadAll()
 	for (std::list<LoadRequest>::iterator it = data->requests.begin();it != data->requests.end(); ++it)	{
 		// force validation in debug builds
 		unsigned int pp = (*it).flags;
-#ifdef _DEBUG
+#ifdef ASSIMP_BUILD_DEBUG
 		pp |= aiProcess_ValidateDataStructure;
 #endif
 		// setup config properties if necessary
@@ -541,6 +577,7 @@ void BatchLoader::LoadAll()
 		pimpl->mFloatProperties  = (*it).map.floats;
 		pimpl->mIntProperties    = (*it).map.ints;
 		pimpl->mStringProperties = (*it).map.strings;
+		pimpl->mMatrixProperties = (*it).map.matrices;
 
 		if (!DefaultLogger::isNullLogger())
 		{
