@@ -30,22 +30,6 @@
 
 using namespace ColladaUtils;
 
-String cleanString(const String& str)
-{
-   String cleanStr(str);
-
-   // Replace invalid characters with underscores
-   const String badChars(" -,.+=*/");
-   for (String::SizeType i = 0; i < badChars.length(); i++)
-      cleanStr.replace(badChars[i], '_');
-
-   // Prefix with an underscore if string starts with a number
-   if ((cleanStr[0] >= '0') && (cleanStr[0] <= '9'))
-      cleanStr.insert(0, '_');
-
-   return cleanStr;
-}
-
 //------------------------------------------------------------------------------
 
 ColladaAppMaterial::ColladaAppMaterial(const char* matName)

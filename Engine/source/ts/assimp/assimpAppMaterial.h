@@ -27,6 +27,8 @@
 #include "ts/loader/appMaterial.h"
 #endif
 
+class Material;
+
 class AssimpAppMaterial : public AppMaterial
 {
    typedef AppMaterial Parent;
@@ -39,6 +41,7 @@ public:
    ~AssimpAppMaterial() { }
 
    String getName() const { return name; }
+   Material* createMaterial(const Torque::Path& path) const;
 };
 
 #endif // _ASSIMP_APPMATERIAL_H_

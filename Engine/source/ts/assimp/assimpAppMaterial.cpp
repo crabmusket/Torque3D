@@ -53,3 +53,42 @@ AssimpAppMaterial::AssimpAppMaterial(const struct aiMaterial* mtl)
    flags |= TSMaterialList::S_Wrap;
    flags |= TSMaterialList::T_Wrap;
 }
+
+Material* AssimpAppMaterial::createMaterial(const Torque::Path& path) const
+{
+   // The filename and material name are used as TorqueScript identifiers, so
+   // clean them up first
+   String cleanFile = cleanString(TSShapeLoader::getShapePath().getFileName());
+   String cleanName = cleanString(getName());
+
+   // Prefix the material name with the filename (if not done already by TSShapeConstructor prefix)
+   if (!cleanName.startsWith(cleanFile))
+      cleanName = cleanFile + "_" + cleanName;
+
+   // Determine the blend operation for this material
+   Material::BlendOp blendOp = (flags & TSMaterialList::Translucent) ? Material::LerpAlpha : Material::None;
+   if (flags & TSMaterialList::Additive)
+      blendOp = Material::Add;
+   else if (flags & TSMaterialList::Subtractive)
+      blendOp = Material::Sub;
+
+   // Create the Material definition
+   const String oldScriptFile = Con::getVariable("$Con::File");
+   Con::setVariable("$Con::File", path.getFullPath());   // modify current script path so texture lookups are correct
+   Material *newMat = MATMGR->allocateAndRegister( cleanName, getName() );
+   Con::setVariable("$Con::File", oldScriptFile);        // restore script path
+
+   newMat->mDiffuseMapFilename[0] = "";
+   newMat->mNormalMapFilename[0] = "";
+   newMat->mSpecularMapFilename[0] = "";
+
+   newMat->mDiffuse[0] = ColorF::ONE;
+   newMat->mSpecular[0] = ColorF::ONE;
+   newMat->mSpecularPower[0] = 0.8f;
+
+   newMat->mDoubleSided = false;
+   newMat->mTranslucent = (bool)(flags & TSMaterialList::Translucent);
+   newMat->mTranslucentBlendOp = blendOp;
+
+   return newMat;
+}

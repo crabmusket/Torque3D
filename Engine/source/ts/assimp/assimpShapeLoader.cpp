@@ -122,11 +122,12 @@ void AssimpShapeLoader::enumerateScene()
 {
    Con::printf("[ASSIMP] Attempting to load file: %s", shapePath.getFullPath().c_str());
 
-   // This is where assimp does all it's work. The flipUVs and
-   // flipWindingOrder flags correct the data output to work 
+   // This is where assimp does all it's work.  
+   // The flags correct the data output to work 
    // with torque's method of handling things.
    mScene = aiImportFile(shapePath.getFullPath().c_str(), 
       aiProcessPreset_TargetRealtime_MaxQuality | 
+      aiProcess_MakeLeftHanded | 
       aiProcess_FlipUVs |
       aiProcess_FlipWindingOrder
       );
@@ -149,17 +150,121 @@ void AssimpShapeLoader::enumerateScene()
    }
 }
 
+void AssimpShapeLoader::updateMaterialsScript(const Torque::Path &path)
+{
+   Torque::Path scriptPath(path);
+   scriptPath.setFileName("materials");
+   scriptPath.setExtension("cs");
+
+   // First see what materials we need to update
+   PersistenceManager persistMgr;
+   for ( U32 iMat = 0; iMat < AppMesh::appMaterials.size(); iMat++ )
+   {
+      AssimpAppMaterial *mat = dynamic_cast<AssimpAppMaterial*>( AppMesh::appMaterials[iMat] );
+      if ( mat )
+      {
+         Material *mappedMat;
+         if ( Sim::findObject( MATMGR->getMapEntry( mat->getName() ), mappedMat ) )
+         {
+            // Only update existing materials if forced to
+            if ( ColladaUtils::getOptions().forceUpdateMaterials )
+               persistMgr.setDirty( mappedMat );
+         }
+         else
+         {
+            // Create a new material definition
+            persistMgr.setDirty( mat->createMaterial( scriptPath ), scriptPath.getFullPath() );
+         }
+      }
+   }
+
+   if ( persistMgr.getDirtyList().empty() )
+      return;
+
+   persistMgr.saveDirty();
+}
+
+/// Check if an up-to-date cached DTS is available for this DAE file
+bool AssimpShapeLoader::canLoadCachedDTS(const Torque::Path& path)
+{
+   // Generate the cached filename
+   Torque::Path cachedPath(path);
+   cachedPath.setExtension("cached.dts");
+
+   // Check if a cached DTS newer than this file is available
+   FileTime cachedModifyTime;
+   if (Platform::getFileTimes(cachedPath.getFullPath(), NULL, &cachedModifyTime))
+   {
+      bool forceLoadDAE = Con::getBoolVariable("$assimp::forceLoad", false);
+
+      FileTime daeModifyTime;
+      if (!Platform::getFileTimes(path.getFullPath(), NULL, &daeModifyTime) ||
+         (!forceLoadDAE && (Platform::compareFileTimes(cachedModifyTime, daeModifyTime) >= 0) ))
+      {
+         // DAE not found, or cached DTS is newer
+         return true;
+      }
+   }
+
+   return false;
+}
+
 //-----------------------------------------------------------------------------
 /// This function is invoked by the resource manager based on file extension.
 TSShape* assimpLoadShape(const Torque::Path &path)
 {
    // TODO: add .cached.dts generation.
+   // Generate the cached filename
+   Torque::Path cachedPath(path);
+   cachedPath.setExtension("cached.dts");
+
+   // Check if an up-to-date cached DTS version of this file exists, and
+   // if so, use that instead.
+   if (AssimpShapeLoader::canLoadCachedDTS(path))
+   {
+      FileStream cachedStream;
+      cachedStream.open(cachedPath.getFullPath(), Torque::FS::File::Read);
+      if (cachedStream.getStatus() == Stream::Ok)
+      {
+         TSShape *shape = new TSShape;
+         bool readSuccess = shape->read(&cachedStream);
+         cachedStream.close();
+
+         if (readSuccess)
+         {
+         #ifdef TORQUE_DEBUG
+            Con::printf("Loaded cached shape from %s", cachedPath.getFullPath().c_str());
+         #endif
+            return shape;
+         }
+         else
+            delete shape;
+      }
+
+      Con::warnf("Failed to load cached shape from %s", cachedPath.getFullPath().c_str());
+   }
+
+   if (!Torque::FS::IsFile(path))
+   {
+      // File does not exist, bail.
+      return NULL;
+   }
 
    AssimpShapeLoader loader;
    TSShape* tss = loader.generateShape(path);
    if (tss)
    {
       Con::printf("[ASSIMP] Shape created successfully.");
+
+      // Cache the model to a DTS file for faster loading next time.
+      FileStream dtsStream;
+      if (dtsStream.open(cachedPath.getFullPath(), Torque::FS::File::Write))
+      {
+         Con::printf("Writing cached shape to %s", cachedPath.getFullPath().c_str());
+         tss->write(&dtsStream);
+      }
+
+      loader.updateMaterialsScript(path);
    }
    loader.releaseImport();
    return tss;

@@ -69,11 +69,11 @@ void AssimpAppMesh::lockMesh(F32 t, const MatrixF& objectOffset)
    {
       // Points.
       aiVector3D pt = mMeshData->mVertices[n];
-      points.push_back(Point3F(pt.x, pt.y, pt.z));
+      points.push_back(Point3F(pt.x, pt.z, pt.y));
 
       // Normals.
       aiVector3D nrm = mMeshData->mNormals[n];
-      normals.push_back(Point3F(nrm.x, nrm.y, nrm.z));
+      normals.push_back(Point3F(nrm.x, nrm.z, nrm.y));
 
       // UVs
       //aiVector3D uv = mMeshData-> mTextureCoords[0][n];
@@ -85,6 +85,16 @@ void AssimpAppMesh::lockMesh(F32 t, const MatrixF& objectOffset)
          // If it's not mapped, it's not mapped.
          Con::printf("[ASSIMP] No UV Data for mesh.");
          uvs.push_back(Point2F(1, 1));
+      }
+
+      // Vertex Colors
+      if ( mMeshData->HasVertexColors(0) )
+      {
+         ColorF vColor(mMeshData->mColors[0][n].r,
+            mMeshData->mColors[0][n].g,
+            mMeshData->mColors[0][n].b,
+            mMeshData->mColors[0][n].a);
+         colors.push_back(vColor);
       }
    }
 

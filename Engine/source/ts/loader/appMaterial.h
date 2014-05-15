@@ -23,7 +23,6 @@
 #ifndef _APPMATERIAL_H_
 #define _APPMATERIAL_H_
 
-
 struct AppMaterial
 {
    U32 flags;
@@ -35,6 +34,8 @@ struct AppMaterial
    virtual String getName() const { return "unnamed"; }
    virtual U32 getFlags() { return flags; }
    virtual F32 getReflectance() { return reflectance; }
+
+   static String cleanString(const String& str);
 };
 
 #endif // _APPMATERIAL_H_

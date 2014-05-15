@@ -68,24 +68,28 @@ MatrixF AssimpAppNode::getTransform(F32 time)
    // Note: this should be cached, it doesn't change
    //       at this level. This is base transform.
 
+   // Second Note: y and z are swapped, and rows 2 and 3
+   //       are swapped. This corrects the orientation
+   //       to match torque.
+
    mat.setRow(0, Point4F((F32)mNode->mTransformation.a1,
-       (F32)mNode->mTransformation.a2,
        (F32)mNode->mTransformation.a3,
+       (F32)mNode->mTransformation.a2,
        (F32)mNode->mTransformation.a4)
    );
-   mat.setRow(1, Point4F((F32)mNode->mTransformation.b1,
-       (F32)mNode->mTransformation.b2,
-       (F32)mNode->mTransformation.b3,
-       (F32)mNode->mTransformation.b4)
-   );
-   mat.setRow(2, Point4F((F32)mNode->mTransformation.c1,
-       (F32)mNode->mTransformation.c2,
+   mat.setRow(1, Point4F((F32)mNode->mTransformation.c1,
        (F32)mNode->mTransformation.c3,
+       (F32)mNode->mTransformation.c2,
        (F32)mNode->mTransformation.c4)
    );
+   mat.setRow(2, Point4F((F32)mNode->mTransformation.b1,
+       (F32)mNode->mTransformation.b3,
+       (F32)mNode->mTransformation.b2,
+       (F32)mNode->mTransformation.b4)
+   );
    mat.setRow(3, Point4F((F32)mNode->mTransformation.d1,
-       (F32)mNode->mTransformation.d2,
        (F32)mNode->mTransformation.d3,
+       (F32)mNode->mTransformation.d2,
        (F32)mNode->mTransformation.d4)
    );
 

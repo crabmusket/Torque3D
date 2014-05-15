@@ -41,6 +41,9 @@ public:
 
    void releaseImport();
    void enumerateScene();
+   void updateMaterialsScript(const Torque::Path &path);
+
+   static bool canLoadCachedDTS(const Torque::Path& path);
 };
 
 #endif // _ASSIMP_SHAPELOADER_H_
