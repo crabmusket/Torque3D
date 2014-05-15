@@ -33,19 +33,6 @@ $Tools::loadFirst = "editorClasses base worldEditor";
 //---------------------------------------------------------------------------------------------
 $Tools::materialEditorList = "";
 
-// Supported file formats
-$Tools::FormatExtensions = "*.dts" TAB "*.dae" TAB "*.kmz" TAB "*.dif"
-      TAB "*.blend" TAB "*.3ds" TAB "*.ase" TAB "*.obj" TAB "*.fbx"
-      TAB "*.ifc" TAB "*.xgl" TAB "*.zgl" TAB "*.ply"
-      TAB "*.dxf" TAB "*.lwo" TAB "*.lws" TAB "*.lxo"
-      TAB "*.stl" TAB "*.x" TAB "*.ac" TAB "*.ms3d" 
-      TAB "*.cob" TAB "*.xml" TAB "*.irrmesh" TAB "*.irr" 
-      TAB "*.mdl" TAB "*.md2" TAB "*.md3" TAB "*.pk3"
-      TAB "*.mdc" TAB "*.md5" TAB "*.smd" TAB "*.vta"
-      TAB "*.m3" TAB "*.3d" TAB "*.b3d" TAB "*.q3d"
-      TAB "*.q3s" TAB "*.nff" TAB "*.off" TAB "*.raw"
-      TAB "*.ter" TAB "*.mdl" TAB "*.hmp" TAB "*.ndo";
-
 //---------------------------------------------------------------------------------------------
 // Tools Package.
 //---------------------------------------------------------------------------------------------

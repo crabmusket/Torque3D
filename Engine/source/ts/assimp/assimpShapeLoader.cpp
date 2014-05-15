@@ -53,6 +53,54 @@
 #include <assimp/postprocess.h>
 #include <assimp/types.h>
 
+MODULE_BEGIN( AssimpShapeLoader )
+   MODULE_INIT_AFTER( ShapeLoader )
+   MODULE_INIT
+   {
+      TSShapeLoader::addFormat("DirectX X", "x");
+      TSShapeLoader::addFormat("Autodesk FBX", "fbx");
+      TSShapeLoader::addFormat("Blender 3D", "blend" );
+      TSShapeLoader::addFormat("3ds Max 3DS", "3ds");
+      TSShapeLoader::addFormat("3ds Max ASE", "ase");
+      TSShapeLoader::addFormat("Wavefront Object", "obj");
+      TSShapeLoader::addFormat("Industry Foundation Classes (IFC/Step)", "ifc");
+      TSShapeLoader::addFormat("XGL", "xgl");
+      TSShapeLoader::addFormat("Stanford Polygon Library", "ply");
+      TSShapeLoader::addFormat("AutoCAD DXF", "dxf");
+      TSShapeLoader::addFormat("LightWave", "lwo");
+      TSShapeLoader::addFormat("LightWave Scene", "lws");
+      TSShapeLoader::addFormat("Modo", "lxo");
+      TSShapeLoader::addFormat("Stereolithography", "stl");
+      TSShapeLoader::addFormat("AC3D", "ac");
+      TSShapeLoader::addFormat("Milkshape 3D", "ms3d");
+      TSShapeLoader::addFormat("TrueSpace COB", "cob");
+      TSShapeLoader::addFormat("TrueSpace SCN", "scn");
+      TSShapeLoader::addFormat("Ogre XML", "xml");
+      TSShapeLoader::addFormat("Irrlicht Mesh", "irrmesh");
+      TSShapeLoader::addFormat("Irrlicht Scene", "irr");
+      TSShapeLoader::addFormat("Quake I", "mdl" );
+      TSShapeLoader::addFormat("Quake II", "md2" );
+      TSShapeLoader::addFormat("Quake III Mesh", "md3");
+      TSShapeLoader::addFormat("Quake III Map/BSP", "pk3");
+      TSShapeLoader::addFormat("Return to Castle Wolfenstein", "mdc");
+      TSShapeLoader::addFormat("Doom 3", "md5" );
+      TSShapeLoader::addFormat("Valve SMD", "smd");
+      TSShapeLoader::addFormat("Valve VTA", "vta");
+      TSShapeLoader::addFormat("Starcraft II M3", "m3");
+      TSShapeLoader::addFormat("Unreal", "3d");
+      TSShapeLoader::addFormat("BlitzBasic 3D", "b3d" );
+      TSShapeLoader::addFormat("Quick3D Q3D", "q3d");
+      TSShapeLoader::addFormat("Quick3D Q3S", "q3s");
+      TSShapeLoader::addFormat("Neutral File Format", "nff");
+      TSShapeLoader::addFormat("Object File Format", "off");
+      TSShapeLoader::addFormat("PovRAY Raw", "raw");
+      TSShapeLoader::addFormat("Terragen Terrain", "ter");
+      TSShapeLoader::addFormat("3D GameStudio (3DGS)", "mdl");
+      TSShapeLoader::addFormat("3D GameStudio (3DGS) Terrain", "hmp");
+      TSShapeLoader::addFormat("Izware Nendo", "ndo");
+   }
+MODULE_END;
+
 //-----------------------------------------------------------------------------
 
 AssimpShapeLoader::AssimpShapeLoader() 

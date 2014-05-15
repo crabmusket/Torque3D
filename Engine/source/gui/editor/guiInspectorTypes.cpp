@@ -40,7 +40,7 @@
 #include "gui/editor/editorFunctions.h"
 #include "math/mEase.h"
 #include "math/mathTypes.h"
-
+#include "ts/loader/tsShapeLoader.h"
 
 //-----------------------------------------------------------------------------
 // GuiInspectorTypeMenuBase
@@ -764,8 +764,7 @@ GuiControl* GuiInspectorTypeShapeFilename::constructEditControl()
 
    // Change filespec
    char szBuffer[512];
-   dSprintf( szBuffer, sizeof(szBuffer), "getLoadFilename(\"%s\", \"%d.apply\", %d.getData());",
-      "DTS Files (*.dts)|*.dts|COLLADA Files (*.dae)|*.dae|(All Files (*.*)|*.*|", getId(), getId() );
+   dSprintf( szBuffer, sizeof(szBuffer), "getLoadFormatFilename(\"%d.apply\", %d.getData());", getId(), getId() );
    mBrowseButton->setField( "Command", szBuffer );
 
    // Create "Open in ShapeEditor" button

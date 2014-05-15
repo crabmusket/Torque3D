@@ -324,13 +324,13 @@ function EWCreatorWindow::navigate( %this, %address )
    
    if ( %this.tab $= "Meshes" )
    {      
-      %fullPath = findFirstFileMultiExpr( $Tools::FormatExtensions );
+      %fullPath = findFirstFileMultiExpr( getFormatExtensions() );
       
       while ( %fullPath !$= "" )
       {
          if (strstr(%fullPath, "cached.dts") != -1)
          {
-            %fullPath = findNextFileMultiExpr( $Tools::FormatExtensions );
+            %fullPath = findNextFileMultiExpr( getFormatExtensions() );
             continue;
          }
 
@@ -338,7 +338,7 @@ function EWCreatorWindow::navigate( %this, %address )
          %splitPath = strreplace( %fullPath, "/", " " );     
          if( getWord(%splitPath, 0) $= "tools" )
          {
-            %fullPath = findNextFileMultiExpr( $Tools::FormatExtensions );
+            %fullPath = findNextFileMultiExpr( getFormatExtensions() );
             continue;
          }
                       
@@ -396,7 +396,7 @@ function EWCreatorWindow::navigate( %this, %address )
             }
          }         
 
-         %fullPath = findNextFileMultiExpr( $Tools::FormatExtensions );
+         %fullPath = findNextFileMultiExpr( getFormatExtensions() );
       }
    }
    
