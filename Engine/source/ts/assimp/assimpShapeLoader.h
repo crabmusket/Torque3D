@@ -42,6 +42,7 @@ public:
    void releaseImport();
    void enumerateScene();
    void updateMaterialsScript(const Torque::Path &path);
+   void processAnimations();
 
    static bool canLoadCachedDTS(const Torque::Path& path);
 };

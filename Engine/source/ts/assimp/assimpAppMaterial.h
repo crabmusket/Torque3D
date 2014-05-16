@@ -33,7 +33,11 @@ class AssimpAppMaterial : public AppMaterial
 {
    typedef AppMaterial Parent;
 
-   String name; 
+   String   name; 
+   ColorF   diffuseColor;
+   ColorF   specularColor;
+   F32      specularPower;
+   bool     doubleSided;
 public:
 
    AssimpAppMaterial(const char* matName);

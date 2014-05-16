@@ -35,6 +35,12 @@ AssimpAppNode::AssimpAppNode(const struct aiScene* scene, const struct aiNode* n
    : mScene(scene), mNode(node), appParent(parent)
 {
    mName = dStrdup(mNode->mName.C_Str());
+   if ( dStrlen(mName) == 0 )
+   {
+      const char* defaultName = "null";
+      mName = dStrdup(defaultName);
+   }
+
    mParentName = dStrdup(parent ? parent->getName() : "ROOT");
    Con::printf("[ASSIMP] Node Created: %s", mName);
 }
@@ -59,8 +65,6 @@ void AssimpAppNode::buildMeshList()
 
 MatrixF AssimpAppNode::getTransform(F32 time)
 {
-   MatrixF mat(false);
-
    // Translate from assimp matrix to torque matrix.
    // They're both row major, I wish I could just cast
    // but that doesn't seem to be an option.
@@ -72,6 +76,7 @@ MatrixF AssimpAppNode::getTransform(F32 time)
    //       are swapped. This corrects the orientation
    //       to match torque.
 
+   MatrixF mat(false);
    mat.setRow(0, Point4F((F32)mNode->mTransformation.a1,
        (F32)mNode->mTransformation.a3,
        (F32)mNode->mTransformation.a2,
@@ -101,10 +106,6 @@ MatrixF AssimpAppNode::getTransform(F32 time)
       MatrixF parentMat = appParent->getNodeTransform(time);
       mat.mul(parentMat);
    }
-
-   Point3F nodePos = mat.getPosition();
-   Con::printf("[ASSIMP] Node Position: %f %f %f", 
-      nodePos.x, nodePos.y, nodePos.z);
 
    return mat;
 }

@@ -36,6 +36,10 @@
 AssimpAppMaterial::AssimpAppMaterial(const char* matName)
 {
    name = matName;
+   diffuseColor = ColorF::ONE;
+   specularColor = ColorF::ONE;
+   specularPower = 0.8f;
+   doubleSided = false;
 
    // Set some defaults
    flags |= TSMaterialList::S_Wrap;
@@ -46,8 +50,32 @@ AssimpAppMaterial::AssimpAppMaterial(const struct aiMaterial* mtl)
 {
    aiString matName;
    mtl->Get(AI_MATKEY_NAME, matName);
-   Con::printf("[ASSIMP] Loaded Material: %s", matName.C_Str());
    name = matName.C_Str();
+   if ( name.isEmpty() )
+      name = "defaultMaterial";
+   Con::printf("[ASSIMP] Loaded Material: %s", matName.C_Str());
+   
+   // Opacity
+   F32 opacity = 0.0f;
+   mtl->Get(AI_MATKEY_OPACITY, opacity);
+
+   // Diffuse color
+   aiColor3D diff_color (0.f, 0.f, 0.f);
+   mtl->Get(AI_MATKEY_COLOR_DIFFUSE, diff_color);
+   diffuseColor = ColorF(diff_color.r, diff_color.g, diff_color.b, opacity);
+
+   // Spec Color color
+   aiColor3D spec_color (0.f, 0.f, 0.f);
+   mtl->Get(AI_MATKEY_COLOR_DIFFUSE, spec_color );
+   specularColor = ColorF(spec_color.r, spec_color.g, spec_color.b, 1.0f);
+
+   // Specular Power
+   mtl->Get(AI_MATKEY_SHININESS_STRENGTH, specularPower);
+
+   // Double-Sided
+   S32 dbl_sided = 0;
+   mtl->Get(AI_MATKEY_TWOSIDED, dbl_sided);
+   doubleSided = (dbl_sided != 0);
 
    // Set some defaults
    flags |= TSMaterialList::S_Wrap;
@@ -82,11 +110,11 @@ Material* AssimpAppMaterial::createMaterial(const Torque::Path& path) const
    newMat->mNormalMapFilename[0] = "";
    newMat->mSpecularMapFilename[0] = "";
 
-   newMat->mDiffuse[0] = ColorF::ONE;
-   newMat->mSpecular[0] = ColorF::ONE;
-   newMat->mSpecularPower[0] = 0.8f;
+   newMat->mDiffuse[0] = diffuseColor;
+   newMat->mSpecular[0] = specularColor;
+   newMat->mSpecularPower[0] = specularPower;
 
-   newMat->mDoubleSided = false;
+   newMat->mDoubleSided = doubleSided;
    newMat->mTranslucent = (bool)(flags & TSMaterialList::Translucent);
    newMat->mTranslucentBlendOp = blendOp;
 

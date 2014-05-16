@@ -87,6 +87,12 @@ void AssimpAppMesh::lockMesh(F32 t, const MatrixF& objectOffset)
          uvs.push_back(Point2F(1, 1));
       }
 
+      // UV2s
+      if ( mMeshData->HasTextureCoords(1) )
+      {
+         uv2s.push_back(Point2F(mMeshData->mTextureCoords[1][n].x, mMeshData->mTextureCoords[1][n].y));
+      }
+
       // Vertex Colors
       if ( mMeshData->HasVertexColors(0) )
       {

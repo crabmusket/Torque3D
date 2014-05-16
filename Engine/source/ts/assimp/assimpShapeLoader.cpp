@@ -126,10 +126,29 @@ void AssimpShapeLoader::enumerateScene()
    // The flags correct the data output to work 
    // with torque's method of handling things.
    mScene = aiImportFile(shapePath.getFullPath().c_str(), 
-      aiProcessPreset_TargetRealtime_MaxQuality | 
-      aiProcess_MakeLeftHanded | 
-      aiProcess_FlipUVs |
-      aiProcess_FlipWindingOrder
+      aiProcessPreset_TargetRealtime_MaxQuality |
+      aiProcess_ConvertToLeftHanded |
+      aiProcess_JoinIdenticalVertices |
+      aiProcess_Triangulate |
+      aiProcess_GenUVCoords
+      
+      /* 
+      //aiProcess_MakeLeftHanded | 
+      //aiProcess_FlipUVs |
+      aiProcess_FlipWindingOrder | 
+      aiProcess_CalcTangentSpace | // calculate tangents and bitangents if possible
+		    | // join identical vertices/ optimize indexing
+		aiProcess_ValidateDataStructure    | // perform a full validation of the loader's output
+		aiProcess_ImproveCacheLocality     | // improve the cache locality of the output vertices
+		aiProcess_RemoveRedundantMaterials | // remove redundant materials
+		aiProcess_FindDegenerates          | // remove degenerated polygons from the import
+		aiProcess_FindInvalidData          | // detect invalid model data, such as invalid normal vectors
+		aiProcess_GenUVCoords              | // convert spherical, cylindrical, box and planar mapping to proper UVs
+		aiProcess_TransformUVCoords        | // preprocess UV transformations (scaling, translation ...)
+		aiProcess_FindInstances            | // search for instanced meshes and remove them by references to one master
+		aiProcess_LimitBoneWeights         | // limit bone weights to 4 per vertex
+      aiProcess_Triangulate			     | // triangulate polygons with more than 3 edges
+		aiProcess_ConvertToLeftHanded*/
       );
 
    if ( mScene )
@@ -142,11 +161,24 @@ void AssimpShapeLoader::enumerateScene()
          AppMesh::appMaterials.push_back(new AssimpAppMaterial(mScene->mMaterials[i]));
 
       // Define the root node, and process down the chain.
-      AssimpAppNode* node = new AssimpAppNode(mScene, mScene->mRootNode, 0);
+      AssimpAppNode* node = NULL;
+      node = new AssimpAppNode(mScene, mScene->mRootNode, 0);
+      
       if (!processNode(node))
          delete node;
+
+      // Check for animations and process those.
+      processAnimations();
    } else {
-      Con::printf("[ASSIMP] Failed to load file.");
+      Con::printf("[ASSIMP] Import Error: %s", aiGetErrorString());
+   }
+}
+
+void AssimpShapeLoader::processAnimations()
+{
+   for(U32 n = 0; n < mScene->mNumAnimations; ++n)
+   {
+      Con::printf("[ASSIMP] Animation Found: %s", mScene->mAnimations[n]->mName.C_Str());
    }
 }
 
