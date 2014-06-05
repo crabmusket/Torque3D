@@ -1287,7 +1287,7 @@ void TSShapeLoader::addFormat(String name, String extension)
 {
    ShapeFormat newFormat;
    newFormat.mName = name;
-   newFormat.mExtension = extension;
+   newFormat.mExtension = String::ToLower(extension);
    smFormats.push_back(newFormat);
 }
 
@@ -1318,6 +1318,17 @@ String TSShapeLoader::getFormatFilters()
    return output.end();
 }
 
+bool TSShapeLoader::isSupportedFormat(String extension)
+{
+   String extLower = String::ToLower(extension);
+   for(U32 n = 0; n < smFormats.size(); ++n)
+   {
+      if ( smFormats[n].mExtension.equal(extLower) )
+         return true;
+   }
+   return false;
+}
+
 DefineConsoleFunction( getFormatExtensions, const char*, ( ),, "")
 {
    return Con::getReturnBuffer(TSShapeLoader::getFormatExtensions());
@@ -1326,4 +1337,9 @@ DefineConsoleFunction( getFormatExtensions, const char*, ( ),, "")
 DefineConsoleFunction( getFormatFilters, const char*, ( ),, "")
 {
    return Con::getReturnBuffer(TSShapeLoader::getFormatFilters());
+}
+
+DefineConsoleFunction( isSupportedFormat, bool, (const char* extension),, "")
+{
+   return TSShapeLoader::isSupportedFormat(extension);
 }

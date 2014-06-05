@@ -36,5 +36,7 @@ exec("./guiObjectInspector.ed.cs");
 exec("./uvEditor.ed.gui");
 exec("./objectSelection.ed.cs");
 
+exec("./assimpImport.ed.gui");
+
 if (isDemo())
    exec("./messageBoxOKBuy.ed.gui");

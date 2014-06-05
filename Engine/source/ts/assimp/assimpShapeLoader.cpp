@@ -52,6 +52,8 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include <assimp/types.h>
+#include <assimp/config.h>
+#include <exception>
 
 MODULE_BEGIN( AssimpShapeLoader )
    MODULE_INIT_AFTER( ShapeLoader )
@@ -120,36 +122,41 @@ void AssimpShapeLoader::releaseImport()
 
 void AssimpShapeLoader::enumerateScene()
 {
+   TSShapeLoader::updateProgress(TSShapeLoader::Load_ReadFile, "Reading File");
    Con::printf("[ASSIMP] Attempting to load file: %s", shapePath.getFullPath().c_str());
 
-   // This is where assimp does all it's work.  
-   // The flags correct the data output to work 
-   // with torque's method of handling things.
-   mScene = aiImportFile(shapePath.getFullPath().c_str(), 
-      aiProcessPreset_TargetRealtime_MaxQuality |
-      aiProcess_ConvertToLeftHanded |
-      aiProcess_JoinIdenticalVertices |
-      aiProcess_Triangulate |
-      aiProcess_GenUVCoords
-      
-      /* 
-      //aiProcess_MakeLeftHanded | 
-      //aiProcess_FlipUVs |
-      aiProcess_FlipWindingOrder | 
-      aiProcess_CalcTangentSpace | // calculate tangents and bitangents if possible
-		    | // join identical vertices/ optimize indexing
-		aiProcess_ValidateDataStructure    | // perform a full validation of the loader's output
-		aiProcess_ImproveCacheLocality     | // improve the cache locality of the output vertices
-		aiProcess_RemoveRedundantMaterials | // remove redundant materials
-		aiProcess_FindDegenerates          | // remove degenerated polygons from the import
-		aiProcess_FindInvalidData          | // detect invalid model data, such as invalid normal vectors
-		aiProcess_GenUVCoords              | // convert spherical, cylindrical, box and planar mapping to proper UVs
-		aiProcess_TransformUVCoords        | // preprocess UV transformations (scaling, translation ...)
-		aiProcess_FindInstances            | // search for instanced meshes and remove them by references to one master
-		aiProcess_LimitBoneWeights         | // limit bone weights to 4 per vertex
-      aiProcess_Triangulate			     | // triangulate polygons with more than 3 edges
-		aiProcess_ConvertToLeftHanded*/
-      );
+   // Post-Processing
+   unsigned int ppsteps = 
+       Con::getBoolVariable("$Assimp::ConvertToLeftHanded", false) ? aiProcess_ConvertToLeftHanded : 0 |
+       Con::getBoolVariable("$Assimp::CalcTangentSpace", false) ? aiProcess_CalcTangentSpace : 0 |
+       Con::getBoolVariable("$Assimp::JoinIdenticalVertices", false) ? aiProcess_JoinIdenticalVertices : 0 |
+       Con::getBoolVariable("$Assimp::ValidateDataStructure", false) ? aiProcess_ValidateDataStructure : 0 |
+       Con::getBoolVariable("$Assimp::ImproveCacheLocality", false) ? aiProcess_ImproveCacheLocality : 0 |
+       Con::getBoolVariable("$Assimp::RemoveRedundantMaterials", false) ? aiProcess_RemoveRedundantMaterials : 0 |
+       Con::getBoolVariable("$Assimp::FindDegenerates", false) ? aiProcess_FindDegenerates : 0 |
+       Con::getBoolVariable("$Assimp::FindInvalidData", false) ? aiProcess_FindInvalidData : 0 |
+       Con::getBoolVariable("$Assimp::GenUVCoords", false) ? aiProcess_GenUVCoords : 0 |
+       Con::getBoolVariable("$Assimp::TransformUVCoords", false) ? aiProcess_TransformUVCoords : 0 |
+       Con::getBoolVariable("$Assimp::FindInstances", false) ? aiProcess_FindInstances : 0 |
+       Con::getBoolVariable("$Assimp::LimitBoneWeights", false) ? aiProcess_LimitBoneWeights : 0 |
+       Con::getBoolVariable("$Assimp::OptimizeMeshes", false) ? aiProcess_OptimizeMeshes : 0 |
+       0;
+
+   //aiProcess_SortByPType              | // make 'clean' meshes which consist of a single typ of primitives
+
+   aiPropertyStore* props = aiCreatePropertyStore();
+
+   aiSetImportPropertyInteger(props,   AI_CONFIG_IMPORT_TER_MAKE_UVS,         1);
+   aiSetImportPropertyInteger(props,   AI_CONFIG_PP_SBP_REMOVE,               aiPrimitiveType_LINE | aiPrimitiveType_POINT);
+   aiSetImportPropertyInteger(props,   AI_CONFIG_GLOB_MEASURE_TIME,           1);
+   aiSetImportPropertyFloat(props,     AI_CONFIG_PP_GSN_MAX_SMOOTHING_ANGLE,  80.f);
+   //aiSetImportPropertyInteger(props,AI_CONFIG_PP_PTV_KEEP_HIERARCHY,1);
+
+   // Attempt to import with Assimp.
+   mScene = (aiScene*)aiImportFileExWithProperties(shapePath.getFullPath().c_str(),
+         ppsteps, NULL, props);
+
+   aiReleasePropertyStore(props);
 
    if ( mScene )
    {
@@ -170,6 +177,7 @@ void AssimpShapeLoader::enumerateScene()
       // Check for animations and process those.
       processAnimations();
    } else {
+      TSShapeLoader::updateProgress(TSShapeLoader::Load_Complete, "Import failed");
       Con::printf("[ASSIMP] Import Error: %s", aiGetErrorString());
    }
 }
@@ -286,15 +294,16 @@ TSShape* assimpLoadShape(const Torque::Path &path)
    TSShape* tss = loader.generateShape(path);
    if (tss)
    {
+      TSShapeLoader::updateProgress(TSShapeLoader::Load_Complete, "Import complete");
       Con::printf("[ASSIMP] Shape created successfully.");
 
       // Cache the model to a DTS file for faster loading next time.
-      FileStream dtsStream;
+      /*FileStream dtsStream;
       if (dtsStream.open(cachedPath.getFullPath(), Torque::FS::File::Write))
       {
          Con::printf("Writing cached shape to %s", cachedPath.getFullPath().c_str());
          tss->write(&dtsStream);
-      }
+      }*/
 
       loader.updateMaterialsScript(path);
    }

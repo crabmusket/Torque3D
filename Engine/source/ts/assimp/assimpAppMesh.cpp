@@ -65,15 +65,22 @@ void AssimpAppMesh::lockMesh(F32 t, const MatrixF& objectOffset)
    //     points, normals, uvs, primitives, indices
    // There is also colors and uv2s but those don't seem to be required.
 
+   bool noUVFound = false;
    for ( U32 n = 0; n < mMeshData->mNumVertices; ++n)
    {
-      // Points.
+      // Points and Normals
       aiVector3D pt = mMeshData->mVertices[n];
-      points.push_back(Point3F(pt.x, pt.z, pt.y));
-
-      // Normals.
       aiVector3D nrm = mMeshData->mNormals[n];
-      normals.push_back(Point3F(nrm.x, nrm.z, nrm.y));
+
+      // Check for Y Z Swap
+      if ( Con::getBoolVariable("$Assimp::SwapYZ", false) )
+      {
+         points.push_back(Point3F(pt.x, pt.z, pt.y));
+         normals.push_back(Point3F(nrm.x, nrm.z, nrm.y));
+      } else {
+         points.push_back(Point3F(pt.x, pt.y, pt.z));
+         normals.push_back(Point3F(nrm.x, nrm.y, nrm.z));
+      }
 
       // UVs
       //aiVector3D uv = mMeshData-> mTextureCoords[0][n];
@@ -83,7 +90,7 @@ void AssimpAppMesh::lockMesh(F32 t, const MatrixF& objectOffset)
       } else {
          // I don't know if there's any solution to this issue.
          // If it's not mapped, it's not mapped.
-         Con::printf("[ASSIMP] No UV Data for mesh.");
+         noUVFound = true;
          uvs.push_back(Point2F(1, 1));
       }
 
@@ -121,9 +128,12 @@ void AssimpAppMesh::lockMesh(F32 t, const MatrixF& objectOffset)
          indices.push_back(face->mIndices[1]);
          indices.push_back(face->mIndices[2]);
       } else {
-         Con::printf("[ASSIMP] Non-Triangle Face Found.");
+         Con::printf("[ASSIMP] Non-Triangle Face Found. Indices: %d", face->mNumIndices);
       }
    }
+
+   if ( noUVFound )
+      Con::warnf("[ASSIMP] No UV Data for mesh.");
 }
 
 void AssimpAppMesh::lookupSkinData()

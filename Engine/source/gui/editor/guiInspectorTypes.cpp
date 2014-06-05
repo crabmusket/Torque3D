@@ -40,7 +40,7 @@
 #include "gui/editor/editorFunctions.h"
 #include "math/mEase.h"
 #include "math/mathTypes.h"
-#include "ts/loader/tsShapeLoader.h"
+
 
 //-----------------------------------------------------------------------------
 // GuiInspectorTypeMenuBase
