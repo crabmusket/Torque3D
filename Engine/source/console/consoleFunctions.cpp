@@ -1495,14 +1495,15 @@ DefineEngineFunction( setLogMode, void, ( S32 mode ),,
 
 //-----------------------------------------------------------------------------
 
-DefineConsoleFunction( quit, void, ( ),,
+DefineConsoleFunction( quit, void, ( U32 status ), ( 0 ),
    "Shut down the engine and exit its process.\n"
    "This function cleanly uninitializes the engine and then exits back to the system with a process "
-   "exit status indicating a clean exit.\n\n"
+   "exit status defined by the caller. It defaults to 0, which indicates a clean exit.\n\n"
+   "@param status The exit status to return to the system (defaults to 0).\n\n"
    "@see quitWithErrorMessage\n\n"
    "@ingroup Platform" )
 {
-   Platform::postQuitMessage(0);
+   Platform::postQuitMessage(status);
 }
 
 //-----------------------------------------------------------------------------
