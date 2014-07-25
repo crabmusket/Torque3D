@@ -11,22 +11,22 @@
 #endif
 
 #ifndef __RESOURCE_H__
-	#include "core/resource.h"
+#include "core/resource.h"
 #endif
 #ifndef _TSSHAPE_H_
-	#include "ts/tsShape.h"
+#include "ts/tsShape.h"
 #endif
 #ifndef _SCENERENDERSTATE_H_
-   #include "scene/sceneRenderState.h"
+#include "scene/sceneRenderState.h"
 #endif
 #ifndef _MBOX_H_
-   #include "math/mBox.h"
+#include "math/mBox.h"
 #endif
 #ifndef _ENTITY_H_
-   #include "T3D/Entity.h"
+#include "T3D/Entity.h"
 #endif
 #ifndef _CONVEX_H_
-   #include "collision/convex.h"
+#include "collision/convex.h"
 #endif
 #ifndef _BOXCONVEX_H_
 #include "collision/boxConvex.h"

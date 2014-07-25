@@ -45,8 +45,8 @@ protected:
    //This is for dynamic fields we may want to save out to file, etc.
    struct behaviorFields
    {
-		StringTableEntry mFieldName;
-		StringTableEntry mDefaultValue;
+      StringTableEntry mFieldName;
+      StringTableEntry mDefaultValue;
    };
 
    Vector<behaviorFields> mBehaviorFields;

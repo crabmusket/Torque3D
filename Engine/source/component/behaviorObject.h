@@ -40,9 +40,9 @@
 #include "core/util/safeDelete.h"
 
 #ifdef TORQUE_DEBUG
-	#ifndef _TDICTIONARY_H_
-	#include "core/util/tDictionary.h"
-	#endif
+#ifndef _TDICTIONARY_H_
+#include "core/util/tDictionary.h"
+#endif
 #endif
 
 class BehaviorTemplate;
@@ -95,16 +95,16 @@ public:
    // These are the functions that handle behavior management
 private:
    SimSet mBehaviors;
-	Vector<BehaviorInstance*> mToLoadBehaviors;
-	bool   mStartBehaviorUpdate;
-	bool   mDelayUpdate;
+   Vector<BehaviorInstance*> mToLoadBehaviors;
+   bool   mStartBehaviorUpdate;
+   bool   mDelayUpdate;
    bool   mLoadedBehaviors;
 
 protected:
    enum MaskBits 
    {
-	   BehaviorsMask				 = Parent::NextFreeMask << 0,
-	   NextFreeMask             = Parent::NextFreeMask << 1
+      BehaviorsMask				 = Parent::NextFreeMask << 0,
+      NextFreeMask             = Parent::NextFreeMask << 1
    };
 
    // [neo, 5/10/2007 - #3010]
@@ -139,24 +139,24 @@ public:
    virtual void clearBehaviors(bool deleteBehaviors = true);
    virtual bool reOrder( BehaviorInstance *obj, U32 desiredIndex /* = 0 */ );
    virtual U32 getBehaviorCount() const { return mBehaviors.size(); }
-	void updateBehaviors();
-	void setBehaviorsDirty();
-	/// This forces the network update of a single specific behavior
-	/// The force update arg is for special-case behaviors that are explicitly networked to certain clients
-	/// Such as the camera, and it will override the check if the template defines if it's networked or not
-	void setBehaviorDirty(BehaviorInstance *bI, bool forceUpdate = false);
+   void updateBehaviors();
+   void setBehaviorsDirty();
+   /// This forces the network update of a single specific behavior
+   /// The force update arg is for special-case behaviors that are explicitly networked to certain clients
+   /// Such as the camera, and it will override the check if the template defines if it's networked or not
+   void setBehaviorDirty(BehaviorInstance *bI, bool forceUpdate = false);
    void callOnBehaviors( String function );
 
 public:
-	BehaviorObject();
+   BehaviorObject();
    ~BehaviorObject(){}
 
-	bool onAdd();
-	void onRemove();
+   bool onAdd();
+   void onRemove();
 
-	virtual void onPostAdd();
+   virtual void onPostAdd();
 
-	virtual void addObject( SimObject* object );
+   virtual void addObject( SimObject* object );
 
    Box3F getObjectBox() { return mObjBox; }
    MatrixF getWorldToObj() { return mWorldToObj; }
@@ -165,12 +165,12 @@ public:
    virtual void setObjectBox(Box3F objBox){}
    virtual void setWorldBox(Box3F wrldBox) { mWorldBox = wrldBox; }
 
-	bool areBehaviorsLoaded() { return mLoadedBehaviors; }
+   bool areBehaviorsLoaded() { return mLoadedBehaviors; }
 
-	U32 packUpdate(NetConnection *con, U32 mask, BitStream *stream);
-	void unpackUpdate(NetConnection *con, BitStream *stream);
+   U32 packUpdate(NetConnection *con, U32 mask, BitStream *stream);
+   void unpackUpdate(NetConnection *con, BitStream *stream);
 
-	S32 isBehaviorPackable(NetConnection *con, BehaviorInstance* bI);
+   S32 isBehaviorPackable(NetConnection *con, BehaviorInstance* bI);
 
    DECLARE_CONOBJECT(BehaviorObject);
 };
@@ -178,14 +178,14 @@ public:
 template <class T>
 T *BehaviorObject::getBehavior()
 {
-	for( SimSet::iterator b = mBehaviors.begin(); b != mBehaviors.end(); b++ )
-	{
+   for( SimSet::iterator b = mBehaviors.begin(); b != mBehaviors.end(); b++ )
+   {
       T* t = dynamic_cast<T *>(*b);
       if(t) {
          return t;
       }
-	}
-	return NULL;
+   }
+   return NULL;
 }
 
 template <class T>

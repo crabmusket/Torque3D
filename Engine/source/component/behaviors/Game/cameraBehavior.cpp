@@ -20,24 +20,24 @@
 #include "T3D/gameBase/gameConnection.h"
 
 IMPLEMENT_CALLBACK( CameraBehaviorInstance, validateCameraFov, F32, (F32 fov), (fov),
-   "@brief Called on the server when the client has requested a FOV change.\n\n"
+                   "@brief Called on the server when the client has requested a FOV change.\n\n"
 
-   "When the client requests that its field of view should be changed (because "
-   "they want to use a sniper scope, for example) this new FOV needs to be validated "
-   "by the server.  This method is called if it exists (it is optional) to validate "
-   "the requested FOV, and modify it if necessary.  This could be as simple as checking "
-   "that the FOV falls within a correct range, to making sure that the FOV matches the "
-   "capabilities of the current weapon.\n\n"
+                   "When the client requests that its field of view should be changed (because "
+                   "they want to use a sniper scope, for example) this new FOV needs to be validated "
+                   "by the server.  This method is called if it exists (it is optional) to validate "
+                   "the requested FOV, and modify it if necessary.  This could be as simple as checking "
+                   "that the FOV falls within a correct range, to making sure that the FOV matches the "
+                   "capabilities of the current weapon.\n\n"
 
-   "Following this method, ShapeBase ensures that the given FOV still falls within "
-   "the datablock's cameraMinFov and cameraMaxFov.  If that is good enough for your "
-   "purposes, then you do not need to define the validateCameraFov() callback for "
-   "your ShapeBase.\n\n"
+                   "Following this method, ShapeBase ensures that the given FOV still falls within "
+                   "the datablock's cameraMinFov and cameraMaxFov.  If that is good enough for your "
+                   "purposes, then you do not need to define the validateCameraFov() callback for "
+                   "your ShapeBase.\n\n"
 
-   "@param fov The FOV that has been requested by the client.\n"
-   "@return The FOV as validated by the server.\n\n"
+                   "@param fov The FOV that has been requested by the client.\n"
+                   "@return The FOV as validated by the server.\n\n"
 
-   "@see ShapeBaseData\n\n");
+                   "@see ShapeBaseData\n\n");
 
 //////////////////////////////////////////////////////////////////////////
 // Constructor/Destructor
@@ -45,7 +45,7 @@ IMPLEMENT_CALLBACK( CameraBehaviorInstance, validateCameraFov, F32, (F32 fov), (
 
 CameraBehavior::CameraBehavior()
 {
-	mNetFlags.set(Ghostable | ScopeAlways);
+   mNetFlags.set(Ghostable | ScopeAlways);
 }
 
 CameraBehavior::~CameraBehavior()
@@ -94,13 +94,13 @@ void CameraBehavior::initPersistFields()
 
 U32 CameraBehavior::packUpdate(NetConnection *con, U32 mask, BitStream *stream)
 {
-	U32 retMask = Parent::packUpdate(con, mask, stream);
-	return retMask;
+   U32 retMask = Parent::packUpdate(con, mask, stream);
+   return retMask;
 }
 
 void CameraBehavior::unpackUpdate(NetConnection *con, BitStream *stream)
 {
-	Parent::unpackUpdate(con, stream);
+   Parent::unpackUpdate(con, stream);
 }
 
 //==========================================================================================
@@ -188,8 +188,8 @@ void CameraBehaviorInstance::onCameraScopeQuery(NetConnection *cr, CameraScopeQu
    camTransform.getColumn(1, &query->orientation);
 
    // Get the visible distance.
-	if (mBehaviorOwner->getSceneManager() != NULL)
-		query->visibleDistance = mBehaviorOwner->getSceneManager()->getVisibleDistance();
+   if (mBehaviorOwner->getSceneManager() != NULL)
+      query->visibleDistance = mBehaviorOwner->getSceneManager()->getVisibleDistance();
 
    Parent::onCameraScopeQuery( cr, query );
 }
@@ -210,24 +210,24 @@ bool CameraBehaviorInstance::getCameraTransform(F32* pos,MatrixF* mat)
       getCameraParameters(&min,&max,&offset,&rot);
       trans = mBehaviorOwner->getRenderTransform();
 
-		EulerF rotTest = trans.toEuler();
-		rotTest = EulerF(mRadToDeg(rotTest.x), mRadToDeg(rotTest.y), mRadToDeg(rotTest.z));
-		if(!mIsZero(rotTest.y))
-			bool breakp = 0;
+      EulerF rotTest = trans.toEuler();
+      rotTest = EulerF(mRadToDeg(rotTest.x), mRadToDeg(rotTest.y), mRadToDeg(rotTest.z));
+      if(!mIsZero(rotTest.y))
+         bool breakp = 0;
 
       mat->mul(trans,rot);
 
-		rotTest = mat->toEuler();
-		rotTest = EulerF(mRadToDeg(rotTest.x), mRadToDeg(rotTest.y), mRadToDeg(rotTest.z));
-		if(!mIsZero(rotTest.y))
-			bool breakp = 0;
+      rotTest = mat->toEuler();
+      rotTest = EulerF(mRadToDeg(rotTest.x), mRadToDeg(rotTest.y), mRadToDeg(rotTest.z));
+      if(!mIsZero(rotTest.y))
+         bool breakp = 0;
 
       // Use the eye transform to orient the camera
       VectorF vp,vec;
       vp.x = vp.z = 0;
       vp.y = -(max - min) * *pos;
       trans.mulV(vp,&vec);
-      
+
       VectorF minVec;
       vp.y = -min;
       trans.mulV( vp, &minVec );
@@ -235,36 +235,36 @@ bool CameraBehaviorInstance::getCameraTransform(F32* pos,MatrixF* mat)
       // Use the camera node's pos.
       Point3F osp,sp;
       /*if (mDataBlock->cameraNode != -1) {
-         mShapeInstance->mNodeTransforms[mDataBlock->cameraNode].getColumn(3,&osp);
+      mShapeInstance->mNodeTransforms[mDataBlock->cameraNode].getColumn(3,&osp);
 
-         // Scale the camera position before applying the transform
-         const Point3F& scale = getScale();
-         osp.convolve( scale );
+      // Scale the camera position before applying the transform
+      const Point3F& scale = getScale();
+      osp.convolve( scale );
 
-         getRenderTransform().mulP(osp,&sp);
+      getRenderTransform().mulP(osp,&sp);
       }
       else*/
-         mBehaviorOwner->getRenderTransform().getColumn(3,&sp);
+      mBehaviorOwner->getRenderTransform().getColumn(3,&sp);
 
       // Make sure we don't extend the camera into anything solid
       Point3F ep = sp + minVec + vec + offset;
       /*disableCollision();
       if (isMounted())
-         getObjectMount()->disableCollision();
+      getObjectMount()->disableCollision();
       RayInfo collision;
       if( mContainer && mContainer->castRay(sp, ep,
-                              (0xFFFFFFFF & ~(WaterObjectType      |
-                                              GameBaseObjectType   |
-                                              TriggerObjectType    |
-                                              DefaultObjectType)),
-                              &collision) == true) {
-         F32 vecLenSq = vec.lenSquared();
-         F32 adj = (-mDot(vec, collision.normal) / vecLenSq) * 0.1;
-         F32 newPos = getMax(0.0f, collision.t - adj);
-         if (newPos == 0.0f)
-            eye.getColumn(3,&ep);
-         else
-            ep = sp + offset + (vec * newPos);
+      (0xFFFFFFFF & ~(WaterObjectType      |
+      GameBaseObjectType   |
+      TriggerObjectType    |
+      DefaultObjectType)),
+      &collision) == true) {
+      F32 vecLenSq = vec.lenSquared();
+      F32 adj = (-mDot(vec, collision.normal) / vecLenSq) * 0.1;
+      F32 newPos = getMax(0.0f, collision.t - adj);
+      if (newPos == 0.0f)
+      eye.getColumn(3,&ep);
+      else
+      ep = sp + offset + (vec * newPos);
       }*/
       mat->setColumn(3,ep);
 
@@ -274,8 +274,8 @@ bool CameraBehaviorInstance::getCameraTransform(F32* pos,MatrixF* mat)
    }
    else
    {
-	   MatrixF rMat = mBehaviorOwner->getRenderTransform();
-	   mat->set(rMat.toEuler(), rMat.getPosition());
+      MatrixF rMat = mBehaviorOwner->getRenderTransform();
+      mat->set(rMat.toEuler(), rMat.getPosition());
    }
 
    // Apply Camera FX.
@@ -292,17 +292,17 @@ void CameraBehaviorInstance::getCameraParameters(F32 *min,F32* max,Point3F* off,
 }
 U32 CameraBehaviorInstance::packUpdate(NetConnection *con, U32 mask, BitStream *stream)
 {
-	U32 retmask = Parent::packUpdate(con, mask, stream);
-	return retmask;
+   U32 retmask = Parent::packUpdate(con, mask, stream);
+   return retmask;
 }
 
 void CameraBehaviorInstance::unpackUpdate(NetConnection *con, BitStream *stream)
 {
-	Parent::unpackUpdate(con, stream);
+   Parent::unpackUpdate(con, stream);
 }
 
 ConsoleMethod(CameraBehaviorInstance, getMode, const char*, 2, 2, "() - We get the first behavior of the requested type on our owner object.\n"
-																	 "@return (string name) The type of the behavior we're requesting")
+              "@return (string name) The type of the behavior we're requesting")
 {
-	return "fly";
+   return "fly";
 }

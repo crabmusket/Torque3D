@@ -5,7 +5,7 @@
 class VelocityInterface
 {
 public:
-	virtual VectorF getVelocity()=0;
+   virtual VectorF getVelocity()=0;
 };
 
 #endif

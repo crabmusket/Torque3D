@@ -18,7 +18,7 @@
 
 ZoneBehavior::ZoneBehavior()
 {
-	mNetFlags.set(Ghostable | ScopeAlways);
+   mNetFlags.set(Ghostable | ScopeAlways);
 }
 
 ZoneBehavior::~ZoneBehavior()
@@ -67,13 +67,13 @@ void ZoneBehavior::initPersistFields()
 
 U32 ZoneBehavior::packUpdate(NetConnection *con, U32 mask, BitStream *stream)
 {
-	U32 retMask = Parent::packUpdate(con, mask, stream);
-	return retMask;
+   U32 retMask = Parent::packUpdate(con, mask, stream);
+   return retMask;
 }
 
 void ZoneBehavior::unpackUpdate(NetConnection *con, BitStream *stream)
 {
-	Parent::unpackUpdate(con, stream);
+   Parent::unpackUpdate(con, stream);
 }
 
 //==========================================================================================
@@ -122,11 +122,11 @@ void ZoneBehaviorInstance::initPersistFields()
 
 U32 ZoneBehaviorInstance::packUpdate(NetConnection *con, U32 mask, BitStream *stream)
 {
-	U32 retMask = Parent::packUpdate(con, mask, stream);
-	return retMask;
+   U32 retMask = Parent::packUpdate(con, mask, stream);
+   return retMask;
 }
 
 void ZoneBehaviorInstance::unpackUpdate(NetConnection *con, BitStream *stream)
 {
-	Parent::unpackUpdate(con, stream);
+   Parent::unpackUpdate(con, stream);
 }

@@ -24,16 +24,16 @@
 #define _ENTITY_H_
 
 #ifndef _GAMEBASE_H_
-	#include "T3D/gameBase/gameBase.h"
+#include "T3D/gameBase/gameBase.h"
 #endif
 #ifndef _MOVEMANAGER_H_
-   #include "T3D/gameBase/moveManager.h"
+#include "T3D/gameBase/moveManager.h"
 #endif
 #ifndef _BEHAVIOR_OBJECT_H_
-	#include "component/behaviorObject.h"
+#include "component/behaviorObject.h"
 #endif
 #ifndef _BEHAVIORINSTANCE_H_
-	#include "component/behaviors/behaviorInstance.h"
+#include "component/behaviors/behaviorInstance.h"
 #endif
 #ifndef _SIMSET_H_
 #include "console/simSet.h"
@@ -85,9 +85,9 @@ public:
 
    enum MaskBits 
    {
-	    TransformMask				 = Parent::NextFreeMask << 0,
-	    BoundsMask				    = Parent::NextFreeMask << 1,
-       NextFreeMask              = Parent::NextFreeMask << 2
+      TransformMask				 = Parent::NextFreeMask << 0,
+      BoundsMask				    = Parent::NextFreeMask << 1,
+      NextFreeMask              = Parent::NextFreeMask << 2
    };
 
    StateDelta mDelta;
@@ -104,18 +104,18 @@ public:
    virtual void setTransform(const MatrixF &mat);
    void setTransform(Point3F position, EulerF rotation);
 
-	void setRotation(EulerF rotation);
-	EulerF getRotation() { return mRot; }
+   void setRotation(EulerF rotation);
+   EulerF getRotation() { return mRot; }
 
    void setMountOffset(Point3F posOffset);
    void setMountRotation(EulerF rotOffset);
 
    static bool _setEulerRotation( void *object, const char *index, const char *data );
 
-	virtual void getMountTransform( S32 index, const MatrixF &xfm, MatrixF *outMat );
-	virtual void getRenderMountTransform( F32 delta, S32 index, const MatrixF &xfm, MatrixF *outMat );
+   virtual void getMountTransform( S32 index, const MatrixF &xfm, MatrixF *outMat );
+   virtual void getRenderMountTransform( F32 delta, S32 index, const MatrixF &xfm, MatrixF *outMat );
 
-	virtual void mountObject( SceneObject *obj, S32 node, const MatrixF &xfm = MatrixF::Identity );
+   virtual void mountObject( SceneObject *obj, S32 node, const MatrixF &xfm = MatrixF::Identity );
    void mountObject(SceneObject* objB, MatrixF txfm);
    void onMount( SceneObject *obj, S32 node );
    void onUnmount( SceneObject *obj, S32 node );
@@ -149,8 +149,8 @@ public:
    virtual void addObject( SimObject* object );
    virtual void removeObject( SimObject* object );
 
-	void onInspect();
-	void onEndInspect();
+   void onInspect();
+   void onEndInspect();
 
    DECLARE_CONOBJECT(Entity);
 

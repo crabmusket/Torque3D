@@ -85,47 +85,47 @@ void bBoxConvex::getFeatures(const MatrixF& mat,const VectorF& n, ConvexFeature*
    cf->mFaceList.setSize(6);
 
    Point3F points[8] = { Point3F(mCenter + Point3F(-mSize.x, -mSize.y, -mSize.z)),
-						 Point3F(mCenter + Point3F(-mSize.x, -mSize.y,  mSize.z)),
-						 Point3F(mCenter + Point3F( mSize.x, -mSize.y,  mSize.z)),
-						 Point3F(mCenter + Point3F( mSize.x, -mSize.y, -mSize.z)),
-						 Point3F(mCenter + Point3F(-mSize.x,  mSize.y, -mSize.z)),
-						 Point3F(mCenter + Point3F(-mSize.x,  mSize.y,  mSize.z)),
-						 Point3F(mCenter + Point3F( mSize.x,  mSize.y,  mSize.z)),
-						 Point3F(mCenter + Point3F( mSize.x,  mSize.y, -mSize.z)) };
+      Point3F(mCenter + Point3F(-mSize.x, -mSize.y,  mSize.z)),
+      Point3F(mCenter + Point3F( mSize.x, -mSize.y,  mSize.z)),
+      Point3F(mCenter + Point3F( mSize.x, -mSize.y, -mSize.z)),
+      Point3F(mCenter + Point3F(-mSize.x,  mSize.y, -mSize.z)),
+      Point3F(mCenter + Point3F(-mSize.x,  mSize.y,  mSize.z)),
+      Point3F(mCenter + Point3F( mSize.x,  mSize.y,  mSize.z)),
+      Point3F(mCenter + Point3F( mSize.x,  mSize.y, -mSize.z)) };
 
    Point2I edges[12] = { Point2I(0,1), Point2I(1,2), Point2I(2,3), Point2I(3,0),
-						 Point2I(4,5), Point2I(5,6), Point2I(6,7), Point2I(7,4),
-						 Point2I(0,4), Point2I(1,5), Point2I(2,6), Point2I(3,7) };
+      Point2I(4,5), Point2I(5,6), Point2I(6,7), Point2I(7,4),
+      Point2I(0,4), Point2I(1,5), Point2I(2,6), Point2I(3,7) };
 
    Point3I faces[6] = { Point3I(0,1,2), Point3I(4,5,6), Point3I(0,1,4),
-						Point3I(3,2,6), Point3I(0,4,3), Point3I(1,5,6) };
+      Point3I(3,2,6), Point3I(0,4,3), Point3I(1,5,6) };
 
 
    for(U32 i = 0; i < 8; i++)
    {
-	   mat.mulP(points[i],&cf->mVertexList[i]);
+      mat.mulP(points[i],&cf->mVertexList[i]);
    }
 
    //edges
    for(U32 i = 0; i < 12; i++)
    {
-	   ConvexFeature::Edge edge;
-	   edge.vertex[0] = edges[i].x;
-	   edge.vertex[1] = edges[i].y;
-	   cf->mEdgeList[i] = edge;
+      ConvexFeature::Edge edge;
+      edge.vertex[0] = edges[i].x;
+      edge.vertex[1] = edges[i].y;
+      cf->mEdgeList[i] = edge;
    }
 
    //face
    for(U32 i = 0; i < 6; i++)
    {
-	   ConvexFeature::Face face;
-	   face.normal = PlaneF(cf->mVertexList[faces[i].x], cf->mVertexList[faces[i].y], cf->mVertexList[faces[i].z]);
+      ConvexFeature::Face face;
+      face.normal = PlaneF(cf->mVertexList[faces[i].x], cf->mVertexList[faces[i].y], cf->mVertexList[faces[i].z]);
 
-	   face.vertex[0] = faces[i].x;
-	   face.vertex[1] = faces[i].y;
-	   face.vertex[2] = faces[i].z;
+      face.vertex[0] = faces[i].x;
+      face.vertex[1] = faces[i].y;
+      face.vertex[2] = faces[i].z;
 
-	   cf->mFaceList[i] = face;
+      cf->mFaceList[i] = face;
    }
 }
 
@@ -134,16 +134,16 @@ void bBoxConvex::getPolyList(AbstractPolyList* list)
    list->setTransform(&getTransform(), getScale());
    list->setObject(getObject());
 
-	Point3F centerPos = getObject()->getPosition();
+   Point3F centerPos = getObject()->getPosition();
 
    U32 base = list->addPoint(centerPos + Point3F(-mSize.x, -mSize.y, -mSize.z));
-              list->addPoint(centerPos + Point3F( mSize.x, -mSize.y, -mSize.z));
-              list->addPoint(centerPos + Point3F(-mSize.x,  mSize.y, -mSize.z));
-              list->addPoint(centerPos + Point3F( mSize.x,  mSize.y, -mSize.z));
-              list->addPoint(centerPos + Point3F(-mSize.x, -mSize.y,  mSize.z));
-              list->addPoint(centerPos + Point3F( mSize.x, -mSize.y,  mSize.z));
-              list->addPoint(centerPos + Point3F(-mSize.x,  mSize.y,  mSize.z));
-              list->addPoint(centerPos + Point3F( mSize.x,  mSize.y,  mSize.z));
+   list->addPoint(centerPos + Point3F( mSize.x, -mSize.y, -mSize.z));
+   list->addPoint(centerPos + Point3F(-mSize.x,  mSize.y, -mSize.z));
+   list->addPoint(centerPos + Point3F( mSize.x,  mSize.y, -mSize.z));
+   list->addPoint(centerPos + Point3F(-mSize.x, -mSize.y,  mSize.z));
+   list->addPoint(centerPos + Point3F( mSize.x, -mSize.y,  mSize.z));
+   list->addPoint(centerPos + Point3F(-mSize.x,  mSize.y,  mSize.z));
+   list->addPoint(centerPos + Point3F( mSize.x,  mSize.y,  mSize.z));
 
    for (U32 i = 0; i < 6; i++) {
       list->begin(0, i);
@@ -153,20 +153,20 @@ void bBoxConvex::getPolyList(AbstractPolyList* list)
       //list->vertex(base + sFace[i].vertex[3]);
 
       list->plane(base + sFace[i].vertex[0],
-                  base + sFace[i].vertex[1],
-                  base + sFace[i].vertex[2]);
+         base + sFace[i].vertex[1],
+         base + sFace[i].vertex[2]);
       list->end();
 
-	  //
-	  list->begin(0, i+1);
+      //
+      list->begin(0, i+1);
       list->vertex(base + sFace[i].vertex[2]);
       list->vertex(base + sFace[i].vertex[3]);
       list->vertex(base + sFace[i].vertex[0]);
       //list->vertex(base + sFace[i].vertex[3]);
 
       list->plane(base + sFace[i].vertex[2],
-                  base + sFace[i].vertex[3],
-                  base + sFace[i].vertex[0]);
+         base + sFace[i].vertex[3],
+         base + sFace[i].vertex[0]);
       list->end();
    }
 }
@@ -174,9 +174,9 @@ void bBoxConvex::getPolyList(AbstractPolyList* list)
 //
 BoxColliderBehavior::BoxColliderBehavior()
 {
-	mNetFlags.set(Ghostable | ScopeAlways);
+   mNetFlags.set(Ghostable | ScopeAlways);
 
-	addBehaviorField("colliderSize", "If enabled, will stop colliding objects from passing through.", "Vector", "0.5 0.5 0.5", "");
+   addBehaviorField("colliderSize", "If enabled, will stop colliding objects from passing through.", "Vector", "0.5 0.5 0.5", "");
 }
 
 BoxColliderBehavior::~BoxColliderBehavior()
@@ -226,8 +226,8 @@ BoxColliderBehaviorInstance::BoxColliderBehaviorInstance( BehaviorTemplate *btem
    mNetFlags.set(Ghostable);
 
    CollisionMoveMask = ( TerrainObjectType     | PlayerObjectType  | 
-                                    StaticShapeObjectType | VehicleObjectType |
-                                    VehicleBlockerObjectType | DynamicShapeObjectType | StaticObjectType);
+      StaticShapeObjectType | VehicleObjectType |
+      VehicleBlockerObjectType | DynamicShapeObjectType | StaticObjectType);
 
 }
 
@@ -249,23 +249,23 @@ bool BoxColliderBehaviorInstance::onAdd()
 void BoxColliderBehaviorInstance::onRemove()
 {
    if(mConvexList != NULL)
-	  mConvexList->nukeList();
+      mConvexList->nukeList();
    Parent::onRemove();
 }
 
 void BoxColliderBehaviorInstance::onBehaviorRemove()
 {
-	SAFE_DELETE( (dynamic_cast<Entity*>(mBehaviorOwner))->mPhysicsRep );
-	mBehaviorOwner->disableCollision();
+   SAFE_DELETE( (dynamic_cast<Entity*>(mBehaviorOwner))->mPhysicsRep );
+   mBehaviorOwner->disableCollision();
 
-	Parent::onBehaviorRemove();
+   Parent::onBehaviorRemove();
 }
 
 void BoxColliderBehaviorInstance::onBehaviorAdd()
 {
-	Parent::onBehaviorAdd();
-	if(isServerObject())
-		prepCollision();
+   Parent::onBehaviorAdd();
+   if(isServerObject())
+      prepCollision();
 }
 
 void BoxColliderBehaviorInstance::initPersistFields()
@@ -276,53 +276,53 @@ void BoxColliderBehaviorInstance::initPersistFields()
 
 U32 BoxColliderBehaviorInstance::packUpdate(NetConnection *con, U32 mask, BitStream *stream)
 {
-	U32 retMask = Parent::packUpdate(con, mask, stream);
+   U32 retMask = Parent::packUpdate(con, mask, stream);
 
-	if ( mask & InitialUpdateMask )
-	{
-		if(mBehaviorOwner){
-			if(con->getGhostIndex(mBehaviorOwner) != -1)
-			{
-				stream->writeFlag( true );
-				mathWrite( *stream, colliderScale );
-			}
-			else
-			{
-				retMask |= InitialUpdateMask; //try it again untill our dependency is ghosted
-				stream->writeFlag( false );
-			}
-		}
-		else
-			stream->writeFlag( false );
-	}
+   if ( mask & InitialUpdateMask )
+   {
+      if(mBehaviorOwner){
+         if(con->getGhostIndex(mBehaviorOwner) != -1)
+         {
+            stream->writeFlag( true );
+            mathWrite( *stream, colliderScale );
+         }
+         else
+         {
+            retMask |= InitialUpdateMask; //try it again untill our dependency is ghosted
+            stream->writeFlag( false );
+         }
+      }
+      else
+         stream->writeFlag( false );
+   }
 
-	return retMask;
+   return retMask;
 }
 
 void BoxColliderBehaviorInstance::unpackUpdate(NetConnection *con, BitStream *stream)
 {
-	Parent::unpackUpdate(con, stream);
+   Parent::unpackUpdate(con, stream);
 
-	if ( stream->readFlag() ) // UpdateMask
-    {
-		mathRead(*stream, &colliderScale);
-		prepCollision();
+   if ( stream->readFlag() ) // UpdateMask
+   {
+      mathRead(*stream, &colliderScale);
+      prepCollision();
    }
 }
 
 void BoxColliderBehaviorInstance::prepCollision()
 {
-	if(!mBehaviorOwner)
-		return;
+   if(!mBehaviorOwner)
+      return;
 
-	// Allow the ShapeInstance to prep its collision if it hasn't already
-	if(colliderScale.isZero()){
-		mBehaviorOwner->disableCollision();
-		return;
-	}
+   // Allow the ShapeInstance to prep its collision if it hasn't already
+   if(colliderScale.isZero()){
+      mBehaviorOwner->disableCollision();
+      return;
+   }
 
    if(mConvexList != NULL)
-	  mConvexList->nukeList();
+      mConvexList->nukeList();
 
    BoxConvex* bC = new BoxConvex();
    bC->init(mBehaviorOwner);
@@ -338,166 +338,166 @@ void BoxColliderBehaviorInstance::_updatePhysics()
 {
    SAFE_DELETE( (dynamic_cast<Entity*>(mBehaviorOwner))->mPhysicsRep );
 
-	if ( !PHYSICSMGR )
-		return;
+   if ( !PHYSICSMGR )
+      return;
 
-	PhysicsCollision *colShape = NULL;
-	MatrixF offset( true );
-	offset.setPosition( mBehaviorOwner->getPosition() );
-	colShape = PHYSICSMGR->createCollision();
-	//colShape->addBox( mBehaviorOwner->getObjBox().getExtents() * 0.5f * mBehaviorOwner->getScale(), offset ); 
-	colShape->addBox( colliderScale, offset );
+   PhysicsCollision *colShape = NULL;
+   MatrixF offset( true );
+   offset.setPosition( mBehaviorOwner->getPosition() );
+   colShape = PHYSICSMGR->createCollision();
+   //colShape->addBox( mBehaviorOwner->getObjBox().getExtents() * 0.5f * mBehaviorOwner->getScale(), offset ); 
+   colShape->addBox( colliderScale, offset );
 
-	if ( colShape )
-	{
-		PhysicsWorld *world = PHYSICSMGR->getWorld( mBehaviorOwner->isServerObject() ? "server" : "client" );
-		(dynamic_cast<Entity*>(mBehaviorOwner))->mPhysicsRep = PHYSICSMGR->createBody();
-		(dynamic_cast<Entity*>(mBehaviorOwner))->mPhysicsRep->init( colShape, 0, 0, mBehaviorOwner, world );
-		(dynamic_cast<Entity*>(mBehaviorOwner))->mPhysicsRep->setTransform( mBehaviorOwner->getTransform() );
-	}
+   if ( colShape )
+   {
+      PhysicsWorld *world = PHYSICSMGR->getWorld( mBehaviorOwner->isServerObject() ? "server" : "client" );
+      (dynamic_cast<Entity*>(mBehaviorOwner))->mPhysicsRep = PHYSICSMGR->createBody();
+      (dynamic_cast<Entity*>(mBehaviorOwner))->mPhysicsRep->init( colShape, 0, 0, mBehaviorOwner, world );
+      (dynamic_cast<Entity*>(mBehaviorOwner))->mPhysicsRep->setTransform( mBehaviorOwner->getTransform() );
+   }
 }
 
 bool BoxColliderBehaviorInstance::buildConvex(const Box3F& box, Convex* convex)
 {
-	S32 id = mBehaviorOwner->getId();
+   S32 id = mBehaviorOwner->getId();
 
-	bool svr = isServerObject();
+   bool svr = isServerObject();
 
-    // These should really come out of a pool
-	if(!mConvexList)
-		return false;
+   // These should really come out of a pool
+   if(!mConvexList)
+      return false;
 
-	mConvexList->collectGarbage();
+   mConvexList->collectGarbage();
 
-	Box3F realBox = box;
-	mBehaviorOwner->getWorldToObj().mul(realBox);
+   Box3F realBox = box;
+   mBehaviorOwner->getWorldToObj().mul(realBox);
    realBox.minExtents.convolveInverse(mBehaviorOwner->getScale());
    realBox.maxExtents.convolveInverse(mBehaviorOwner->getScale());
 
    if (realBox.isOverlapped(mBehaviorOwner->getObjBox()) == false)
       return false;
 
-	// Just return a box convex for the entire shape...
-	Convex* cc = 0;
-	CollisionWorkingList& wl = convex->getWorkingList();
-	for (CollisionWorkingList* itr = wl.wLink.mNext; itr != &wl; itr = itr->wLink.mNext)
-	{
-		if (itr->mConvex->getType() == BoxConvexType &&
-			itr->mConvex->getObject() == mBehaviorOwner)
-		{
-			cc = itr->mConvex;
-			break;
-		}
-	}
-	if (cc)
-		return true;
+   // Just return a box convex for the entire shape...
+   Convex* cc = 0;
+   CollisionWorkingList& wl = convex->getWorkingList();
+   for (CollisionWorkingList* itr = wl.wLink.mNext; itr != &wl; itr = itr->wLink.mNext)
+   {
+      if (itr->mConvex->getType() == BoxConvexType &&
+         itr->mConvex->getObject() == mBehaviorOwner)
+      {
+         cc = itr->mConvex;
+         break;
+      }
+   }
+   if (cc)
+      return true;
 
-	// Create a new convex.
-	BoxConvex* cp = new BoxConvex;
-	mConvexList->registerObject(cp);
-	convex->addToWorkingList(cp);
-	cp->init(mBehaviorOwner);
+   // Create a new convex.
+   BoxConvex* cp = new BoxConvex;
+   mConvexList->registerObject(cp);
+   convex->addToWorkingList(cp);
+   cp->init(mBehaviorOwner);
 
-	mBehaviorOwner->getObjBox().getCenter(&cp->mCenter);
-	cp->mSize = colliderScale;
+   mBehaviorOwner->getObjBox().getCenter(&cp->mCenter);
+   cp->mSize = colliderScale;
 
-	return true;
+   return true;
 }
 
 bool BoxColliderBehaviorInstance::castRay(const Point3F &start, const Point3F &end, RayInfo* info)
 {
-	F32 st, et, fst = 0.0f, fet = 1.0f;
-	Box3F objectBox = Box3F(-colliderScale,colliderScale);
-	F32 *bmin = &objectBox.minExtents.x;
-	F32 *bmax = &objectBox.maxExtents.x;
-	F32 const *si = &start.x;
-	F32 const *ei = &end.x;
+   F32 st, et, fst = 0.0f, fet = 1.0f;
+   Box3F objectBox = Box3F(-colliderScale,colliderScale);
+   F32 *bmin = &objectBox.minExtents.x;
+   F32 *bmax = &objectBox.maxExtents.x;
+   F32 const *si = &start.x;
+   F32 const *ei = &end.x;
 
-	for ( U32 i = 0; i < 3; i++ )
-	{
-		if (*si < *ei) 
-		{
-			if ( *si > *bmax || *ei < *bmin )
-				return false;
-			F32 di = *ei - *si;
-			st = ( *si < *bmin ) ? ( *bmin - *si ) / di : 0.0f;
-			et = ( *ei > *bmax ) ? ( *bmax - *si ) / di : 1.0f;
-		}
-		else 
-		{
-			if ( *ei > *bmax || *si < *bmin )
-				return false;
-			F32 di = *ei - *si;
-			st = ( *si > *bmax ) ? ( *bmax - *si ) / di : 0.0f;
-			et = ( *ei < *bmin ) ? ( *bmin - *si ) / di : 1.0f;
-		}
-		if ( st > fst ) fst = st;
-		if ( et < fet ) fet = et;
-		if ( fet < fst )
-			return false;
-		bmin++; bmax++;
-		si++; ei++;
-	}
+   for ( U32 i = 0; i < 3; i++ )
+   {
+      if (*si < *ei) 
+      {
+         if ( *si > *bmax || *ei < *bmin )
+            return false;
+         F32 di = *ei - *si;
+         st = ( *si < *bmin ) ? ( *bmin - *si ) / di : 0.0f;
+         et = ( *ei > *bmax ) ? ( *bmax - *si ) / di : 1.0f;
+      }
+      else 
+      {
+         if ( *ei > *bmax || *si < *bmin )
+            return false;
+         F32 di = *ei - *si;
+         st = ( *si > *bmax ) ? ( *bmax - *si ) / di : 0.0f;
+         et = ( *ei < *bmin ) ? ( *bmin - *si ) / di : 1.0f;
+      }
+      if ( st > fst ) fst = st;
+      if ( et < fet ) fet = et;
+      if ( fet < fst )
+         return false;
+      bmin++; bmax++;
+      si++; ei++;
+   }
 
-	info->normal = start - end;
-	info->normal.normalizeSafe();
-	mBehaviorOwner->getTransform().mulV( info->normal );
+   info->normal = start - end;
+   info->normal.normalizeSafe();
+   mBehaviorOwner->getTransform().mulV( info->normal );
 
-	info->t = fst;
-	info->object = mBehaviorOwner;
-	info->point.interpolate( start, end, fst );
-	info->material = NULL;
+   info->t = fst;
+   info->object = mBehaviorOwner;
+   info->point.interpolate( start, end, fst );
+   info->material = NULL;
 
-	//do our callback
-	//onRaycastCollision_callback( this, enter );
-	return true;
+   //do our callback
+   //onRaycastCollision_callback( this, enter );
+   return true;
 }
 
 bool BoxColliderBehaviorInstance::updateCollisions(F32 time, VectorF vector, VectorF velocity)
 {
-	Polyhedron cPolyhedron;
-	cPolyhedron.buildBox(mBehaviorOwner->getTransform(), mBehaviorOwner->getObjBox(), true);
-	ExtrudedPolyList extrudePoly;
+   Polyhedron cPolyhedron;
+   cPolyhedron.buildBox(mBehaviorOwner->getTransform(), mBehaviorOwner->getObjBox(), true);
+   ExtrudedPolyList extrudePoly;
 
-	extrudePoly.extrude(cPolyhedron, velocity);
-	extrudePoly.setVelocity(velocity);
-	extrudePoly.setCollisionList(&mCollisionList);
+   extrudePoly.extrude(cPolyhedron, velocity);
+   extrudePoly.setVelocity(velocity);
+   extrudePoly.setCollisionList(&mCollisionList);
 
-	Box3F plistBox = mBehaviorOwner->getObjBox();
-	mBehaviorOwner->getTransform().mul(plistBox);
-	Point3F oldMin = plistBox.minExtents;
-	Point3F oldMax = plistBox.maxExtents;
-	plistBox.minExtents.setMin(oldMin + (velocity * time) - Point3F(0.1f, 0.1f, 0.1f));
-	plistBox.maxExtents.setMax(oldMax + (velocity * time) + Point3F(0.1f, 0.1f, 0.1f));
+   Box3F plistBox = mBehaviorOwner->getObjBox();
+   mBehaviorOwner->getTransform().mul(plistBox);
+   Point3F oldMin = plistBox.minExtents;
+   Point3F oldMax = plistBox.maxExtents;
+   plistBox.minExtents.setMin(oldMin + (velocity * time) - Point3F(0.1f, 0.1f, 0.1f));
+   plistBox.maxExtents.setMax(oldMax + (velocity * time) + Point3F(0.1f, 0.1f, 0.1f));
 
-	// Build list from convex states here...
-	CollisionWorkingList& rList = mConvexList->getWorkingList();
-	CollisionWorkingList* pList = rList.wLink.mNext;
-	while (pList != &rList) {
-		Convex* pConvex = pList->mConvex;
-		if (pConvex->getObject()->getTypeMask() & CollisionMoveMask) {
-			Box3F convexBox = pConvex->getBoundingBox();
-			if (plistBox.isOverlapped(convexBox))
-			{
-				//if(!dStrcmp(pConvex->getObject()->getClassName(), "Entity"))
-				//	becauseShutUp = pConvex;
+   // Build list from convex states here...
+   CollisionWorkingList& rList = mConvexList->getWorkingList();
+   CollisionWorkingList* pList = rList.wLink.mNext;
+   while (pList != &rList) {
+      Convex* pConvex = pList->mConvex;
+      if (pConvex->getObject()->getTypeMask() & CollisionMoveMask) {
+         Box3F convexBox = pConvex->getBoundingBox();
+         if (plistBox.isOverlapped(convexBox))
+         {
+            //if(!dStrcmp(pConvex->getObject()->getClassName(), "Entity"))
+            //	becauseShutUp = pConvex;
 
-				pConvex->getPolyList(&extrudePoly);
-				//andTheOtherOne = pConvex;
-			}
-		}
-		pList = pList->wLink.mNext;
-	}
+            pConvex->getPolyList(&extrudePoly);
+            //andTheOtherOne = pConvex;
+         }
+      }
+      pList = pList->wLink.mNext;
+   }
 
-	if(mCollisionList.getCount() > 0)
-	{
-		//becauseShutUp->getPolyList(&extrudePoly);
-		//andTheOtherOne->getPolyList(&extrudePoly);
+   if(mCollisionList.getCount() > 0)
+   {
+      //becauseShutUp->getPolyList(&extrudePoly);
+      //andTheOtherOne->getPolyList(&extrudePoly);
 
-		return true;
-	}
-	else
-		return false;
+      return true;
+   }
+   else
+      return false;
 }
 
 void BoxColliderBehaviorInstance::updateWorkingCollisionSet(const U32 mask)
@@ -507,10 +507,10 @@ void BoxColliderBehaviorInstance::updateWorkingCollisionSet(const U32 mask)
    // jetting, and an equivalent 10 m/s for jumping.  We also assume that the
    // working list is updated on a Tick basis, which means we only expand our
    // box by the possible movement in that tick.
-	VectorF velocity = Point3F(0,0,0);
+   VectorF velocity = Point3F(0,0,0);
 
-	if(VelocityInterface *vI = mBehaviorOwner->getBehavior<VelocityInterface>())
-		velocity = vI->getVelocity();
+   if(VelocityInterface *vI = mBehaviorOwner->getBehavior<VelocityInterface>())
+      velocity = vI->getVelocity();
 
    Point3F scaledVelocity = velocity * TickSec;
    F32 len    = scaledVelocity.len();
@@ -533,7 +533,7 @@ void BoxColliderBehaviorInstance::updateWorkingCollisionSet(const U32 mask)
    {
       if (mWorkingQueryBox.isContained(convexBox) == false)
          // Needed region is outside the cached region.  Update it.
-         updateSet = true;
+            updateSet = true;
    }
    else
    {
@@ -549,35 +549,35 @@ void BoxColliderBehaviorInstance::updateWorkingCollisionSet(const U32 mask)
 
       mBehaviorOwner->disableCollision();
       mConvexList->updateWorkingList(mWorkingQueryBox, U32(-1));
-         //isGhost() ? sClientCollisionContactMask : sServerCollisionContactMask);
+      //isGhost() ? sClientCollisionContactMask : sServerCollisionContactMask);
       mBehaviorOwner->enableCollision();
    }
 }
 
 void BoxColliderBehaviorInstance::prepRenderImage( SceneRenderState *state )
 {
-	if(gEditingMission)
-	{
-		if(mConvexList == NULL)
-			return;
+   if(gEditingMission)
+   {
+      if(mConvexList == NULL)
+         return;
 
-		DebugDrawer * debugDraw = DebugDrawer::get();  
-        if (debugDraw)  
-        {  
-		   Point3F min = mWorkingQueryBox.minExtents;
-		   Point3F max = mWorkingQueryBox.maxExtents;
+      DebugDrawer * debugDraw = DebugDrawer::get();  
+      if (debugDraw)  
+      {  
+         Point3F min = mWorkingQueryBox.minExtents;
+         Point3F max = mWorkingQueryBox.maxExtents;
 
-           debugDraw->drawBox(mWorkingQueryBox.minExtents, mWorkingQueryBox.maxExtents, ColorI(255, 0, 255, 128));  
-        } 
+         debugDraw->drawBox(mWorkingQueryBox.minExtents, mWorkingQueryBox.maxExtents, ColorI(255, 0, 255, 128));  
+      } 
 
-	   // Box for the center of Mass
-	   /*GFXStateBlockDesc desc;
-	   desc.setBlend(false, GFXBlendSrcAlpha, GFXBlendInvSrcAlpha);
-	   desc.setZReadWrite(false);
-	   desc.fillMode = GFXFillWireframe;
+      // Box for the center of Mass
+      /*GFXStateBlockDesc desc;
+      desc.setBlend(false, GFXBlendSrcAlpha, GFXBlendInvSrcAlpha);
+      desc.setZReadWrite(false);
+      desc.fillMode = GFXFillWireframe;
 
-	   GFX->getDrawUtil()->drawCube( desc, Point3F(0.1f,0.1f,0.1f), Point3F(0,0,0), ColorI(255, 255, 255), &mBehaviorOwner->getRenderTransform() );
+      GFX->getDrawUtil()->drawCube( desc, Point3F(0.1f,0.1f,0.1f), Point3F(0,0,0), ColorI(255, 255, 255), &mBehaviorOwner->getRenderTransform() );
 
-		mConvexList->render();*/
-	}
+      mConvexList->render();*/
+   }
 }

@@ -14,30 +14,30 @@
 #endif
 
 #ifndef __RESOURCE_H__
-	#include "core/resource.h"
+#include "core/resource.h"
 #endif
 #ifndef _TSSHAPE_H_
-	#include "ts/tsShape.h"
+#include "ts/tsShape.h"
 #endif
 #ifndef _SCENERENDERSTATE_H_
-   #include "scene/sceneRenderState.h"
+#include "scene/sceneRenderState.h"
 #endif
 #ifndef _MBOX_H_
-   #include "math/mBox.h"
+#include "math/mBox.h"
 #endif
 #ifndef _ACTOR_H_
-   #include "T3D/Entity.h"
+#include "T3D/Entity.h"
 #endif
 /*#ifndef _PATH_H_
 #include "core/util/path.h"
 #endif*/
 
 /*#ifndef _STOCK_INTERFACES_H_
-   #include "component/behaviors/stockInterfaces.h"
+#include "component/behaviors/stockInterfaces.h"
 #endif*/
 
 #ifndef _RENDER_INTERFACES_H_
-	#include "component/behaviors/Render/renderInterfaces.h"
+#include "component/behaviors/Render/renderInterfaces.h"
 #endif
 
 class TSShapeInstance;
@@ -76,8 +76,8 @@ class RenderShapeBehaviorInstance : public BehaviorInstance,
 
    enum
    {
-	   ShapeMask = Parent::NextFreeMask,
-	   NextFreeMask = Parent::NextFreeMask << 1,
+      ShapeMask = Parent::NextFreeMask,
+      NextFreeMask = Parent::NextFreeMask << 1,
    };
 
 protected:
@@ -85,21 +85,21 @@ protected:
    Resource<TSShape>		mShape;
    TSShapeInstance *		mShapeInstance;
    Box3F						mShapeBounds;
-	Point3F					mCenterOffset;
+   Point3F					mCenterOffset;
 
-	class boneObject : public SimGroup
-	{
-		RenderShapeBehaviorInstance *mOwner;
-	public:
-		boneObject(RenderShapeBehaviorInstance *owner){ mOwner = owner;}
+   class boneObject : public SimGroup
+   {
+      RenderShapeBehaviorInstance *mOwner;
+   public:
+      boneObject(RenderShapeBehaviorInstance *owner){ mOwner = owner;}
 
-		StringTableEntry mBoneName;
-		S32 mItemID;
+      StringTableEntry mBoneName;
+      S32 mItemID;
 
-		virtual void addObject(SimObject *obj);
-	};
+      virtual void addObject(SimObject *obj);
+   };
 
-	Vector<boneObject*> mNodesList;
+   Vector<boneObject*> mNodesList;
 
 public:
    RenderShapeBehaviorInstance(BehaviorTemplate *btemplate = NULL);
@@ -110,7 +110,7 @@ public:
    virtual void onRemove();
    static void initPersistFields();
 
-	virtual void inspectPostApply();
+   virtual void inspectPostApply();
 
    virtual void prepRenderImage(SceneRenderState *state );
 
@@ -119,19 +119,19 @@ public:
 
    Box3F getShapeBounds() { return mShapeBounds; }
 
-	MatrixF getNodeTransform(S32 nodeIdx);
-	S32 getNodeByName(String nodeName);
+   MatrixF getNodeTransform(S32 nodeIdx);
+   S32 getNodeByName(String nodeName);
 
    void updateShape();
    virtual void onBehaviorRemove();
    virtual void onBehaviorAdd();
 
    static bool _setShape( void *object, const char *index, const char *data );
-	const char* _getShape( void *object, const char *data );
+   const char* _getShape( void *object, const char *data );
 
    TSShapeInstance* getShape() { return mShapeInstance; }
    virtual TSShapeInstance* getShapeInstance() { return getShape(); }
-	void _onResourceChanged( const Torque::Path &path );
+   void _onResourceChanged( const Torque::Path &path );
 
    virtual bool castRayRendered(const Point3F &start, const Point3F &end, RayInfo *info);
 
@@ -139,8 +139,8 @@ public:
 
    //virtual Geometry* getGeometry();
 
-	virtual void onInspect();
-	virtual void onEndInspect();
+   virtual void onInspect();
+   virtual void onEndInspect();
 };
 
 #endif // _BEHAVIORTEMPLATE_H_
