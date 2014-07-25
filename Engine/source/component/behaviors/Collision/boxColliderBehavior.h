@@ -8,27 +8,27 @@
 #include "component/behaviors/Collision/collisionBehavior.h"
 
 #ifndef __RESOURCE_H__
-	#include "core/resource.h"
+#include "core/resource.h"
 #endif
 #ifndef _TSSHAPE_H_
-	#include "ts/tsShape.h"
+#include "ts/tsShape.h"
 #endif
 #ifndef _SCENERENDERSTATE_H_
-   #include "scene/sceneRenderState.h"
+#include "scene/sceneRenderState.h"
 #endif
 #ifndef _MBOX_H_
-   #include "math/mBox.h"
+#include "math/mBox.h"
 #endif
 #ifndef _Entity_H_
-   #include "T3D/Entity.h"
+#include "T3D/Entity.h"
 #endif
 
 #ifndef _RENDER_INTERFACES_H_
-   #include "component/behaviors/render/renderInterfaces.h"
+#include "component/behaviors/render/renderInterfaces.h"
 #endif
 
 #ifndef _COLLISION_INTERFACES_H_
-   #include "component/behaviors/collision/collisionInterfaces.h"
+#include "component/behaviors/collision/collisionInterfaces.h"
 #endif
 
 class TSShapeInstance;
@@ -79,7 +79,7 @@ class BoxColliderBehaviorInstance : public CollisionBehaviorInstance,
    typedef CollisionBehaviorInstance Parent;
 
 protected:
-	Point3F colliderScale;
+   Point3F colliderScale;
 
 public:
    BoxColliderBehaviorInstance(BehaviorTemplate *btemplate = NULL);

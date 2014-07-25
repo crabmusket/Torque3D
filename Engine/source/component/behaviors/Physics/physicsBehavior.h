@@ -8,22 +8,22 @@
 #include "component/behaviors/behaviorTemplate.h"
 
 #ifndef __RESOURCE_H__
-	#include "core/resource.h"
+#include "core/resource.h"
 #endif
 #ifndef _TSSHAPE_H_
-	#include "ts/tsShape.h"
+#include "ts/tsShape.h"
 #endif
 #ifndef _SCENERENDERSTATE_H_
-   #include "scene/sceneRenderState.h"
+#include "scene/sceneRenderState.h"
 #endif
 #ifndef _MBOX_H_
-   #include "math/mBox.h"
+#include "math/mBox.h"
 #endif
 #ifndef _ENTITY_H_
-   #include "T3D/Entity.h"
+#include "T3D/Entity.h"
 #endif
 #ifndef _CONVEX_H_
-   #include "collision/convex.h"
+#include "collision/convex.h"
 #endif
 #ifndef _BOXCONVEX_H_
 #include "collision/boxConvex.h"
@@ -65,26 +65,26 @@ class PhysicsBehaviorInstance : public BehaviorInstance
    typedef BehaviorInstance Parent;
 
 protected:
-	bool mStatic;
-	bool mAtRest;
-	S32  mAtRestCounter;
+   bool mStatic;
+   bool mAtRest;
+   S32  mAtRestCounter;
 
-	VectorF mGravity;
-	VectorF mVelocity;
-	F32     mDrag;
-	F32		mMass;
+   VectorF mGravity;
+   VectorF mVelocity;
+   F32     mDrag;
+   F32		mMass;
 
-	F32		mGravityMod;
+   F32		mGravityMod;
 
-	S32 csmAtRestTimer;
-	F32 sAtRestVelocity;      // Min speed after collisio
+   S32 csmAtRestTimer;
+   F32 sAtRestVelocity;      // Min speed after collisio
 
 public:
    enum MaskBits {
       PositionMask   = Parent::NextFreeMask << 0,
       FreezeMask     = Parent::NextFreeMask << 1,
       ForceMoveMask  = Parent::NextFreeMask << 2,
-	  VelocityMask   = Parent::NextFreeMask << 3,
+      VelocityMask   = Parent::NextFreeMask << 3,
       NextFreeMask = Parent::NextFreeMask << 4
    };
 

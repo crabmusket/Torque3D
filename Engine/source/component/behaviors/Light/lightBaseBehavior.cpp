@@ -28,7 +28,7 @@ bool LightBaseBehaviorInstance::smRenderViz = false;
 
 LightBaseBehavior::LightBaseBehavior()
 {
-	mNetFlags.set(Ghostable | ScopeAlways);
+   mNetFlags.set(Ghostable | ScopeAlways);
 }
 
 LightBaseBehavior::~LightBaseBehavior()
@@ -77,13 +77,13 @@ void LightBaseBehavior::initPersistFields()
 
 U32 LightBaseBehavior::packUpdate(NetConnection *con, U32 mask, BitStream *stream)
 {
-	U32 retMask = Parent::packUpdate(con, mask, stream);
-	return retMask;
+   U32 retMask = Parent::packUpdate(con, mask, stream);
+   return retMask;
 }
 
 void LightBaseBehavior::unpackUpdate(NetConnection *con, BitStream *stream)
 {
-	Parent::unpackUpdate(con, stream);
+   Parent::unpackUpdate(con, stream);
 }
 
 //==========================================================================================
@@ -101,7 +101,7 @@ LightBaseBehaviorInstance::LightBaseBehaviorInstance( BehaviorTemplate *btemplat
 
 LightBaseBehaviorInstance::~LightBaseBehaviorInstance()
 {
-	SAFE_DELETE( mLight );
+   SAFE_DELETE( mLight );
 }
 IMPLEMENT_CO_NETOBJECT_V1(LightBaseBehaviorInstance);
 
@@ -135,27 +135,27 @@ void LightBaseBehaviorInstance::onBehaviorRemove()
 void LightBaseBehaviorInstance::initPersistFields()
 {
    addGroup( "Light" );
-      addField( "color", TypeColorF, Offset( mColor, LightBaseBehaviorInstance ), "Changes the base color hue of the light." );
-      addField( "brightness", TypeF32, Offset( mBrightness, LightBaseBehaviorInstance ), "Adjusts the lights power, 0 being off completely." );      
-      addField( "castShadows", TypeBool, Offset( mCastShadows, LightBaseBehaviorInstance ), "Enables/disabled shadow casts by this light." );
-      addField( "priority", TypeF32, Offset( mPriority, LightBaseBehaviorInstance ), "Used for sorting of lights by the light manager. "
-		  "Priority determines if a light has a stronger effect than, those with a lower value" );
+   addField( "color", TypeColorF, Offset( mColor, LightBaseBehaviorInstance ), "Changes the base color hue of the light." );
+   addField( "brightness", TypeF32, Offset( mBrightness, LightBaseBehaviorInstance ), "Adjusts the lights power, 0 being off completely." );      
+   addField( "castShadows", TypeBool, Offset( mCastShadows, LightBaseBehaviorInstance ), "Enables/disabled shadow casts by this light." );
+   addField( "priority", TypeF32, Offset( mPriority, LightBaseBehaviorInstance ), "Used for sorting of lights by the light manager. "
+      "Priority determines if a light has a stronger effect than, those with a lower value" );
 
    endGroup( "Light" );
 
    addGroup( "Light Animation" );
 
-      addField( "animate", TypeBool, Offset( mAnimState.active, LightBaseBehaviorInstance ), "Toggles animation for the light on and off" );
-      addField( "animationType", TYPEID< LightAnimData >(), Offset( mAnimationData, LightBaseBehaviorInstance ), "Datablock containing light animation information (LightAnimData)" );
-      addFieldV( "animationPeriod", TypeF32, Offset( mAnimState.animationPeriod, LightBaseBehaviorInstance ), &CommonValidators::PositiveNonZeroFloat, "The length of time in seconds for a single playback of the light animation (must be > 0)" );
-      addField( "animationPhase", TypeF32, Offset( mAnimState.animationPhase, LightBaseBehaviorInstance ), "The phase used to offset the animation start time to vary the animation of nearby lights." );      
+   addField( "animate", TypeBool, Offset( mAnimState.active, LightBaseBehaviorInstance ), "Toggles animation for the light on and off" );
+   addField( "animationType", TYPEID< LightAnimData >(), Offset( mAnimationData, LightBaseBehaviorInstance ), "Datablock containing light animation information (LightAnimData)" );
+   addFieldV( "animationPeriod", TypeF32, Offset( mAnimState.animationPeriod, LightBaseBehaviorInstance ), &CommonValidators::PositiveNonZeroFloat, "The length of time in seconds for a single playback of the light animation (must be > 0)" );
+   addField( "animationPhase", TypeF32, Offset( mAnimState.animationPhase, LightBaseBehaviorInstance ), "The phase used to offset the animation start time to vary the animation of nearby lights." );      
 
    endGroup( "Light Animation" );
 
    addGroup( "Misc" );
 
-      addField( "flareType", TYPEID< LightFlareData >(), Offset( mFlareData, LightBaseBehaviorInstance ), "Datablock containing light flare information (LightFlareData)" );
-      addField( "flareScale", TypeF32, Offset( mFlareScale, LightBaseBehaviorInstance ), "Globally scales all features of the light flare" );
+   addField( "flareType", TYPEID< LightFlareData >(), Offset( mFlareData, LightBaseBehaviorInstance ), "Datablock containing light flare information (LightFlareData)" );
+   addField( "flareScale", TypeF32, Offset( mFlareScale, LightBaseBehaviorInstance ), "Globally scales all features of the light flare" );
 
    endGroup( "Misc" );
 
@@ -168,7 +168,7 @@ void LightBaseBehaviorInstance::initPersistFields()
 
    Con::addVariable( "$Light::renderViz", TypeBool, &smRenderViz,
       "Toggles visualization of light object's radius or cone.\n"
-	   "@ingroup Lighting");
+      "@ingroup Lighting");
 
    Con::addVariable( "$Light::renderLightFrustums", TypeBool, &LightShadowMap::smDebugRenderFrustums,
       "Toggles rendering of light frustums when the light is selected in the editor.\n\n"
@@ -182,8 +182,8 @@ void LightBaseBehaviorInstance::submitLights( LightManager *lm, bool staticLight
       return;
 
    if (  mAnimState.active && 
-         mAnimState.animationPeriod > 0.0f &&
-         mAnimationData )
+      mAnimState.animationPeriod > 0.0f &&
+      mAnimationData )
    {
       mAnimState.brightness = mBrightness;
       mAnimState.transform = mBehaviorOwner->getRenderTransform();
@@ -224,33 +224,33 @@ void LightBaseBehaviorInstance::prepRenderImage( SceneRenderState *state )
 }
 
 void LightBaseBehaviorInstance::_onRenderViz( ObjectRenderInst *ri, 
-                              SceneRenderState *state, 
-                              BaseMatInstance *overrideMat )
+                                             SceneRenderState *state, 
+                                             BaseMatInstance *overrideMat )
 {
    if ( overrideMat )
       return;
-   
+
    _renderViz( state );
 }
 
 void LightBaseBehaviorInstance::_onSelected()
 {
-   #ifdef TORQUE_DEBUG
+#ifdef TORQUE_DEBUG
    // Enable debug rendering on the light.
    if( isClientObject() )
       mLight->enableDebugRendering( true );
-   #endif
+#endif
 
    Parent::_onSelected();
 }
 
 void LightBaseBehaviorInstance::_onUnselected()
 {
-   #ifdef TORQUE_DEBUG
+#ifdef TORQUE_DEBUG
    // Disable debug rendering on the light.
    if( isClientObject() )
       mLight->enableDebugRendering( false );
-   #endif
+#endif
 
    Parent::_onUnselected();
 }
@@ -281,15 +281,15 @@ U32 LightBaseBehaviorInstance::packUpdate( NetConnection *conn, U32 mask, BitStr
       if ( stream->writeFlag( mAnimationData ) )
       {
          stream->writeRangedU32( mAnimationData->getId(),
-                                 DataBlockObjectIdFirst, 
-                                 DataBlockObjectIdLast );
+            DataBlockObjectIdFirst, 
+            DataBlockObjectIdLast );
       }
 
       if ( stream->writeFlag( mFlareData ) )
       {
          stream->writeRangedU32( mFlareData->getId(),
-                                 DataBlockObjectIdFirst, 
-                                 DataBlockObjectIdLast );
+            DataBlockObjectIdFirst, 
+            DataBlockObjectIdLast );
       }
    }
 
@@ -307,7 +307,7 @@ void LightBaseBehaviorInstance::unpackUpdate( NetConnection *conn, BitStream *st
       mCastShadows = stream->readFlag();
 
       stream->read( &mPriority );      
-      
+
       mLight->unpackExtended( stream );
 
       mAnimState.active = stream->readFlag();
@@ -322,7 +322,7 @@ void LightBaseBehaviorInstance::unpackUpdate( NetConnection *conn, BitStream *st
       {
          SimObjectId id = stream->readRangedU32( DataBlockObjectIdFirst, DataBlockObjectIdLast );  
          LightAnimData *datablock = NULL;
-         
+
          if ( Sim::findObject( id, datablock ) )
             mAnimationData = datablock;
          else
@@ -350,7 +350,7 @@ void LightBaseBehaviorInstance::unpackUpdate( NetConnection *conn, BitStream *st
       else
          mFlareData = NULL;
    }
-   
+
    if ( isProperlyAdded() )
       _conformLights();
 }
@@ -365,20 +365,20 @@ void LightBaseBehaviorInstance::setLightEnabled( bool enabled )
 }
 
 DefineEngineMethod( LightBaseBehaviorInstance, setLightEnabled, void, ( bool state ),,
-   "@brief Toggles the light on and off\n\n"
-   
-   "@param state Turns the light on (true) or off (false)\n"
+                   "@brief Toggles the light on and off\n\n"
 
-   "@tsexample\n"
-   "// Disable the light\n"
-   "CrystalLight.setLightEnabled(false);\n\n"
-   "// Renable the light\n"
-   "CrystalLight.setLightEnabled(true);\n"
-   
-   "@endtsexample\n\n"
-)
+                   "@param state Turns the light on (true) or off (false)\n"
+
+                   "@tsexample\n"
+                   "// Disable the light\n"
+                   "CrystalLight.setLightEnabled(false);\n\n"
+                   "// Renable the light\n"
+                   "CrystalLight.setLightEnabled(true);\n"
+
+                   "@endtsexample\n\n"
+                   )
 {
-  object->setLightEnabled( state );
+   object->setLightEnabled( state );
 }
 
 //ConsoleMethod( LightBase, setLightEnabled, void, 3, 3, "( bool enabled )\t"
@@ -388,15 +388,15 @@ DefineEngineMethod( LightBaseBehaviorInstance, setLightEnabled, void, ( bool sta
 //}
 
 static ConsoleDocFragment _lbplayAnimation1(
-	"@brief Plays the light animation assigned to this light with the existing LightAnimData datablock.\n\n"
-   
+   "@brief Plays the light animation assigned to this light with the existing LightAnimData datablock.\n\n"
+
    "@tsexample\n"
    "// Play the animation assigned to this light\n"
    "CrystalLight.playAnimation();\n"
    "@endtsexample\n\n",
    "LightBase",
    "void playAnimation();"
-);
+   );
 static ConsoleDocFragment _lbplayAnimation2(
    "@brief Plays the light animation on this light using a new LightAnimData. If no LightAnimData "
    "is passed the existing one is played.\n\n"
@@ -407,61 +407,61 @@ static ConsoleDocFragment _lbplayAnimation2(
    "@endtsexample\n\n",
    "LightBase",
    "void playAnimation(LightAnimData anim);"
-);
+   );
 ConsoleMethod( LightBaseBehaviorInstance, playAnimation, void, 2, 3, "( [LightAnimData anim] )\t"
-   "Plays a light animation on the light.  If no LightAnimData is passed the "
-   "existing one is played."
-   "@hide")
+              "Plays a light animation on the light.  If no LightAnimData is passed the "
+              "existing one is played."
+              "@hide")
 {
-    if ( argc == 2 )
-    {
-        object->playAnimation();
-        return;
-    }
+   if ( argc == 2 )
+   {
+      object->playAnimation();
+      return;
+   }
 
-    LightAnimData *animData;
-    if ( !Sim::findObject( argv[2], animData ) )
-    {
-        Con::errorf( "LightBase::playAnimation() - Invalid LightAnimData '%s'.", argv[2] );
-        return;
-    }
+   LightAnimData *animData;
+   if ( !Sim::findObject( argv[2], animData ) )
+   {
+      Con::errorf( "LightBase::playAnimation() - Invalid LightAnimData '%s'.", argv[2] );
+      return;
+   }
 
-    // Play Animation.
-    object->playAnimation( animData );
+   // Play Animation.
+   object->playAnimation( animData );
 }
 
 void LightBaseBehaviorInstance::playAnimation( void )
 {
-    if ( !mAnimState.active )
-    {
-        mAnimState.active = true;
-        setMaskBits( UpdateMask );
-    }
+   if ( !mAnimState.active )
+   {
+      mAnimState.active = true;
+      setMaskBits( UpdateMask );
+   }
 }
 
 void LightBaseBehaviorInstance::playAnimation( LightAnimData *animData )
 {
-    // Play Animation.
-    playAnimation();
+   // Play Animation.
+   playAnimation();
 
-    // Update Datablock?
-    if ( mAnimationData != animData )
-    {
-        mAnimationData = animData;
-        setMaskBits( DatablockMask );
-    }
+   // Update Datablock?
+   if ( mAnimationData != animData )
+   {
+      mAnimationData = animData;
+      setMaskBits( DatablockMask );
+   }
 }
 
 ConsoleMethod( LightBaseBehaviorInstance, pauseAnimation, void, 2, 2, "Stops the light animation." )
 {
-    object->pauseAnimation();
+   object->pauseAnimation();
 }
 
 void LightBaseBehaviorInstance::pauseAnimation( void )
 {
-    if ( mAnimState.active )
-    {
-        mAnimState.active = false;
-        setMaskBits( UpdateMask );
-    }
+   if ( mAnimState.active )
+   {
+      mAnimState.active = false;
+      setMaskBits( UpdateMask );
+   }
 }

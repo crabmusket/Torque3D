@@ -26,12 +26,12 @@
 //////////////////////////////////////////////////////////////////////////
 PhysicsBehavior::PhysicsBehavior()
 {
-	addBehaviorField("isStatic", "If enabled, object will not simulate physics", "bool", "0", "");
-	addBehaviorField("gravity", "The direction of gravity affecting this object, as a vector", "vector", "0 0 -9", "");
-	addBehaviorField("drag", "The drag coefficient that constantly affects the object", "float", "0.7", "");
-	addBehaviorField("mass", "The mass of the object", "float", "1", "");
+   addBehaviorField("isStatic", "If enabled, object will not simulate physics", "bool", "0", "");
+   addBehaviorField("gravity", "The direction of gravity affecting this object, as a vector", "vector", "0 0 -9", "");
+   addBehaviorField("drag", "The drag coefficient that constantly affects the object", "float", "0.7", "");
+   addBehaviorField("mass", "The mass of the object", "float", "1", "");
 
-	mNetFlags.set(Ghostable | ScopeAlways);
+   mNetFlags.set(Ghostable | ScopeAlways);
 }
 
 PhysicsBehavior::~PhysicsBehavior()
@@ -63,31 +63,31 @@ BehaviorInstance *PhysicsBehavior::createInstance()
 //==========================================================================================
 PhysicsBehaviorInstance::PhysicsBehaviorInstance( BehaviorTemplate *btemplate ) 
 {
-	mTemplate = btemplate;
-	mBehaviorOwner = NULL;
+   mTemplate = btemplate;
+   mBehaviorOwner = NULL;
 
-	mStatic = false;
-	mAtRest = false;
-	mAtRestCounter = 0;
+   mStatic = false;
+   mAtRest = false;
+   mAtRestCounter = 0;
 
-	mGravity = VectorF(0,0,0);
-	mVelocity = VectorF(0,0,0);
-	mDrag = 0.7f;
-	mMass = 1.f;
+   mGravity = VectorF(0,0,0);
+   mVelocity = VectorF(0,0,0);
+   mDrag = 0.7f;
+   mMass = 1.f;
 
-	mGravityMod = 1.f;
+   mGravityMod = 1.f;
 
-	csmAtRestTimer = 64;
-	sAtRestVelocity = 0.15f;
+   csmAtRestTimer = 64;
+   sAtRestVelocity = 0.15f;
 
-	mDelta.pos = Point3F(0,0,0);
-    mDelta.posVec = Point3F(0,0,0);
-    mDelta.warpTicks = mDelta.warpCount = 0;
-    mDelta.dt = 1;
-    mDelta.move = NullMove;
-    mPredictionCount = 0;
+   mDelta.pos = Point3F(0,0,0);
+   mDelta.posVec = Point3F(0,0,0);
+   mDelta.warpTicks = mDelta.warpCount = 0;
+   mDelta.dt = 1;
+   mDelta.move = NullMove;
+   mPredictionCount = 0;
 
-	mNetFlags.set(Ghostable);
+   mNetFlags.set(Ghostable);
 }
 
 PhysicsBehaviorInstance::~PhysicsBehaviorInstance()
@@ -116,48 +116,48 @@ void PhysicsBehaviorInstance::initPersistFields()
 
 U32 PhysicsBehaviorInstance::packUpdate(NetConnection *con, U32 mask, BitStream *stream)
 {
-	U32 retMask = Parent::packUpdate(con, mask, stream);
+   U32 retMask = Parent::packUpdate(con, mask, stream);
 
-	if(stream->writeFlag(mask & VelocityMask))
-		mathWrite( *stream, mVelocity );
+   if(stream->writeFlag(mask & VelocityMask))
+      mathWrite( *stream, mVelocity );
 
-	if(stream->writeFlag(mask & UpdateMask))
-	{
-		stream->writeFlag(mStatic);
-		stream->writeFlag(mAtRest);
-		stream->writeInt(mAtRestCounter,8);
+   if(stream->writeFlag(mask & UpdateMask))
+   {
+      stream->writeFlag(mStatic);
+      stream->writeFlag(mAtRest);
+      stream->writeInt(mAtRestCounter,8);
 
-		mathWrite( *stream, mGravity );
-		
-		stream->writeFloat(mDrag, 12);
-		stream->writeFloat(mMass, 12);
+      mathWrite( *stream, mGravity );
 
-		stream->writeFloat(mGravityMod, 12);
-	}
-	return retMask;
+      stream->writeFloat(mDrag, 12);
+      stream->writeFloat(mMass, 12);
+
+      stream->writeFloat(mGravityMod, 12);
+   }
+   return retMask;
 }
 
 void PhysicsBehaviorInstance::unpackUpdate(NetConnection *con, BitStream *stream)
 {
-	Parent::unpackUpdate(con, stream);
+   Parent::unpackUpdate(con, stream);
 
-	if(stream->readFlag())
-		mathRead( *stream, &mVelocity );
+   if(stream->readFlag())
+      mathRead( *stream, &mVelocity );
 
-	if(stream->readFlag())
-	{
-		mStatic = stream->readFlag();
-		mAtRest = stream->readFlag();
-		mAtRestCounter = stream->readInt(8);
+   if(stream->readFlag())
+   {
+      mStatic = stream->readFlag();
+      mAtRest = stream->readFlag();
+      mAtRestCounter = stream->readInt(8);
 
-		mathRead( *stream, &mGravity );
-		
+      mathRead( *stream, &mGravity );
 
-		mDrag = stream->readFloat(12);
-		mMass = stream->readFloat(12);
 
-		mGravityMod = stream->readFloat(12);
-	}
+      mDrag = stream->readFloat(12);
+      mMass = stream->readFloat(12);
+
+      mGravityMod = stream->readFloat(12);
+   }
 }
 
 //
@@ -181,18 +181,18 @@ void PhysicsBehaviorInstance::updateContainer()
    //mBuoyancy = 0.0f;      
    //mGravityMod = 1.0;
    //mAppliedForce.set(0,0,0);
-   
+
    ContainerQueryInfo info;
    info.box = mBehaviorOwner->getWorldBox();
    info.mass = mMass;
 
    mBehaviorOwner->getContainer()->findObjects(info.box, WaterObjectType|PhysicalZoneObjectType,findRouter,&info);
-      
+
    //mWaterCoverage = info.waterCoverage;
    //mLiquidType    = info.liquidType;
    //mLiquidHeight  = info.waterHeight;   
    //setCurrentWaterObject( info.waterObject );
-   
+
    // This value might be useful as a datablock value,
    // This is what allows the player to stand in shallow water (below this coverage)
    // without jiggling from buoyancy
@@ -203,7 +203,7 @@ void PhysicsBehaviorInstance::updateContainer()
       // Combine these two components to calculate this ShapeBase object's 
       // current drag.
       mDrag = ( info.waterCoverage * info.waterViscosity ) + 
-              ( 1.0f - info.waterCoverage ) * mDrag;
+         ( 1.0f - info.waterCoverage ) * mDrag;
       //mBuoyancy = (info.waterDensity / mDataBlock->density) * info.waterCoverage;
    }
 
@@ -216,49 +216,49 @@ void PhysicsBehaviorInstance::_updatePhysics()
    /*SAFE_DELETE( mBehaviorOwner->mPhysicsRep );
 
    if ( !PHYSICSMGR )
-      return;
+   return;
 
    if (mDataBlock->simpleServerCollision)
    {
-      // We only need the trigger on the server.
-      if ( isServerObject() )
-      {
-         PhysicsCollision *colShape = PHYSICSMGR->createCollision();
-         colShape->addBox( mObjBox.getExtents() * 0.5f, MatrixF::Identity );
+   // We only need the trigger on the server.
+   if ( isServerObject() )
+   {
+   PhysicsCollision *colShape = PHYSICSMGR->createCollision();
+   colShape->addBox( mObjBox.getExtents() * 0.5f, MatrixF::Identity );
 
-         PhysicsWorld *world = PHYSICSMGR->getWorld( isServerObject() ? "server" : "client" );
-         mPhysicsRep = PHYSICSMGR->createBody();
-         mPhysicsRep->init( colShape, 0, PhysicsBody::BF_TRIGGER | PhysicsBody::BF_KINEMATIC, this, world );
-         mPhysicsRep->setTransform( getTransform() );
-      }
+   PhysicsWorld *world = PHYSICSMGR->getWorld( isServerObject() ? "server" : "client" );
+   mPhysicsRep = PHYSICSMGR->createBody();
+   mPhysicsRep->init( colShape, 0, PhysicsBody::BF_TRIGGER | PhysicsBody::BF_KINEMATIC, this, world );
+   mPhysicsRep->setTransform( getTransform() );
+   }
    }
    else
    {
-      if ( !mShapeInstance )
-         return;
+   if ( !mShapeInstance )
+   return;
 
-      PhysicsCollision* colShape = mShapeInstance->getShape()->buildColShape( false, getScale() );
+   PhysicsCollision* colShape = mShapeInstance->getShape()->buildColShape( false, getScale() );
 
-      if ( colShape )
-      {
-         PhysicsWorld *world = PHYSICSMGR->getWorld( isServerObject() ? "server" : "client" );
-         mPhysicsRep = PHYSICSMGR->createBody();
-         mPhysicsRep->init( colShape, 0, PhysicsBody::BF_KINEMATIC, this, world );
-         mPhysicsRep->setTransform( getTransform() );
-      }
+   if ( colShape )
+   {
+   PhysicsWorld *world = PHYSICSMGR->getWorld( isServerObject() ? "server" : "client" );
+   mPhysicsRep = PHYSICSMGR->createBody();
+   mPhysicsRep->init( colShape, 0, PhysicsBody::BF_KINEMATIC, this, world );
+   mPhysicsRep->setTransform( getTransform() );
+   }
    }*/
-	return;
+   return;
 }
 
 PhysicsBody *PhysicsBehaviorInstance::getPhysicsRep()
 {
-	if(mBehaviorOwner)
-	{
-		Entity* ac = dynamic_cast<Entity*>(mBehaviorOwner);
-		if(ac)
-			return ac->mPhysicsRep;
-	}
-	return NULL;
+   if(mBehaviorOwner)
+   {
+      Entity* ac = dynamic_cast<Entity*>(mBehaviorOwner);
+      if(ac)
+         return ac->mPhysicsRep;
+   }
+   return NULL;
 }
 //
 void PhysicsBehaviorInstance::setTransform(const MatrixF& mat)
@@ -282,8 +282,8 @@ void PhysicsBehaviorInstance::setPosition(const Point3F& pos)
    MatrixF mat = mBehaviorOwner->getTransform();
    if (mBehaviorOwner->isMounted()) {
       // Use transform from mounted object
-	   //mBehaviorOwner->getObjectMount()->getMountTransform( mBehaviorOwner->getMountNode(), mMount.xfm, &mat );
-	   return;
+      //mBehaviorOwner->getObjectMount()->getMountTransform( mBehaviorOwner->getMountNode(), mMount.xfm, &mat );
+      return;
    }
    else {
       mat.setColumn(3,pos);
@@ -301,7 +301,7 @@ void PhysicsBehaviorInstance::setRenderPosition(const Point3F& pos, F32 dt)
    if (mBehaviorOwner->isMounted()) {
       // Use transform from mounted object
       //mBehaviorOwner->getObjectMount()->getMountRenderTransform( dt, mBehaviorOwner->getMountNode(), mMount.xfm, &mat );
-	   return;
+      return;
    }
    else {
       mat.setColumn(3,pos);
@@ -330,7 +330,7 @@ void PhysicsBehaviorInstance::getVelocity(const Point3F& r, Point3F* v)
 
 void PhysicsBehaviorInstance::getOriginVector(const Point3F &p,Point3F* r)
 {
-	*r = p - mBehaviorOwner->getObjBox().getCenter();
+   *r = p - mBehaviorOwner->getObjBox().getCenter();
 }
 
 F32 PhysicsBehaviorInstance::getZeroImpulse(const Point3F& r,const Point3F& normal)
@@ -354,7 +354,7 @@ F32 PhysicsBehaviorInstance::getZeroImpulse(const Point3F& r,const Point3F& norm
 
 void PhysicsBehaviorInstance::accumulateForce(F32 dt, Point3F force)
 {
-	mVelocity += force * dt;
+   mVelocity += force * dt;
 }
 
 void PhysicsBehaviorInstance::applyImpulse(const Point3F&,const VectorF& vec)
@@ -368,13 +368,13 @@ void PhysicsBehaviorInstance::applyImpulse(const Point3F&,const VectorF& vec)
 }
 
 DefineEngineMethod( PhysicsBehaviorInstance, applyImpulse, bool, ( Point3F pos, VectorF vel ),,
-   "@brief Apply an impulse to this object as defined by a world position and velocity vector.\n\n"
+                   "@brief Apply an impulse to this object as defined by a world position and velocity vector.\n\n"
 
-   "@param pos impulse world position\n"
-   "@param vel impulse velocity (impulse force F = m * v)\n"
-   "@return Always true\n"
+                   "@param pos impulse world position\n"
+                   "@param vel impulse velocity (impulse force F = m * v)\n"
+                   "@return Always true\n"
 
-   "@note Not all objects that derrive from GameBase have this defined.\n")
+                   "@note Not all objects that derrive from GameBase have this defined.\n")
 {
    object->applyImpulse(pos,vel);
    return true;

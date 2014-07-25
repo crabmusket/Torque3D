@@ -6,7 +6,7 @@
 #define _LIGHTBASE_BEHAVIOR_H_
 
 #ifndef _BEHAVIORTEMPLATE_H_
-	#include "component/behaviors/behaviorTemplate.h"
+#include "component/behaviors/behaviorTemplate.h"
 #endif
 #ifndef _LIGHTINFO_H_
 #include "lighting/lightInfo.h"
@@ -74,8 +74,8 @@ protected:
    virtual void _conformLights() {}
 
    void _onRenderViz(   ObjectRenderInst *ri, 
-                        SceneRenderState *state, 
-                        BaseMatInstance *overrideMat );
+      SceneRenderState *state, 
+      BaseMatInstance *overrideMat );
 
    virtual void _renderViz( SceneRenderState *state ) {}
 

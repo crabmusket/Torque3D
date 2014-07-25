@@ -9,10 +9,10 @@
 #define _StateMachineBehavior_H_
 
 #ifndef _ENTITY_H_
-   #include "T3D/Entity.h"
+#include "T3D/Entity.h"
 #endif
 #ifndef _RENDERSHAPEBEHAVIOR_H_
-	#include "component/behaviors/render/renderShapeBehavior.h"
+#include "component/behaviors/render/renderShapeBehavior.h"
 #endif
 
 class TSShapeInstance;
@@ -48,59 +48,59 @@ class StateMachineBehaviorInstance : public BehaviorInstance
    typedef BehaviorInstance Parent;
 
 public:
-	struct StateField
-	{
-		StringTableEntry name;
-		StringTableEntry value;
-		StringTableEntry type;
-	};
-	
-	struct StateTransition
-	{
-		struct Rule
-		{
-			enum triggerValueTarget
-			{
-				Equals = 0,
-				GeaterThan,
-				LessThan,
-				GreaterOrEqual,
-				LessOrEqual,
-				True,
-				False,
-				Positive,
-				Negative,
-				DoesNotEqual
-			};
+   struct StateField
+   {
+      StringTableEntry name;
+      StringTableEntry value;
+      StringTableEntry type;
+   };
 
-			enum triggerValueType
-			{
-				BooleanType = 0,
-				NumberType,
-				VectorType,
-				StringType
-			};
+   struct StateTransition
+   {
+      struct Rule
+      {
+         enum triggerValueTarget
+         {
+            Equals = 0,
+            GeaterThan,
+            LessThan,
+            GreaterOrEqual,
+            LessOrEqual,
+            True,
+            False,
+            Positive,
+            Negative,
+            DoesNotEqual
+         };
 
-			triggerValueType		valueType;
-			triggerValueTarget	triggerTarget;
+         enum triggerValueType
+         {
+            BooleanType = 0,
+            NumberType,
+            VectorType,
+            StringType
+         };
 
-			bool 			 triggerBoolVal;
-			float 		 triggerNumVal;
-			Point3F 		 triggerVectorVal;
-			String 		 triggerStringVal;
-		};
-		
-		StringTableEntry	mName;
-		StringTableEntry	mStateTarget;
-		Vector<Rule>		mTransitionRules;
-	};
+         triggerValueType		valueType;
+         triggerValueTarget	triggerTarget;
 
-	struct State {
-		Vector<StateTransition> mTransitions;
+         bool 			 triggerBoolVal;
+         float 		 triggerNumVal;
+         Point3F 		 triggerVectorVal;
+         String 		 triggerStringVal;
+      };
 
-		Vector<StateField> mProperties;
+      StringTableEntry	mName;
+      StringTableEntry	mStateTarget;
+      Vector<Rule>		mTransitionRules;
+   };
 
-		StringTableEntry stateName;
+   struct State {
+      Vector<StateTransition> mTransitions;
+
+      Vector<StateField> mProperties;
+
+      StringTableEntry stateName;
    };
 
 protected:
@@ -125,44 +125,44 @@ public:
 
    //virtual bool setBehaviorSubField( const char *data );
 
-    //shortcut function. finds if our owner has a renderShape behavior and gets the shape instance
-    //RenderShapeBehaviorInstance* getShapeBehavior();
+   //shortcut function. finds if our owner has a renderShape behavior and gets the shape instance
+   //RenderShapeBehaviorInstance* getShapeBehavior();
 
-    virtual void processTick(const Move* move);
+   virtual void processTick(const Move* move);
 
-	virtual U32 packUpdate(NetConnection *con, U32 mask, BitStream *stream);
-	virtual void unpackUpdate(NetConnection *con, BitStream *stream);
+   virtual U32 packUpdate(NetConnection *con, U32 mask, BitStream *stream);
+   virtual void unpackUpdate(NetConnection *con, BitStream *stream);
 
-	virtual void handleEvent(const char* eventName, Vector<const char*> eventParams);
+   virtual void handleEvent(const char* eventName, Vector<const char*> eventParams);
 
-	void setState(const char* stateName, bool clearFields = true);
-	const char* getCurrentStateName() { return mCurrentState->stateName; }
+   void setState(const char* stateName, bool clearFields = true);
+   const char* getCurrentStateName() { return mCurrentState->stateName; }
 
-	void addState(const char* stateName);
-	void removeState(const char* stateName){}
-	S32 getStateCount() { return mStates.size(); }
-	const char* getStateByIndex(S32 index);
-	State* getStateByName(const char* name);
-	void setStateName(const char* stateName, const char* newStateName);
+   void addState(const char* stateName);
+   void removeState(const char* stateName){}
+   S32 getStateCount() { return mStates.size(); }
+   const char* getStateByIndex(S32 index);
+   State* getStateByName(const char* name);
+   void setStateName(const char* stateName, const char* newStateName);
 
 
-	void addStateField(const char* stateName, const char* fieldName, const char* type, const char* value);
-	void addTransition(const char* stateName, const char* fieldName, const char* targetStateName, const char* eventTrigger);
+   void addStateField(const char* stateName, const char* fieldName, const char* type, const char* value);
+   void addTransition(const char* stateName, const char* fieldName, const char* targetStateName, const char* eventTrigger);
 
-	void addStringTransition(const char* stateName, const char* fieldName, const char* targetStateName, const char* valueTrigger, S32 valueComparitor);
-	void addNumericTransition(const char* stateName, const char* fieldName, const char* targetStateName, F32 valueTrigger, S32 valueComparitor);
-	void addBooleanTransition(const char* stateName, const char* fieldName, const char* targetStateName, bool valueTrigger, S32 valueComparitor);
-	void addVectorTransition(const char* stateName, const char* fieldName, const char* targetStateName, Point3F valueTrigger, S32 valueComparitor);
+   void addStringTransition(const char* stateName, const char* fieldName, const char* targetStateName, const char* valueTrigger, S32 valueComparitor);
+   void addNumericTransition(const char* stateName, const char* fieldName, const char* targetStateName, F32 valueTrigger, S32 valueComparitor);
+   void addBooleanTransition(const char* stateName, const char* fieldName, const char* targetStateName, bool valueTrigger, S32 valueComparitor);
+   void addVectorTransition(const char* stateName, const char* fieldName, const char* targetStateName, Point3F valueTrigger, S32 valueComparitor);
 
-	void checkTransitions( const char* slotName, const char* newValue );
-	
-	virtual void onDynamicModified( const char* slotName, const char* newValue );
-	virtual void onStaticModified( const char* slotName, const char* newValue );
-    S32 getVariableType(const char* var);
-	bool passComparitorCheck(const char* var, StateTransition::Rule transitionRule);
+   void checkTransitions( const char* slotName, const char* newValue );
 
-	//Callbacks
-	DECLARE_CALLBACK( void, onStateChange, () );
+   virtual void onDynamicModified( const char* slotName, const char* newValue );
+   virtual void onStaticModified( const char* slotName, const char* newValue );
+   S32 getVariableType(const char* var);
+   bool passComparitorCheck(const char* var, StateTransition::Rule transitionRule);
+
+   //Callbacks
+   DECLARE_CALLBACK( void, onStateChange, () );
 };
 
 #endif // _BEHAVIORTEMPLATE_H_

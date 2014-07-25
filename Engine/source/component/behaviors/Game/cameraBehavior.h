@@ -9,22 +9,22 @@
 #include "component/behaviors/behaviorTemplate.h"
 
 #ifndef __RESOURCE_H__
-	#include "core/resource.h"
+#include "core/resource.h"
 #endif
 #ifndef _TSSHAPE_H_
-	#include "ts/tsShape.h"
+#include "ts/tsShape.h"
 #endif
 #ifndef _SCENERENDERSTATE_H_
-   #include "scene/sceneRenderState.h"
+#include "scene/sceneRenderState.h"
 #endif
 #ifndef _MBOX_H_
-   #include "math/mBox.h"
+#include "math/mBox.h"
 #endif
 #ifndef _ACTOR_H_
-   #include "T3D/Entity.h"
+#include "T3D/Entity.h"
 #endif
 #ifndef _STOCK_INTERFACES_H_
-   #include "component/behaviors/stockInterfaces.h"
+#include "component/behaviors/stockInterfaces.h"
 #endif
 
 class TSShapeInstance;

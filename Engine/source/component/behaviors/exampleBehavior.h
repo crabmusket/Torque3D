@@ -6,7 +6,7 @@
 #define _EXAMPLEBEHAVIOR_H_
 
 #ifndef _BEHAVIORTEMPLATE_H_
-	#include "component/behaviors/behaviorTemplate.h"
+#include "component/behaviors/behaviorTemplate.h"
 #endif
 
 //////////////////////////////////////////////////////////////////////////

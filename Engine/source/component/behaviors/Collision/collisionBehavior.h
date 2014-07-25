@@ -8,22 +8,22 @@
 #include "component/behaviors/behaviorTemplate.h"
 
 #ifndef __RESOURCE_H__
-	#include "core/resource.h"
+#include "core/resource.h"
 #endif
 #ifndef _TSSHAPE_H_
-	#include "ts/tsShape.h"
+#include "ts/tsShape.h"
 #endif
 #ifndef _SCENERENDERSTATE_H_
-   #include "scene/sceneRenderState.h"
+#include "scene/sceneRenderState.h"
 #endif
 #ifndef _MBOX_H_
-   #include "math/mBox.h"
+#include "math/mBox.h"
 #endif
 #ifndef _ENTITY_H_
-   #include "T3D/Entity.h"
+#include "T3D/Entity.h"
 #endif
 #ifndef _CONVEX_H_
-   #include "collision/convex.h"
+#include "collision/convex.h"
 #endif
 #ifndef _BOXCONVEX_H_
 #include "collision/boxConvex.h"
@@ -41,7 +41,7 @@
 #endif
 
 #ifndef _STOCK_INTERFACES_H_
-   #include "component/behaviors/stockInterfaces.h"
+#include "component/behaviors/stockInterfaces.h"
 #endif
 
 //class TSShapeInstance;
@@ -53,32 +53,32 @@ class CollisionBehaviorInstance;
 //////////////////////////////////////////////////////////////////////////
 struct ContactInfo 
 {
-  bool contacted, move;
-  SceneObject *contactObject;
-  VectorF  contactNormal;
-  Point3F  contactPoint;
-  F32	   contactTime;
-  S32	   contactTimer;
+   bool contacted, move;
+   SceneObject *contactObject;
+   VectorF  contactNormal;
+   Point3F  contactPoint;
+   F32	   contactTime;
+   S32	   contactTimer;
 
-  void clear()
-  {
-     contacted=move=false; 
-     contactObject = NULL; 
-     contactNormal.set(0,0,0);
-	 contactTime = 0.f;
-	 contactTimer = 0;
-  }
+   void clear()
+   {
+      contacted=move=false; 
+      contactObject = NULL; 
+      contactNormal.set(0,0,0);
+      contactTime = 0.f;
+      contactTimer = 0;
+   }
 
-  ContactInfo() { clear(); }
+   ContactInfo() { clear(); }
 
 };
 
 /*class CollisionInterface
 {
 public:
-	virtual bool checkCollisions( const F32 travelTime, Point3F *velocity, Point3F start )=0;
-	virtual CollisionList *getCollisionList()=0;
-	virtual Collision *getCollision(S32 col)=0;
+virtual bool checkCollisions( const F32 travelTime, Point3F *velocity, Point3F start )=0;
+virtual CollisionList *getCollisionList()=0;
+virtual Collision *getCollision(S32 col)=0;
 };*/
 
 class CollisionBehavior : public BehaviorTemplate
@@ -107,18 +107,18 @@ class CollisionBehaviorInstance : public BehaviorInstance,
    typedef BehaviorInstance Parent;
 
 protected:
-	Convex *mConvexList;
-	F32 mCollisionTol;
-	F32 mContactTol;
+   Convex *mConvexList;
+   F32 mCollisionTol;
+   F32 mContactTol;
 
 
-	U32 sClientCollisionContactMask;
-	U32 sServerCollisionContactMask;
-	U32 CollisionMoveMask;
-	S32 sMoveRetryCount;
-	F32 sNormalElasticity;
+   U32 sClientCollisionContactMask;
+   U32 sServerCollisionContactMask;
+   U32 CollisionMoveMask;
+   S32 sMoveRetryCount;
+   F32 sNormalElasticity;
 
-	bool mBlockColliding;
+   bool mBlockColliding;
 
 public:
    struct CollisionTimeout 
@@ -133,7 +133,7 @@ public:
    static CollisionTimeout* sFreeTimeoutList;
 
    enum PublicConstants { 
-	   CollisionTimeoutValue = 250
+      CollisionTimeoutValue = 250
    };
 
    CollisionList mCollisionList;
@@ -161,7 +161,7 @@ public:
    CollisionList *getCollisionList() { return &mCollisionList; }
 
    Collision *getCollision(S32 col) { if(col < mCollisionList.getCount() && col >= 0) return &mCollisionList[col];
-										 else return NULL; }
+   else return NULL; }
 
    virtual bool castRay(const Point3F &start, const Point3F &end, RayInfo* info){return false;}
    virtual bool castRayRendered(const Point3F &start, const Point3F &end, RayInfo *info){return false;}

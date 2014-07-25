@@ -45,18 +45,18 @@ extern bool gEditingMission;
 //
 MeshColliderBehavior::MeshColliderBehavior()
 {
-	mNetFlags.set(Ghostable | ScopeAlways);
+   mNetFlags.set(Ghostable | ScopeAlways);
 
-	addBehaviorField("collisionMasks", "A mask list of all the collision masks that apply to this collider.", "collisionMask", "", "");
+   addBehaviorField("collisionMasks", "A mask list of all the collision masks that apply to this collider.", "collisionMask", "", "");
 
-	addBehaviorField("collisionCheckMasks", "A mask list of all the collision masks that this collider checks against when testing collisions.", "collisionMask", "", "");
+   addBehaviorField("collisionCheckMasks", "A mask list of all the collision masks that this collider checks against when testing collisions.", "collisionMask", "", "");
 
-	mFriendlyName = "Mesh Collider";
-	mBehaviorType = "Collision";
+   mFriendlyName = "Mesh Collider";
+   mBehaviorType = "Collision";
 
-	mDescription = getDescriptionText("Enables collision against this entity's visible mesh.");
+   mDescription = getDescriptionText("Enables collision against this entity's visible mesh.");
 
-	mNetworked = true;
+   mNetworked = true;
 }
 
 MeshColliderBehavior::~MeshColliderBehavior()
@@ -106,8 +106,8 @@ MeshColliderBehaviorInstance::MeshColliderBehaviorInstance( BehaviorTemplate *bt
    mNetFlags.set(Ghostable);
 
    CollisionMoveMask = ( TerrainObjectType     | PlayerObjectType  | 
-                                    StaticShapeObjectType | VehicleObjectType |
-                                    VehicleBlockerObjectType | DynamicShapeObjectType);
+      StaticShapeObjectType | VehicleObjectType |
+      VehicleBlockerObjectType | DynamicShapeObjectType);
 
 }
 
@@ -129,24 +129,24 @@ bool MeshColliderBehaviorInstance::onAdd()
 void MeshColliderBehaviorInstance::onRemove()
 {
    if(mConvexList != NULL)
-	  mConvexList->nukeList();
+      mConvexList->nukeList();
    Parent::onRemove();
 }
 
 void MeshColliderBehaviorInstance::onBehaviorRemove()
 {
-	SAFE_DELETE( (dynamic_cast<Entity*>(mBehaviorOwner))->mPhysicsRep );
-	mBehaviorOwner->disableCollision();
+   SAFE_DELETE( (dynamic_cast<Entity*>(mBehaviorOwner))->mPhysicsRep );
+   mBehaviorOwner->disableCollision();
 
-	Parent::onBehaviorRemove();
+   Parent::onBehaviorRemove();
 }
 
 void MeshColliderBehaviorInstance::onBehaviorAdd()
 {
-	Parent::onBehaviorAdd();
+   Parent::onBehaviorAdd();
 
-	if(isServerObject())
-		prepCollision();
+   if(isServerObject())
+      prepCollision();
 }
 
 void MeshColliderBehaviorInstance::initPersistFields()
@@ -156,77 +156,77 @@ void MeshColliderBehaviorInstance::initPersistFields()
 
 U32 MeshColliderBehaviorInstance::packUpdate(NetConnection *con, U32 mask, BitStream *stream)
 {
-	U32 retMask = Parent::packUpdate(con, mask, stream);
+   U32 retMask = Parent::packUpdate(con, mask, stream);
 
-	return retMask;
+   return retMask;
 }
 
 void MeshColliderBehaviorInstance::unpackUpdate(NetConnection *con, BitStream *stream)
 {
-	Parent::unpackUpdate(con, stream);
+   Parent::unpackUpdate(con, stream);
 
-	prepCollision();
+   prepCollision();
 }
 
 TSShapeInstance* MeshColliderBehaviorInstance::getShapeInstance()
 {
-	TSShapeInstanceInterface* shapeInterface = mBehaviorOwner->getBehavior<TSShapeInstanceInterface>();
+   TSShapeInstanceInterface* shapeInterface = mBehaviorOwner->getBehavior<TSShapeInstanceInterface>();
 
-	if(!shapeInterface)
-		return NULL;
+   if(!shapeInterface)
+      return NULL;
 
-	TSShapeInstance* shapeInstance = shapeInterface->getShapeInstance();
-	if(shapeInstance)
-		return shapeInstance;
+   TSShapeInstance* shapeInstance = shapeInterface->getShapeInstance();
+   if(shapeInstance)
+      return shapeInstance;
 
-	return NULL;
+   return NULL;
 }
 
 void MeshColliderBehaviorInstance::update()
 {
-	Parent::update();
+   Parent::update();
 
-	if(isServerObject())
-		prepCollision();
+   if(isServerObject())
+      prepCollision();
 }
 
 void MeshColliderBehaviorInstance::prepCollision()
 {
-	if(!mBehaviorOwner)
-		return;
+   if(!mBehaviorOwner)
+      return;
 
-	//Check if our owner has any renderable TSShapes
-	TSShapeInstance *shapeInstance = getShapeInstance();
+   //Check if our owner has any renderable TSShapes
+   TSShapeInstance *shapeInstance = getShapeInstance();
 
-	if( !shapeInstance )
-		return;
+   if( !shapeInstance )
+      return;
 
-	bool server = isServerObject();
+   bool server = isServerObject();
 
    shapeInstance->prepCollision();
 
    // Cleanup any old collision data
    mCollisionDetails.clear();
 
-	if(mConvexList != NULL)
-		mConvexList->nukeList();
+   if(mConvexList != NULL)
+      mConvexList->nukeList();
 
-	Vector<S32> losDetails;
+   Vector<S32> losDetails;
 
    shapeInstance->getShape()->findColDetails( true, &mCollisionDetails, &losDetails );
 
-	if(!mCollisionDetails.empty())
-	{
-		mBehaviorOwner->enableCollision();
+   if(!mCollisionDetails.empty())
+   {
+      mBehaviorOwner->enableCollision();
 
-		mConvexList = new MeshColliderPolysoupConvex;
+      mConvexList = new MeshColliderPolysoupConvex;
 
-		Convex *c = new Convex();
-		for (U32 i = 0; i < mCollisionDetails.size(); i++)
-			buildConvexOpcode( shapeInstance, mCollisionDetails[i], mBehaviorOwner->getWorldBox(), c, mConvexList );
-	}
-	else
-		mBehaviorOwner->disableCollision();
+      Convex *c = new Convex();
+      for (U32 i = 0; i < mCollisionDetails.size(); i++)
+         buildConvexOpcode( shapeInstance, mCollisionDetails[i], mBehaviorOwner->getWorldBox(), c, mConvexList );
+   }
+   else
+      mBehaviorOwner->disableCollision();
 
    _updatePhysics();
 }
@@ -235,29 +235,29 @@ void MeshColliderBehaviorInstance::_updatePhysics()
 {
    SAFE_DELETE( (dynamic_cast<Entity*>(mBehaviorOwner))->mPhysicsRep );
 
-	if ( !PHYSICSMGR )
-		return;
+   if ( !PHYSICSMGR )
+      return;
 
-	/*PhysicsCollision *colShape = NULL;
-	MatrixF offset( true );
-	offset.setPosition( mBehaviorOwner->getPosition() );
-	colShape = PHYSICSMGR->createCollision();
-	//colShape->addBox( mBehaviorOwner->getObjBox().getExtents() * 0.5f * mBehaviorOwner->getScale(), offset ); 
-	colShape->addBox( colliderScale, offset );
+   /*PhysicsCollision *colShape = NULL;
+   MatrixF offset( true );
+   offset.setPosition( mBehaviorOwner->getPosition() );
+   colShape = PHYSICSMGR->createCollision();
+   //colShape->addBox( mBehaviorOwner->getObjBox().getExtents() * 0.5f * mBehaviorOwner->getScale(), offset ); 
+   colShape->addBox( colliderScale, offset );
 
-	if ( colShape )
-	{
-		PhysicsWorld *world = PHYSICSMGR->getWorld( mBehaviorOwner->isServerObject() ? "server" : "client" );
-		(dynamic_cast<Entity*>(mBehaviorOwner))->mPhysicsRep = PHYSICSMGR->createBody();
-		(dynamic_cast<Entity*>(mBehaviorOwner))->mPhysicsRep->init( colShape, 0, 0, mBehaviorOwner, world );
-		(dynamic_cast<Entity*>(mBehaviorOwner))->mPhysicsRep->setTransform( mBehaviorOwner->getTransform() );
-	}*/
+   if ( colShape )
+   {
+   PhysicsWorld *world = PHYSICSMGR->getWorld( mBehaviorOwner->isServerObject() ? "server" : "client" );
+   (dynamic_cast<Entity*>(mBehaviorOwner))->mPhysicsRep = PHYSICSMGR->createBody();
+   (dynamic_cast<Entity*>(mBehaviorOwner))->mPhysicsRep->init( colShape, 0, 0, mBehaviorOwner, world );
+   (dynamic_cast<Entity*>(mBehaviorOwner))->mPhysicsRep->setTransform( mBehaviorOwner->getTransform() );
+   }*/
 }
 
 bool MeshColliderBehaviorInstance::castRay(const Point3F &start, const Point3F &end, RayInfo* info)
 {
-	TSShapeInstance *shapeInstance = getShapeInstance();
-	if ( !shapeInstance )
+   TSShapeInstance *shapeInstance = getShapeInstance();
+   if ( !shapeInstance )
       return false;
 
    // Cast the ray against the currently visible detail
@@ -267,81 +267,81 @@ bool MeshColliderBehaviorInstance::castRay(const Point3F &start, const Point3F &
    if ( res )
    {
       *info = localInfo;
-		info->object = this->getBehaviorOwner();
+      info->object = this->getBehaviorOwner();
       return true;
    }
 
-	//do our callback
-	//onRaycastCollision_callback( this, enter );
-	return false;
+   //do our callback
+   //onRaycastCollision_callback( this, enter );
+   return false;
 }
 
 bool MeshColliderBehaviorInstance::updateCollisions(F32 time, VectorF vector, VectorF velocity)
 {
-	//mBehaviorOwner->getObjBox().getCenter(&mConvexList->mCenter);
+   //mBehaviorOwner->getObjBox().getCenter(&mConvexList->mCenter);
 
-	//the way this sets up, we basically make a convex per poly, which is why polysoup collisions can be really inefficient.
-	//we'll basically cycle through our convex list, collect only polies that can be extruded(so front-facing to our end point)
-	//and then extrude them one at a time untill they're all done, or we collide
-	MeshColliderPolysoupConvex *conv = dynamic_cast<MeshColliderPolysoupConvex*>(mConvexList);
-	while(conv != NULL)
-	{
-		conv = dynamic_cast<MeshColliderPolysoupConvex*>(conv->mNext);
-	}
+   //the way this sets up, we basically make a convex per poly, which is why polysoup collisions can be really inefficient.
+   //we'll basically cycle through our convex list, collect only polies that can be extruded(so front-facing to our end point)
+   //and then extrude them one at a time untill they're all done, or we collide
+   MeshColliderPolysoupConvex *conv = dynamic_cast<MeshColliderPolysoupConvex*>(mConvexList);
+   while(conv != NULL)
+   {
+      conv = dynamic_cast<MeshColliderPolysoupConvex*>(conv->mNext);
+   }
 
-	Polyhedron cPolyhedron;
-	cPolyhedron.buildBox(mBehaviorOwner->getTransform(), mBehaviorOwner->getObjBox(), true);
+   Polyhedron cPolyhedron;
+   cPolyhedron.buildBox(mBehaviorOwner->getTransform(), mBehaviorOwner->getObjBox(), true);
    ExtrudedPolyList extrudePoly;
 
-	extrudePoly.extrude(cPolyhedron, velocity);
-	extrudePoly.setVelocity(velocity);
-	extrudePoly.setCollisionList(&mCollisionList);
+   extrudePoly.extrude(cPolyhedron, velocity);
+   extrudePoly.setVelocity(velocity);
+   extrudePoly.setCollisionList(&mCollisionList);
 
-	Box3F plistBox = mBehaviorOwner->getObjBox();
-	mBehaviorOwner->getTransform().mul(plistBox); 
-	Point3F oldMin = plistBox.minExtents;
-	Point3F oldMax = plistBox.maxExtents;
-	plistBox.minExtents.setMin(oldMin + (velocity * time) - Point3F(0.1f, 0.1f, 0.1f));
-	plistBox.maxExtents.setMax(oldMax + (velocity * time) + Point3F(0.1f, 0.1f, 0.1f));
+   Box3F plistBox = mBehaviorOwner->getObjBox();
+   mBehaviorOwner->getTransform().mul(plistBox); 
+   Point3F oldMin = plistBox.minExtents;
+   Point3F oldMax = plistBox.maxExtents;
+   plistBox.minExtents.setMin(oldMin + (velocity * time) - Point3F(0.1f, 0.1f, 0.1f));
+   plistBox.maxExtents.setMax(oldMax + (velocity * time) + Point3F(0.1f, 0.1f, 0.1f));
 
-	// Build list from convex states here...
-	CollisionWorkingList& rList = mConvexList->getWorkingList();
-	CollisionWorkingList* pList = rList.wLink.mNext;
-	while (pList != &rList) {
-		Convex* pConvex = pList->mConvex;
-		if (pConvex->getObject()->getTypeMask() & CollisionMoveMask) {
-			Box3F convexBox = pConvex->getBoundingBox();
-			if (plistBox.isOverlapped(convexBox))
-			{
-				pConvex->getPolyList(&extrudePoly);
-			}
-		}
-		pList = pList->wLink.mNext;
-	}
+   // Build list from convex states here...
+   CollisionWorkingList& rList = mConvexList->getWorkingList();
+   CollisionWorkingList* pList = rList.wLink.mNext;
+   while (pList != &rList) {
+      Convex* pConvex = pList->mConvex;
+      if (pConvex->getObject()->getTypeMask() & CollisionMoveMask) {
+         Box3F convexBox = pConvex->getBoundingBox();
+         if (plistBox.isOverlapped(convexBox))
+         {
+            pConvex->getPolyList(&extrudePoly);
+         }
+      }
+      pList = pList->wLink.mNext;
+   }
 
-	if(mCollisionList.getCount() > 0)
-		return true;
-	else
-		return false;
+   if(mCollisionList.getCount() > 0)
+      return true;
+   else
+      return false;
 }
 
 void MeshColliderBehaviorInstance::updateWorkingCollisionSet(const U32 mask)
 {
-	//if we have no convex, we cannot collide
-	if(!mConvexList)
-		return; 
+   //if we have no convex, we cannot collide
+   if(!mConvexList)
+      return; 
 
    // First, we need to adjust our velocity for possible acceleration.  It is assumed
    // that we will never accelerate more than 20 m/s for gravity, plus 10 m/s for
    // jetting, and an equivalent 10 m/s for jumping.  We also assume that the
    // working list is updated on a Tick basis, which means we only expand our
    // box by the possible movement in that tick.
-	VectorF velocity;
-	BehaviorInstance* bI = mBehaviorOwner->getBehaviorByType("PhysicsBehavior");
-    if(!bI)
-	   velocity = Point3F(0,0,0);
-	else 
-	   velocity = (reinterpret_cast<PhysicsBehaviorInstance*>(bI))->getVelocity();
+   VectorF velocity;
+   BehaviorInstance* bI = mBehaviorOwner->getBehaviorByType("PhysicsBehavior");
+   if(!bI)
+      velocity = Point3F(0,0,0);
+   else 
+      velocity = (reinterpret_cast<PhysicsBehaviorInstance*>(bI))->getVelocity();
 
    Point3F scaledVelocity = velocity * TickSec;
    F32 len    = scaledVelocity.len();
@@ -364,7 +364,7 @@ void MeshColliderBehaviorInstance::updateWorkingCollisionSet(const U32 mask)
    {
       if (mWorkingQueryBox.isContained(convexBox) == false)
          // Needed region is outside the cached region.  Update it.
-         updateSet = true;
+            updateSet = true;
    }
    else
    {
@@ -381,53 +381,53 @@ void MeshColliderBehaviorInstance::updateWorkingCollisionSet(const U32 mask)
 
       mBehaviorOwner->disableCollision();
       mConvexList->updateWorkingList(mWorkingQueryBox, U32(-1));
-         //isGhost() ? sClientCollisionContactMask : sServerCollisionContactMask);
+      //isGhost() ? sClientCollisionContactMask : sServerCollisionContactMask);
       mBehaviorOwner->enableCollision();
    }
 }
 
 void MeshColliderBehaviorInstance::prepRenderImage( SceneRenderState *state )
 {
-	return;
-	if(gEditingMission && mBehaviorOwner->isSelected())
-	{
-		TSShapeInstance* shapeInstance = getShapeInstance();
-		if(mConvexList == NULL && shapeInstance)
-		{
-			Vector<S32> losDetails;
+   return;
+   if(gEditingMission && mBehaviorOwner->isSelected())
+   {
+      TSShapeInstance* shapeInstance = getShapeInstance();
+      if(mConvexList == NULL && shapeInstance)
+      {
+         Vector<S32> losDetails;
 
-			shapeInstance->getShape()->findColDetails( true, &mCollisionDetails, &losDetails );
+         shapeInstance->getShape()->findColDetails( true, &mCollisionDetails, &losDetails );
 
-			if(!mCollisionDetails.empty())
-			{
-				MeshColliderPolysoupConvex* mC = new MeshColliderPolysoupConvex();
-				mC->init(mBehaviorOwner);
+         if(!mCollisionDetails.empty())
+         {
+            MeshColliderPolysoupConvex* mC = new MeshColliderPolysoupConvex();
+            mC->init(mBehaviorOwner);
 
-				mConvexList = mC;
+            mConvexList = mC;
 
-				Convex *c = new Convex();
-				for (U32 i = 0; i < mCollisionDetails.size(); i++)
-					buildConvexOpcode( shapeInstance, mCollisionDetails[i], mBehaviorOwner->getWorldBox(), c, mConvexList );
+            Convex *c = new Convex();
+            for (U32 i = 0; i < mCollisionDetails.size(); i++)
+               buildConvexOpcode( shapeInstance, mCollisionDetails[i], mBehaviorOwner->getWorldBox(), c, mConvexList );
 
-				mConvexList->render();
-			}
-		}
+            mConvexList->render();
+         }
+      }
 
-		/*DebugDrawer * debugDraw = DebugDrawer::get();  
+      /*DebugDrawer * debugDraw = DebugDrawer::get();  
       if (debugDraw)  
       {  
-			Point3F min = mWorkingQueryBox.minExtents;
-			Point3F max = mWorkingQueryBox.maxExtents;
+      Point3F min = mWorkingQueryBox.minExtents;
+      Point3F max = mWorkingQueryBox.maxExtents;
 
-			debugDraw->drawBox(mBehaviorOwner->getWorldBox().minExtents, mBehaviorOwner->getWorldBox().maxExtents, ColorI(255, 0, 255, 128));  
+      debugDraw->drawBox(mBehaviorOwner->getWorldBox().minExtents, mBehaviorOwner->getWorldBox().maxExtents, ColorI(255, 0, 255, 128));  
       } */
 
-		ObjectRenderInst *ri = state->getRenderPass()->allocInst<ObjectRenderInst>();
+      ObjectRenderInst *ri = state->getRenderPass()->allocInst<ObjectRenderInst>();
       ri->renderDelegate.bind( this, &MeshColliderBehaviorInstance::renderConvex );
       ri->objectIndex = -1;
       ri->type = RenderPassManager::RIT_Editor;
       state->getRenderPass()->addInst( ri );
-	}
+   }
 }
 
 void MeshColliderBehaviorInstance::renderConvex( ObjectRenderInst *ri, SceneRenderState *state, BaseMatInstance *overrideMat )
@@ -441,14 +441,14 @@ void MeshColliderBehaviorInstance::renderConvex( ObjectRenderInst *ri, SceneRend
 
 bool MeshColliderBehaviorInstance::buildConvex(const Box3F& box, Convex* convex)
 {
-	TSShapeInstance *shapeInstance = getShapeInstance();
-	if(!shapeInstance)
-		return false;
+   TSShapeInstance *shapeInstance = getShapeInstance();
+   if(!shapeInstance)
+      return false;
 
    for (U32 i = 0; i < mCollisionDetails.size(); i++)
-		buildConvexOpcode( shapeInstance, mCollisionDetails[i], box, convex, mConvexList );
+      buildConvexOpcode( shapeInstance, mCollisionDetails[i], box, convex, mConvexList );
 
-	return true;
+   return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -456,7 +456,7 @@ bool MeshColliderBehaviorInstance::buildConvexOpcode( TSShapeInstance* sI, S32 d
 {
    AssertFatal(dl>=0 && dl < sI->getShape()->details.size(),"TSShapeInstance::buildConvexOpcode");
 
-	TSShape* shape = sI->getShape();
+   TSShape* shape = sI->getShape();
 
    // get subshape and object detail
    const TSDetail * detail = &shape->details[dl];
@@ -470,7 +470,7 @@ bool MeshColliderBehaviorInstance::buildConvexOpcode( TSShapeInstance* sI, S32 d
    S32 end   = shape->subShapeNumObjects[ss] + start;
    if (start<end)
    {
-		MatrixF initialMat = mBehaviorOwner->getObjToWorld();
+      MatrixF initialMat = mBehaviorOwner->getObjToWorld();
       Point3F initialScale = mBehaviorOwner->getScale();
 
       // set up for first object's node
@@ -526,137 +526,137 @@ bool MeshColliderBehaviorInstance::buildConvexOpcode( TSShapeInstance* sI, S32 d
 }
 
 bool MeshColliderBehaviorInstance::buildMeshOpcode(  TSShapeInstance::MeshObjectInstance *meshInstance, const MatrixF &meshToObjectMat, 
-																				S32 objectDetail, const Box3F &bounds, Convex *convex, Convex *list)
+                                                   S32 objectDetail, const Box3F &bounds, Convex *convex, Convex *list)
 {
    TSMesh * mesh = meshInstance->getMesh(objectDetail);
    if ( mesh && !meshInstance->forceHidden && meshInstance->visible > 0.01f && bounds.isOverlapped( mesh->getBounds() ) )
-	{
+   {
       //return mesh->buildConvexOpcode(mat, bounds, c, list);
 
-		PROFILE_SCOPE( TSMesh_buildConvexOpcode );
+      PROFILE_SCOPE( TSMesh_buildConvexOpcode );
 
-		// This is small... there is no win for preallocating it.
-		Opcode::AABBCollider opCollider;
-		opCollider.SetPrimitiveTests( true );
+      // This is small... there is no win for preallocating it.
+      Opcode::AABBCollider opCollider;
+      opCollider.SetPrimitiveTests( true );
 
-		// This isn't really needed within the AABBCollider as 
-		// we don't use temporal coherance... use a static to 
-		// remove the allocation overhead.
-		static Opcode::AABBCache opCache;
+      // This isn't really needed within the AABBCollider as 
+      // we don't use temporal coherance... use a static to 
+      // remove the allocation overhead.
+      static Opcode::AABBCache opCache;
 
-		IceMaths::AABB opBox;
-		opBox.SetMinMax(  Point( bounds.minExtents.x, bounds.minExtents.y, bounds.minExtents.z ),
-								Point( bounds.maxExtents.x, bounds.maxExtents.y, bounds.maxExtents.z ) );
-		Opcode::CollisionAABB opCBox(opBox);
+      IceMaths::AABB opBox;
+      opBox.SetMinMax(  Point( bounds.minExtents.x, bounds.minExtents.y, bounds.minExtents.z ),
+         Point( bounds.maxExtents.x, bounds.maxExtents.y, bounds.maxExtents.z ) );
+      Opcode::CollisionAABB opCBox(opBox);
 
-		if( !opCollider.Collide( opCache, opCBox, *mesh->mOptTree ) )
-			return false;
+      if( !opCollider.Collide( opCache, opCBox, *mesh->mOptTree ) )
+         return false;
 
-		U32 cnt = opCollider.GetNbTouchedPrimitives();
-		const udword *idx = opCollider.GetTouchedPrimitives();
+      U32 cnt = opCollider.GetNbTouchedPrimitives();
+      const udword *idx = opCollider.GetTouchedPrimitives();
 
-		Opcode::VertexPointers vp;
-		for ( S32 i = 0; i < cnt; i++ )
-		{
-			// First, check our active convexes for a potential match (and clean things
-			// up, too.)
-			const U32 curIdx = idx[i];
+      Opcode::VertexPointers vp;
+      for ( S32 i = 0; i < cnt; i++ )
+      {
+         // First, check our active convexes for a potential match (and clean things
+         // up, too.)
+         const U32 curIdx = idx[i];
 
-			// See if the square already exists as part of the working set.
-			bool gotMatch = false;
-			CollisionWorkingList& wl = convex->getWorkingList();
-			for ( CollisionWorkingList* itr = wl.wLink.mNext; itr != &wl; itr = itr->wLink.mNext )
-			{
-				if( itr->mConvex->getType() != TSPolysoupConvexType )
-					continue;
+         // See if the square already exists as part of the working set.
+         bool gotMatch = false;
+         CollisionWorkingList& wl = convex->getWorkingList();
+         for ( CollisionWorkingList* itr = wl.wLink.mNext; itr != &wl; itr = itr->wLink.mNext )
+         {
+            if( itr->mConvex->getType() != TSPolysoupConvexType )
+               continue;
 
-				const MeshColliderPolysoupConvex *chunkc = static_cast<MeshColliderPolysoupConvex*>( itr->mConvex );
+            const MeshColliderPolysoupConvex *chunkc = static_cast<MeshColliderPolysoupConvex*>( itr->mConvex );
 
-				if( chunkc->getObject() != mBehaviorOwner )
-					continue;
-               
-				if( chunkc->mesh != mesh )
-					continue;
+            if( chunkc->getObject() != mBehaviorOwner )
+               continue;
 
-				if( chunkc->idx != curIdx )
-					continue;
+            if( chunkc->mesh != mesh )
+               continue;
 
-				// A match! Don't need to add it.
-				gotMatch = true;
-				break;
-			}
+            if( chunkc->idx != curIdx )
+               continue;
 
-			if( gotMatch )
-				continue;
+            // A match! Don't need to add it.
+            gotMatch = true;
+            break;
+         }
 
-			// Get the triangle...
-			mesh->mOptTree->GetMeshInterface()->GetTriangle( vp, idx[i] );
+         if( gotMatch )
+            continue;
 
-			Point3F a( vp.Vertex[0]->x, vp.Vertex[0]->y, vp.Vertex[0]->z );
-			Point3F b( vp.Vertex[1]->x, vp.Vertex[1]->y, vp.Vertex[1]->z );
-			Point3F c( vp.Vertex[2]->x, vp.Vertex[2]->y, vp.Vertex[2]->z );
+         // Get the triangle...
+         mesh->mOptTree->GetMeshInterface()->GetTriangle( vp, idx[i] );
 
-			// Transform the result into object space!
-			meshToObjectMat.mulP( a );
-			meshToObjectMat.mulP( b );
-			meshToObjectMat.mulP( c );
+         Point3F a( vp.Vertex[0]->x, vp.Vertex[0]->y, vp.Vertex[0]->z );
+         Point3F b( vp.Vertex[1]->x, vp.Vertex[1]->y, vp.Vertex[1]->z );
+         Point3F c( vp.Vertex[2]->x, vp.Vertex[2]->y, vp.Vertex[2]->z );
 
-			//build the shape-center offset
-			Point3F center = getShapeInstance()->getShape()->center;
-			Point3F position = mBehaviorOwner->getPosition();
-		
-			mBehaviorOwner->getTransform().mulP(center);
+         // Transform the result into object space!
+         meshToObjectMat.mulP( a );
+         meshToObjectMat.mulP( b );
+         meshToObjectMat.mulP( c );
 
-			Point3F posOffset = position - center;
-		
-			a += posOffset;
-			b += posOffset;
-			c += posOffset;
-			//
+         //build the shape-center offset
+         Point3F center = getShapeInstance()->getShape()->center;
+         Point3F position = mBehaviorOwner->getPosition();
 
-			PlaneF p( c, b, a );
-			Point3F peak = ((a + b + c) / 3.0f) - (p * 0.15f);
+         mBehaviorOwner->getTransform().mulP(center);
 
-			// Set up the convex...
-			MeshColliderPolysoupConvex *cp = new MeshColliderPolysoupConvex();
+         Point3F posOffset = position - center;
 
-			list->registerObject( cp );
-			convex->addToWorkingList( cp );
+         a += posOffset;
+         b += posOffset;
+         c += posOffset;
+         //
 
-			cp->mesh    = mesh;
-			cp->idx     = curIdx;
-			cp->mObject = mBehaviorOwner;
+         PlaneF p( c, b, a );
+         Point3F peak = ((a + b + c) / 3.0f) - (p * 0.15f);
 
-			cp->normal = p;
-			cp->verts[0] = a;
-			cp->verts[1] = b;
-			cp->verts[2] = c;
-			cp->verts[3] = peak;
+         // Set up the convex...
+         MeshColliderPolysoupConvex *cp = new MeshColliderPolysoupConvex();
 
-			// Update the bounding box.
-			Box3F &bounds = cp->box;
-			bounds.minExtents.set( F32_MAX,  F32_MAX,  F32_MAX );
-			bounds.maxExtents.set( -F32_MAX, -F32_MAX, -F32_MAX );
+         list->registerObject( cp );
+         convex->addToWorkingList( cp );
 
-			bounds.minExtents.setMin( a );
-			bounds.minExtents.setMin( b );
-			bounds.minExtents.setMin( c );
-			bounds.minExtents.setMin( peak );
+         cp->mesh    = mesh;
+         cp->idx     = curIdx;
+         cp->mObject = mBehaviorOwner;
 
-			bounds.maxExtents.setMax( a );
-			bounds.maxExtents.setMax( b );
-			bounds.maxExtents.setMax( c );
-			bounds.maxExtents.setMax( peak );
-		}
+         cp->normal = p;
+         cp->verts[0] = a;
+         cp->verts[1] = b;
+         cp->verts[2] = c;
+         cp->verts[3] = peak;
 
-		return true;
-	}
+         // Update the bounding box.
+         Box3F &bounds = cp->box;
+         bounds.minExtents.set( F32_MAX,  F32_MAX,  F32_MAX );
+         bounds.maxExtents.set( -F32_MAX, -F32_MAX, -F32_MAX );
+
+         bounds.minExtents.setMin( a );
+         bounds.minExtents.setMin( b );
+         bounds.minExtents.setMin( c );
+         bounds.minExtents.setMin( peak );
+
+         bounds.maxExtents.setMax( a );
+         bounds.maxExtents.setMax( b );
+         bounds.maxExtents.setMax( c );
+         bounds.maxExtents.setMax( peak );
+      }
+
+      return true;
+   }
 
    return false;
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 MeshColliderPolysoupConvex::MeshColliderPolysoupConvex()
-:  box( 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f ),
+   :  box( 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f ),
    normal( 0.0f, 0.0f, 0.0f, 0.0f ),
    idx( 0 ),
    mesh( NULL )
@@ -713,8 +713,8 @@ void MeshColliderPolysoupConvex::getPolyList(AbstractPolyList *list)
 
    // Add only the original collision triangle
    S32 base =  list->addPoint(verts[0]);
-               list->addPoint(verts[2]);
-               list->addPoint(verts[1]);
+   list->addPoint(verts[2]);
+   list->addPoint(verts[1]);
 
    list->begin(0, (U32)idx ^ (U32)mesh);
    list->vertex(base + 2);
@@ -799,20 +799,20 @@ void MeshColliderPolysoupConvex::getFeatures(const MatrixF& mat,const VectorF& n
 
 void MeshColliderPolysoupConvex::getAllPolyList(AbstractPolyList *list)
 {
-	if(mNext)
-	{
-		MeshColliderPolysoupConvex *itr = dynamic_cast<MeshColliderPolysoupConvex*>(mNext);
-		while(itr)
-		{
-			itr->getPolyList(list);
-			itr = dynamic_cast<MeshColliderPolysoupConvex*>(itr->mNext);
-		}
-	}
+   if(mNext)
+   {
+      MeshColliderPolysoupConvex *itr = dynamic_cast<MeshColliderPolysoupConvex*>(mNext);
+      while(itr)
+      {
+         itr->getPolyList(list);
+         itr = dynamic_cast<MeshColliderPolysoupConvex*>(itr->mNext);
+      }
+   }
 }
 
 void MeshColliderPolysoupConvex::render()
 {
-	ConcretePolyList polyList;
+   ConcretePolyList polyList;
    getAllPolyList( &polyList );
    polyList.render();
 }

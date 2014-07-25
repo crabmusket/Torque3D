@@ -8,34 +8,34 @@
 #include "component/behaviors/Collision/collisionBehavior.h"
 
 #ifndef __RESOURCE_H__
-	#include "core/resource.h"
+#include "core/resource.h"
 #endif
 #ifndef _TSSHAPE_H_
-	#include "ts/tsShape.h"
+#include "ts/tsShape.h"
 #endif
 #ifndef _SCENERENDERSTATE_H_
-   #include "scene/sceneRenderState.h"
+#include "scene/sceneRenderState.h"
 #endif
 #ifndef _MBOX_H_
-   #include "math/mBox.h"
+#include "math/mBox.h"
 #endif
 #ifndef _Entity_H_
-   #include "T3D/Entity.h"
+#include "T3D/Entity.h"
 #endif
 
 #ifndef _RENDER_INTERFACES_H_
-   #include "component/behaviors/render/renderInterfaces.h"
+#include "component/behaviors/render/renderInterfaces.h"
 #endif
 
 #ifndef _COLLISION_INTERFACES_H_
-   #include "component/behaviors/collision/collisionInterfaces.h"
+#include "component/behaviors/collision/collisionInterfaces.h"
 #endif
 
 #ifndef _SCENERENDERSTATE_H_
-   #include "scene/sceneRenderState.h"
+#include "scene/sceneRenderState.h"
 #endif
 #ifndef _RENDERPASSMANAGER_H_
-   #include "renderInstance/renderPassManager.h"
+#include "renderInstance/renderPassManager.h"
 #endif
 
 class TSShapeInstance;
@@ -62,13 +62,13 @@ public:
    TSMesh               *mesh;
 
    static SceneObject* smCurObject;
-	static TSShapeInstance* smCurShapeInstance;
+   static TSShapeInstance* smCurShapeInstance;
 
-	Convex* mNext;
+   Convex* mNext;
 
 public:
 
-	void init(SceneObject* obj) { mObject = obj; }
+   void init(SceneObject* obj) { mObject = obj; }
 
    // Returns the bounding box in world coordinates
    Box3F getBoundingBox() const;
@@ -79,12 +79,12 @@ public:
    // This returns a list of convex faces to collide against
    void getPolyList(AbstractPolyList* list);
 
-	// Renders the convex list. Used for debugging
-	virtual void render();
+   // Renders the convex list. Used for debugging
+   virtual void render();
 
-	// This returns all the polies in our convex list
-	// It's really meant for debugging purposes
-	void getAllPolyList(AbstractPolyList *list);
+   // This returns all the polies in our convex list
+   // It's really meant for debugging purposes
+   void getAllPolyList(AbstractPolyList *list);
 
    // This returns the furthest point from the input vector
    Point3F support(const VectorF& v) const;
@@ -112,9 +112,9 @@ class MeshColliderBehaviorInstance : public CollisionBehaviorInstance,
    typedef CollisionBehaviorInstance Parent;
 
 protected:
-	Convex *mConvexList;
+   Convex *mConvexList;
 
-	Vector<S32> mCollisionDetails;
+   Vector<S32> mCollisionDetails;
 
 public:
    MeshColliderBehaviorInstance(BehaviorTemplate *btemplate = NULL);
@@ -125,10 +125,10 @@ public:
    virtual void onRemove();
    static void initPersistFields();
 
-	virtual void update();
+   virtual void update();
 
    virtual void prepRenderImage( SceneRenderState *state );
-	virtual void renderConvex( ObjectRenderInst *ri, SceneRenderState *state, BaseMatInstance *overrideMat );
+   virtual void renderConvex( ObjectRenderInst *ri, SceneRenderState *state, BaseMatInstance *overrideMat );
 
    virtual U32 packUpdate(NetConnection *con, U32 mask, BitStream *stream);
    virtual void unpackUpdate(NetConnection *con, BitStream *stream);
@@ -142,16 +142,16 @@ public:
    virtual bool buildConvex(const Box3F& box, Convex* convex);
    virtual bool castRay(const Point3F &start, const Point3F &end, RayInfo* info);
 
-	bool buildConvexOpcode( TSShapeInstance* sI, S32 dl, const Box3F &bounds, Convex *c, Convex *list );
+   bool buildConvexOpcode( TSShapeInstance* sI, S32 dl, const Box3F &bounds, Convex *c, Convex *list );
 
-	bool buildMeshOpcode(  TSShapeInstance::MeshObjectInstance *meshInstance, const MatrixF &meshToObjectMat, 
-																				S32 objectDetail, const Box3F &bounds, Convex *convex, Convex *list);
+   bool buildMeshOpcode(  TSShapeInstance::MeshObjectInstance *meshInstance, const MatrixF &meshToObjectMat, 
+      S32 objectDetail, const Box3F &bounds, Convex *convex, Convex *list);
 
    virtual bool updateCollisions(F32 time, VectorF vector, VectorF velocity);
 
    virtual void updateWorkingCollisionSet(const U32 mask);
 
-	TSShapeInstance* getShapeInstance();
+   TSShapeInstance* getShapeInstance();
 };
 
 #endif // _BEHAVIORTEMPLATE_H_

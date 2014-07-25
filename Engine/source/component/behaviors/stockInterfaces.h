@@ -2,10 +2,10 @@
 #define _STOCK_INTERFACES_H_
 
 #ifndef _SCENERENDERSTATE_H_
-   #include "scene/sceneRenderState.h"
+#include "scene/sceneRenderState.h"
 #endif
 /*#ifndef _GEOMETRY_H_
-	#include "math/mGeometry.h"
+#include "math/mGeometry.h"
 #endif*/
 
 //Basically a file for generic interfaces that many behaviors may make use of
@@ -20,34 +20,34 @@ public:
 class UpdateInterface
 {
 public:
-	virtual void processTick(const Move* move){}
-	virtual void interpolateTick(F32 dt){}
-	virtual void advanceTime(F32 dt){}
+   virtual void processTick(const Move* move){}
+   virtual void interpolateTick(F32 dt){}
+   virtual void advanceTime(F32 dt){}
 };
 
 class BehaviorFieldInterface
 {
 public:
-	virtual void onFieldChange(const char* fieldName, const char* newValue){};
+   virtual void onFieldChange(const char* fieldName, const char* newValue){};
 };
 
 class CameraInterface
 {
 public:
-	virtual bool getCameraTransform(F32* pos,MatrixF* mat)=0;
+   virtual bool getCameraTransform(F32* pos,MatrixF* mat)=0;
 };
 
 class CastRayInterface
 {
 public:
-	virtual bool castRay(const Point3F &start, const Point3F &end, RayInfo* info)=0;
+   virtual bool castRay(const Point3F &start, const Point3F &end, RayInfo* info)=0;
 };
 
 class EditorInspectInterface
 {
 public:
-	virtual void onInspect()=0;
-	virtual void onEndInspect()=0;
+   virtual void onInspect()=0;
+   virtual void onEndInspect()=0;
 };
 
 #endif

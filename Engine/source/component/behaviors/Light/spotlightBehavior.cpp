@@ -18,7 +18,7 @@
 //////////////////////////////////////////////////////////////////////////
 SpotLightBehavior::SpotLightBehavior()
 {
-	mNetFlags.set(Ghostable | ScopeAlways);
+   mNetFlags.set(Ghostable | ScopeAlways);
 }
 
 SpotLightBehavior::~SpotLightBehavior()
@@ -67,13 +67,13 @@ void SpotLightBehavior::initPersistFields()
 
 U32 SpotLightBehavior::packUpdate(NetConnection *con, U32 mask, BitStream *stream)
 {
-	U32 retMask = Parent::packUpdate(con, mask, stream);
-	return retMask;
+   U32 retMask = Parent::packUpdate(con, mask, stream);
+   return retMask;
 }
 
 void SpotLightBehavior::unpackUpdate(NetConnection *con, BitStream *stream)
 {
-	Parent::unpackUpdate(con, stream);
+   Parent::unpackUpdate(con, stream);
 }
 
 //==========================================================================================
@@ -125,10 +125,10 @@ void SpotLightBehaviorInstance::onBehaviorRemove()
 void SpotLightBehaviorInstance::initPersistFields()
 {
    addGroup( "Light" );
-      
-      addField( "range", TypeF32, Offset( mRange, SpotLightBehaviorInstance ) );
-      addField( "innerAngle", TypeF32, Offset( mInnerConeAngle, SpotLightBehaviorInstance ) );
-      addField( "outerAngle", TypeF32, Offset( mOuterConeAngle, SpotLightBehaviorInstance ) );
+
+   addField( "range", TypeF32, Offset( mRange, SpotLightBehaviorInstance ) );
+   addField( "innerAngle", TypeF32, Offset( mInnerConeAngle, SpotLightBehaviorInstance ) );
+   addField( "outerAngle", TypeF32, Offset( mOuterConeAngle, SpotLightBehaviorInstance ) );
 
    endGroup( "Light" );
 
@@ -149,7 +149,7 @@ U32 SpotLightBehaviorInstance::packUpdate(NetConnection *con, U32 mask, BitStrea
       stream->write( mInnerConeAngle );
       stream->write( mOuterConeAngle );
    }
-   
+
    return Parent::packUpdate( con, mask, stream );
 }
 
@@ -161,7 +161,7 @@ void SpotLightBehaviorInstance::unpackUpdate(NetConnection *con, BitStream *stre
       stream->read( &mInnerConeAngle );
       stream->read( &mOuterConeAngle );
    }
-   
+
    Parent::unpackUpdate( con, stream );
 }
 void SpotLightBehaviorInstance::setScale( const VectorF &scale )
@@ -231,8 +231,8 @@ void SpotLightBehaviorInstance::_renderViz( SceneRenderState *state )
 
    F32 radius = mRange * mSin( mDegToRad( mOuterConeAngle * 0.5f ) );
    draw->drawCone(   desc, 
-                     mBehaviorOwner->getPosition() + ( mBehaviorOwner->getTransform().getForwardVector() * mRange ),
-                     mBehaviorOwner->getPosition(),
-                     radius,
-                     color );
+      mBehaviorOwner->getPosition() + ( mBehaviorOwner->getTransform().getForwardVector() * mRange ),
+      mBehaviorOwner->getPosition(),
+      radius,
+      color );
 }

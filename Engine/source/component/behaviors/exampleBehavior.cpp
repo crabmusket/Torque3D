@@ -17,7 +17,7 @@
 
 ExampleBehavior::ExampleBehavior()
 {
-	mNetFlags.set(Ghostable | ScopeAlways);
+   mNetFlags.set(Ghostable | ScopeAlways);
 }
 
 ExampleBehavior::~ExampleBehavior()
@@ -66,13 +66,13 @@ void ExampleBehavior::initPersistFields()
 
 U32 ExampleBehavior::packUpdate(NetConnection *con, U32 mask, BitStream *stream)
 {
-	U32 retMask = Parent::packUpdate(con, mask, stream);
-	return retMask;
+   U32 retMask = Parent::packUpdate(con, mask, stream);
+   return retMask;
 }
 
 void ExampleBehavior::unpackUpdate(NetConnection *con, BitStream *stream)
 {
-	Parent::unpackUpdate(con, stream);
+   Parent::unpackUpdate(con, stream);
 }
 
 //==========================================================================================
@@ -121,11 +121,11 @@ void ExampleBehaviorInstance::initPersistFields()
 
 U32 ExampleBehaviorInstance::packUpdate(NetConnection *con, U32 mask, BitStream *stream)
 {
-	U32 retMask = Parent::packUpdate(con, mask, stream);
-	return retMask;
+   U32 retMask = Parent::packUpdate(con, mask, stream);
+   return retMask;
 }
 
 void ExampleBehaviorInstance::unpackUpdate(NetConnection *con, BitStream *stream)
 {
-	Parent::unpackUpdate(con, stream);
+   Parent::unpackUpdate(con, stream);
 }
