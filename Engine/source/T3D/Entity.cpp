@@ -216,23 +216,11 @@ void Entity::processTick(const Move* move)
 {
 	if(!isHidden()) 
 	{
-		BehaviorInterfaceList iLst;
+      Vector<UpdateInterface*> updaters = getBehaviors<UpdateInterface>();
+      for(Vector<UpdateInterface*>::iterator it = updaters.begin(); it != updaters.end(); it++) {
+         (*it)->processTick(move);
+      }
 
-		if(getInterfaces( &iLst, NULL, "processTick", NULL))
-		{
-			// Lets process the list that we've gotten back, and find the interface that
-			// we want.
-			UpdateInterface *scQueriedInterface = NULL;
-
-			for( BehaviorInterfaceListIterator i = iLst.begin(); i != iLst.end(); i++ )
-			{
-				scQueriedInterface = dynamic_cast<UpdateInterface *>( *i );
-
-				if( scQueriedInterface != NULL )
-					scQueriedInterface->processTick(move);
-			}
-		}
-	
 		if (isMounted()) 
 		{
 			MatrixF mat;
@@ -251,22 +239,10 @@ void Entity::advanceTime( F32 dt )
 {
 	if(!isHidden()) 
 	{
-		BehaviorInterfaceList iLst;
-
-		if(getInterfaces( &iLst, NULL, "advanceTime", NULL))
-		{
-			// Lets process the list that we've gotten back, and find the interface that
-			// we want.
-			UpdateInterface *scQueriedInterface = NULL;
-
-			for( BehaviorInterfaceListIterator i = iLst.begin(); i != iLst.end(); i++ )
-			{
-				scQueriedInterface = dynamic_cast<UpdateInterface *>( *i );
-
-				if( scQueriedInterface != NULL )
-					scQueriedInterface->advanceTime(dt);
-			}
-		}
+      Vector<UpdateInterface*> updaters = getBehaviors<UpdateInterface>();
+      for(Vector<UpdateInterface*>::iterator it = updaters.begin(); it != updaters.end(); it++) {
+         (*it)->advanceTime(dt);
+      }
 
 		if(isMounted())
 		{
@@ -293,49 +269,26 @@ void Entity::interpolateTick(F32 dt)
 
 	if(!isHidden()) 
 	{
-		BehaviorInterfaceList iLst;
-
-		if(getInterfaces( &iLst, NULL, "interpolateTick", NULL))
-		{
-			// Lets process the list that we've gotten back, and find the interface that
-			// we want.
-			UpdateInterface *scQueriedInterface = NULL;
-
-			for( BehaviorInterfaceListIterator i = iLst.begin(); i != iLst.end(); i++ )
-			{
-				scQueriedInterface = dynamic_cast<UpdateInterface *>( *i );
-
-				if( scQueriedInterface != NULL )
-					scQueriedInterface->interpolateTick(dt);
-			}
-		}
+      Vector<UpdateInterface*> updaters = getBehaviors<UpdateInterface>();
+      for(Vector<UpdateInterface*>::iterator it = updaters.begin(); it != updaters.end(); it++) {
+         (*it)->interpolateTick(dt);
+      }
 	}
 }
 
 //Render
 void Entity::prepRenderImage( SceneRenderState *state )
 {
-	BehaviorInterfaceList iLst;
-
-	if(getInterfaces( &iLst, NULL, "prepRenderImage"))
-	{
-		// Lets process the list that we've gotten back, and find the interface that
-		// we want.
-		PrepRenderImageInterface *scQueriedInterface = NULL;
-
-		for( BehaviorInterfaceListIterator i = iLst.begin(); i != iLst.end(); i++ )
-		{
-			scQueriedInterface = dynamic_cast<PrepRenderImageInterface *>( *i );
-
-			if( scQueriedInterface != NULL )
-				scQueriedInterface->prepRenderImage(state);
-		}
-	}
+   Vector<PrepRenderImageInterface*> updaters = getBehaviors<PrepRenderImageInterface>();
+   for(Vector<PrepRenderImageInterface*>::iterator it = updaters.begin(); it != updaters.end(); it++) {
+      (*it)->prepRenderImage(state);
+   }
 
 	//rendering stuff specifically if we're in the editors
 	if(gEditingMission)
 	{
-		if(getInterfaces( &iLst, NULL, "editorPrepRenderImage"))
+      /// TODO
+		/*if(getInterfaces( &iLst, NULL, "editorPrepRenderImage"))
 		{
 			// Lets process the list that we've gotten back, and find the interface that
 			// we want.
@@ -348,7 +301,7 @@ void Entity::prepRenderImage( SceneRenderState *state )
 				if( scQueriedInterface != NULL )
 					scQueriedInterface->prepRenderImage(state);
 			}
-		}
+		}*/
 	}
 }
 
@@ -579,28 +532,17 @@ void Entity::setMountRotation(EulerF rotOffset)
 //
 void Entity::getCameraTransform(F32* pos,MatrixF* mat)
 {
-	BehaviorInterfaceList iLst;
-
-	if(getInterfaces( &iLst, NULL, "getCameraTransform", NULL))
-	{
-		// Lets process the list that we've gotten back, and find the interface that
-		// we want.
-		CameraInterface *scQueriedInterface = NULL;
-
-		for( BehaviorInterfaceListIterator i = iLst.begin(); i != iLst.end(); i++ )
-		{
-			scQueriedInterface = dynamic_cast<CameraInterface *>( *i );
-
-			if( scQueriedInterface != NULL )
-				if(scQueriedInterface->getCameraTransform(pos, mat))
-					return;
-		}
-	}
+   Vector<CameraInterface*> updaters = getBehaviors<CameraInterface>();
+   for(Vector<CameraInterface*>::iterator it = updaters.begin(); it != updaters.end(); it++) {
+      if((*it)->getCameraTransform(pos, mat)) {
+         return;
+      }
+   }
 }
 
 void Entity::getMountTransform( S32 index, const MatrixF &xfm, MatrixF *outMat )
 {
-	TSShapeInstanceInterface* tsI = getInterface<TSShapeInstanceInterface>();
+	TSShapeInstanceInterface* tsI = getBehavior<TSShapeInstanceInterface>();
 
 	if(tsI)
 	{
@@ -630,7 +572,7 @@ void Entity::getMountTransform( S32 index, const MatrixF &xfm, MatrixF *outMat )
 
 void Entity::getRenderMountTransform( F32 delta, S32 index, const MatrixF &xfm, MatrixF *outMat )
 {
-	TSShapeInstanceInterface* tsI = getInterface<TSShapeInstanceInterface>();
+	TSShapeInstanceInterface* tsI = getBehavior<TSShapeInstanceInterface>();
 
 	if(tsI)
 	{
@@ -672,30 +614,12 @@ bool Entity::castRay(const Point3F &start, const Point3F &end, RayInfo* info)
 
 bool Entity::castRayRendered(const Point3F &start, const Point3F &end, RayInfo *info)
 {
-	BehaviorInterfaceList iLst;
-
-	if(getInterfaces( &iLst, NULL, "castRayRendered", NULL))
-	{
-		// Lets process the list that we've gotten back, and find the interface that
-		// we want.
-		CastRayRenderedInterface *scQueriedInterface = NULL;
-
-		for( BehaviorInterfaceListIterator i = iLst.begin(); i != iLst.end(); i++ )
-		{
-			scQueriedInterface = dynamic_cast<CastRayRenderedInterface *>( *i );
-
-			if( scQueriedInterface != NULL )
-				if(scQueriedInterface->castRayRendered(start, end, info))
-					return true;
-		}
-	}
-
-	/*for(U32 b=0; b < getBehaviorCount(); b++)
-	{
-		if(getBehavior(b)->isEnabled())
-			if(getBehavior(b)->castRayRendered(start, end, info))
-				return true;
-	}*/
+   Vector<CastRayRenderedInterface*> updaters = getBehaviors<CastRayRenderedInterface>();
+   for(Vector<CastRayRenderedInterface*>::iterator it = updaters.begin(); it != updaters.end(); it++) {
+      if((*it)->castRayRendered(start, end, info)) {
+         return true;
+      }
+   }
 	return false;
 }
 
@@ -713,29 +637,10 @@ bool Entity::buildPolyList(PolyListContext context, AbstractPolyList* polyList, 
 
 void Entity::buildConvex(const Box3F& box, Convex* convex)
 {
-	BehaviorInterfaceList iLst;
-
-	if(getInterfaces( &iLst, NULL, "buildConvex", NULL))
-	{
-		// Lets process the list that we've gotten back, and find the interface that
-		// we want.
-		BuildConvexInterface *scQueriedInterface = NULL;
-
-		for( BehaviorInterfaceListIterator i = iLst.begin(); i != iLst.end(); i++ )
-		{
-			scQueriedInterface = dynamic_cast<BuildConvexInterface *>( *i );
-
-			if( scQueriedInterface != NULL ){
-				scQueriedInterface->buildConvex(box, convex);
-			}
-		}
-	}
-
-	/*for(U32 b=0; b < getBehaviorCount(); b++)
-	{
-		if(getBehavior(b)->isEnabled())
-			getBehavior(b)->;
-	}*/
+   Vector<BuildConvexInterface*> updaters = getBehaviors<BuildConvexInterface>();
+   for(Vector<BuildConvexInterface*>::iterator it = updaters.begin(); it != updaters.end(); it++) {
+      (*it)->buildConvex(box, convex);
+   }
 }
 
 //
@@ -801,7 +706,7 @@ void Entity::addObject( SimObject* object )
 		String node = e->getDataField("mountNode", NULL);
 		if(!node.isEmpty())
 		{
-			TSShapeInterface *sI = getInterface<TSShapeInterface>();
+			TSShapeInterface *sI = getBehavior<TSShapeInterface>();
 			if(sI)
 			{
 				TSShape* shape = sI->getShape();
@@ -840,44 +745,18 @@ void Entity::removeObject( SimObject* object )
 
 void Entity::onInspect()
 {
-	BehaviorInterfaceList iLst;
-
-	if(getInterfaces( &iLst, NULL, "onInspect", NULL))
-	{
-		// Lets process the list that we've gotten back, and find the interface that
-		// we want.
-		EditorInspectInterface *scQueriedInterface = NULL;
-
-		for( BehaviorInterfaceListIterator i = iLst.begin(); i != iLst.end(); i++ )
-		{
-			scQueriedInterface = dynamic_cast<EditorInspectInterface *>( *i );
-
-			if( scQueriedInterface != NULL ){
-				scQueriedInterface->onInspect();
-			}
-		}
-	}
+   Vector<EditorInspectInterface*> updaters = getBehaviors<EditorInspectInterface>();
+   for(Vector<EditorInspectInterface*>::iterator it = updaters.begin(); it != updaters.end(); it++) {
+      (*it)->onInspect();
+   }
 }
 
 void Entity::onEndInspect()
 {
-	BehaviorInterfaceList iLst;
-
-	if(getInterfaces( &iLst, NULL, "onEndInspect", NULL))
-	{
-		// Lets process the list that we've gotten back, and find the interface that
-		// we want.
-		EditorInspectInterface *scQueriedInterface = NULL;
-
-		for( BehaviorInterfaceListIterator i = iLst.begin(); i != iLst.end(); i++ )
-		{
-			scQueriedInterface = dynamic_cast<EditorInspectInterface *>( *i );
-
-			if( scQueriedInterface != NULL ){
-				scQueriedInterface->onEndInspect();
-			}
-		}
-	}
+   Vector<EditorInspectInterface*> updaters = getBehaviors<EditorInspectInterface>();
+   for(Vector<EditorInspectInterface*>::iterator it = updaters.begin(); it != updaters.end(); it++) {
+      (*it)->onEndInspect();
+   }
 }
 
 //

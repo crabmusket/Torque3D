@@ -28,7 +28,8 @@ class BehaviorObject;
 ///
 /// A BehaviorInstance object is created from a BehaviorTemplate object 
 /// that defines it's Default Values, 
-class BehaviorInstance : public NetObject, public ICallMethod
+class BehaviorInstance : public NetObject, public ICallMethod,
+   public UpdateInterface
 {
    typedef NetObject Parent;
 
@@ -39,30 +40,7 @@ protected:
    Namespace			 *mTemplateNameSpace;
    bool					 mHidden;
    bool					 mEnabled;
-	bool					 mInitialized;
-
-   struct BehaviorInstanceUpdateInterface : public UpdateInterface
-   {
-		inline virtual void processTick(const Move* move)
-		{
-			BehaviorInstance *bI = getOwner();
-			if(bI && bI->isEnabled())
-				bI->processTick(move);
-		}
-		inline virtual void interpolateTick(F32 dt)
-		{
-			BehaviorInstance *bI = getOwner();
-			if(bI && bI->isEnabled())
-				bI->interpolateTick(dt);
-		}
-		inline virtual void advanceTime(F32 dt)
-		{
-			BehaviorInstance *bI = getOwner();
-			if(getOwner() && bI->isEnabled())
-				bI->advanceTime(dt);
-		}
-   };
-   BehaviorInstanceUpdateInterface mUpdateInterface;
+   bool					 mInitialized;
 
    //This is for dynamic fields we may want to save out to file, etc.
    struct behaviorFields
@@ -106,62 +84,47 @@ public:
 
    bool	isEnabled() { return mEnabled; }
    void setEnabled(bool toggle) { mEnabled = toggle; setMaskBits(EnableMask); }
-	bool  isInitalized() { return mInitialized; }
+   bool  isInitalized() { return mInitialized; }
 
    virtual void packToStream( Stream &stream, U32 tabStop, S32 behaviorID, U32 flags = 0 );
 
    void addBehaviorField(const char* fieldName, const char* value);
    void removeBehaviorField(const char* fieldName);
 
-	virtual void onStaticModified( const char* slotName, const char* newValue ); ///< Called when a static field is modified.
+   virtual void onStaticModified( const char* slotName, const char* newValue ); ///< Called when a static field is modified.
    virtual void onDynamicModified(const char* slotName, const char*newValue = NULL); ///< Called when a dynamic field is modified.
-	/// This is what we actually use to check if the modified field is one of our behavior fields. If it is, we update and make the correct callbacks
-	void checkBehaviorFieldModified( const char* slotName, const char* newValue );
+   /// This is what we actually use to check if the modified field is one of our behavior fields. If it is, we update and make the correct callbacks
+   void checkBehaviorFieldModified( const char* slotName, const char* newValue );
 
    //not used here, basically only exists to smooth the usage of custom behavior instances that might
    enum NetMaskBits 
    {
       InitialUpdateMask = BIT(0),
-	   UpdateMask = BIT(1),
-	   EnableMask = BIT(2),
-	   NextFreeMask = BIT(3)
+      UpdateMask = BIT(1),
+      EnableMask = BIT(2),
+      NextFreeMask = BIT(3)
    };
 
    /*enum
    {
-	   MaxRemoteCommandArgs = 20
+   MaxRemoteCommandArgs = 20
    };*/
 
    virtual U32 packUpdate(NetConnection *con, U32 mask, BitStream *stream);
    virtual void unpackUpdate(NetConnection *con, BitStream *stream);
    void pushUpdate();
 
-	virtual void update();
+   virtual void update();
 
    virtual void onBehaviorAdd();
    virtual void onBehaviorRemove();
 
-	virtual void registerInterfaces();
-	virtual void unregisterInterfaces();
+   virtual void processTick(const Move* move);
+   virtual void interpolateTick(F32 dt){}
+   virtual void advanceTime(F32 dt){}
 
-    virtual void processTick(const Move* move);
-	virtual void interpolateTick(F32 dt){}
-	virtual void advanceTime(F32 dt){}
-
-   //virtual void prepRenderImage(SceneRenderState *state){}
-
+   /// TODO: make this an interface
    virtual bool castRay(const Point3F &start, const Point3F &end, RayInfo* info){ return false; }
-   virtual bool castRayRendered(const Point3F &start, const Point3F &end, RayInfo *info){ return false; }
-
-   virtual bool buildPolyList(PolyListContext context, AbstractPolyList* polyList, const Box3F &box, const SphereF &){ return false; }
-   virtual bool buildConvex(const Box3F& box, Convex* convex) { return false; }
-
-   //
-   virtual bool getCameraTransform(F32* pos,MatrixF* mat) { return false; }
-
-   //Interface hooks
-   template <class T>
-   T *getInterface();
 
    //callOn_ functions
    void callOnServer(S32 argc, const char **argv);

@@ -55,22 +55,10 @@ public:
    virtual BehaviorInstance *createInstance();
 };
 
-class CameraBehaviorInstance : public BehaviorInstance
+class CameraBehaviorInstance : public BehaviorInstance,
+   public CameraInterface
 {
    typedef BehaviorInstance Parent;
-
-   struct CameraBehaviorInterface : public CameraInterface
-   {
-		inline bool getCameraTransform(F32* pos,MatrixF* mat)
-		{
-			CameraBehaviorInstance *bI = reinterpret_cast<CameraBehaviorInstance*>(getOwner());
-			if(bI && bI->isEnabled())
-				return bI->getCameraTransform(pos, mat);
-			return false;
-		}
-   };
-
-   CameraBehaviorInterface mCameraInterface;
 
 protected:
    F32  mCameraFov;           ///< The camera vertical FOV in degrees.

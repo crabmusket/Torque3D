@@ -63,22 +63,10 @@ public:
    virtual BehaviorInstance *createInstance();
 };
 
-class SimplePhysicsBehaviorInstance : public PhysicsBehaviorInstance
+class SimplePhysicsBehaviorInstance : public PhysicsBehaviorInstance,
+   public VelocityInterface
 {
    typedef PhysicsBehaviorInstance Parent;
-
-	class velInterface : public VelocityInterface
-	{
-		virtual VectorF getVelocity()
-		{
-			SimplePhysicsBehaviorInstance *bI = reinterpret_cast<SimplePhysicsBehaviorInstance*>(getOwner());
-			if(bI && bI->isEnabled())
-				return bI->getVelocity();
-			return VectorF(0,0,0);
-		}
-	};
-
-	velInterface mVelInterface;
 
 protected:
    F32 mBuoyancy;
@@ -116,9 +104,7 @@ public:
 
    virtual void onBehaviorRemove();
 
-	void registerInterfaces();
-	void unregisterInterfaces();
-
+   virtual VectorF getVelocity() { return mVelocity; }
    virtual void setVelocity(const VectorF& vel);
 
    //

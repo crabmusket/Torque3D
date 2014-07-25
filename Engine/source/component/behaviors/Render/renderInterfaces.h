@@ -2,9 +2,6 @@
 #ifndef _RENDER_INTERFACES_H_
 #define _RENDER_INTERFACES_H_
 
-#ifndef _BEHAVIORINTERFACE_H_
-	#include "component/interfaces/behaviorInterface.h"
-#endif
 #ifndef _TSSHAPE_H_
 	#include "ts/TSShape.h"
 #endif
@@ -15,31 +12,31 @@
 	#include "math/mGeometry.h"
 #endif*/
 
-class PrepRenderImageInterface : public BehaviorInterface
+class PrepRenderImageInterface
 {
 public:
 	virtual void prepRenderImage(SceneRenderState *state )=0;
 };
 
-class TSShapeInterface : public BehaviorInterface
+class TSShapeInterface
 {
 public:
 	virtual TSShape* getShape()=0;
 };
 
-class TSShapeInstanceInterface : public BehaviorInterface
+class TSShapeInstanceInterface
 {
 public:
 	virtual TSShapeInstance* getShapeInstance()=0;
 };
 
-/*class GeometryInterface : public BehaviorInterface
+/*class GeometryInterface
 {
 public:
 	virtual Geometry* getGeometry()=0;
 };*/
 
-class CastRayRenderedInterface : public BehaviorInterface
+class CastRayRenderedInterface
 {
 public:
 	virtual bool castRayRendered(const Point3F &start, const Point3F &end, RayInfo* info)=0;

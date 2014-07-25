@@ -17,9 +17,6 @@
 #ifndef _BEHAVIORINSTANCE_H_
 #include "component/behaviors/behaviorInstance.h"
 #endif
-#ifndef _BEHAVIORINTERFACE_H_
-#include "component/interfaces/behaviorInterface.h"
-#endif
 
 #ifndef _PLATFORM_THREADS_MUTEX_H_
 #include "platform/threads/mutex.h"
@@ -48,55 +45,11 @@
 	#endif
 #endif
 
-class BehaviorObject;
-class BehaviorInstance;
 class BehaviorTemplate;
-
-class BehaviorListInterface
-{
-   typedef BehaviorInterface Parent;
-   friend class BehaviorObject;
-
-private:
-   SimObjectPtr<BehaviorObject> mOwner; ///< BehaviorObject will directly modify this value
-
-public:
-   /// Default constructor
-   BehaviorListInterface() : mOwner(NULL) {};
-
-   /// Destructor
-   virtual ~BehaviorListInterface() 
-   { 
-      mOwner = NULL;
-   }
-
-   /// This will return true if the interface is valid
-   virtual bool isValid() const 
-   { 
-      return mOwner != NULL; 
-   }
-
-   /// Get the owner of this interface
-   BehaviorObject *getOwner() { return mOwner; }
-   const BehaviorObject *getOwner() const { return mOwner; }
-
-public:
-   virtual bool addBehavior( BehaviorInstance *bi );
-   virtual bool removeBehavior( BehaviorInstance *bi );
-   virtual const SimSet &getBehaviors() const;
-   virtual BehaviorInstance *getBehavior( StringTableEntry behaviorTemplateName );
-   virtual BehaviorInstance *getBehavior( S32 index );
-   virtual void clearBehaviors();
-   virtual bool reOrder( BehaviorInstance *obj, U32 desiredIndex /* = 0 */ );
-   virtual U32 getBehaviorCount() const;
-   virtual const char *callMethodOnBehaviors( S32 argc, const char *argv[] );
-};
 
 class BehaviorObject : public GameBase, public ICallMethod
 {
    typedef GameBase Parent;
-   friend class BehaviorInterface;
-   friend class BehaviorListInterface;
    friend class BehaviorInstance;
 
    //////////////////////////////////////////////////////////////////////////
@@ -148,9 +101,6 @@ private:
    bool   mLoadedBehaviors;
 
 protected:
-   BehaviorInterface mPublicBehaviorInterface;
-   BehaviorInterfaceCache mInterfaceCache;  ///< Stores the interfaces exposed by this entity's behaviors. 
-
    enum MaskBits 
    {
 	   BehaviorsMask				 = Parent::NextFreeMask << 0,
@@ -165,10 +115,6 @@ protected:
 
 public:
    virtual void write( Stream &stream, U32 tabStop, U32 flags = 0  );
-   //virtual void registerInterfaces( BehaviorObject *owner );
-
-   bool registerCachedInterface( const char *type, const char *name, BehaviorInstance *interfaceOwner, BehaviorInterface *cinterface );
-	bool removeCachedInterface( const char *type, const char *name, BehaviorInstance *interfaceOwner );
 
    // [neo, 5/11/2007]
    // Refactored onAdd() code into this method so it can be deferred by derived classes.
@@ -179,15 +125,16 @@ public:
    /// Behavior interface  (Move this to protected?)
    virtual bool addBehavior( BehaviorInstance *bi );
    virtual bool removeBehavior( BehaviorInstance *bi, bool deleteBehavior = true );
-   virtual const SimSet &getBehaviors() const { return mBehaviors; };
+   virtual const SimSet &getAllBehaviors() const { return mBehaviors; };
    virtual BehaviorInstance *getBehavior( StringTableEntry behaviorTemplateName );
    virtual BehaviorInstance *getBehavior( S32 index );
    virtual BehaviorInstance *getBehaviorByType( StringTableEntry behaviorTypeName );
    virtual BehaviorInstance *getBehavior( BehaviorTemplate *bTemplate );
 
-   BehaviorInstance *getBehavior();
    template <class T>
    T *getBehavior();
+   template <class T>
+   Vector<T*> getBehaviors();
 
    virtual void clearBehaviors(bool deleteBehaviors = true);
    virtual bool reOrder( BehaviorInstance *obj, U32 desiredIndex /* = 0 */ );
@@ -199,19 +146,6 @@ public:
 	/// Such as the camera, and it will override the check if the template defines if it's networked or not
 	void setBehaviorDirty(BehaviorInstance *bI, bool forceUpdate = false);
    void callOnBehaviors( String function );
-
-   //Interfaces hook
-   virtual bool getInterfaces( BehaviorInterfaceList *list, const char *type = NULL, const char *name = NULL, const BehaviorInstance *owner = NULL, bool notOwner = false ); // const omission intentional
-
-   /// These two methods allow for easy query of component interfaces if you know
-   /// exactly what you are looking for, and don't mind being passed back the first
-   /// matching result.
-   BehaviorInterface *getInterface( const char *type = NULL, const char *name = NULL, const BehaviorInstance *owner = NULL, bool notOwner = false );
-
-   template <class T>
-   T *getInterface( const char *type = NULL, const char *name = NULL, const BehaviorInstance *owner = NULL, bool notOwner = false );
-
-
 
 public:
 	BehaviorObject();
@@ -246,122 +180,18 @@ T *BehaviorObject::getBehavior()
 {
 	for( SimSet::iterator b = mBehaviors.begin(); b != mBehaviors.end(); b++ )
 	{
-		// We can do this because both are in the string table
-		if( dynamic_cast<T *>(*b) != NULL )
-			return static_cast<T *>(*b);
+      T* t = dynamic_cast<T *>(*b);
+      if(t) {
+         return t;
+      }
 	}
-
 	return NULL;
 }
 
-//Get behavior by interface
-
 template <class T>
-T *BehaviorObject::getInterface( const char *type /* = NULL */, const char *name /* = NULL */, 
-                              const BehaviorInstance *owner /* = NULL */, bool notOwner /* = false  */ )
-{
-   BehaviorInterfaceList iLst;
-
-   if( getInterfaces( &iLst, type, name, owner, notOwner ) )
-   {
-      BehaviorInterfaceListIterator itr = iLst.begin();
-
-      while( itr != iLst.end() && dynamic_cast<T *>( *itr ) == NULL )
-         itr++;
-
-      if( itr != iLst.end() )
-         return static_cast<T *>( *itr );
-   }
-
-   return NULL;
-}
-
-inline bool BehaviorListInterface::addBehavior( BehaviorInstance *bi )
-{
-   VALID_INTERFACE_ASSERT(BehaviorObject);
-
-   if ( getOwner() == NULL )
-      return false;
-
-   return reinterpret_cast<BehaviorObject *>( getOwner() )->addBehavior( bi );
-}
-
-inline bool BehaviorListInterface::removeBehavior( BehaviorInstance *bi )
-{
-   VALID_INTERFACE_ASSERT(BehaviorObject);
-
-   if ( getOwner() == NULL )
-      return false;
-
-   return reinterpret_cast<BehaviorObject *>( getOwner() )->removeBehavior( bi );
-}
-
-inline const SimSet &BehaviorListInterface::getBehaviors() const
-{
-   VALID_INTERFACE_ASSERT(BehaviorObject);
-   return reinterpret_cast<const BehaviorObject *>( getOwner() )->getBehaviors();
-}
-
-inline BehaviorInstance *BehaviorListInterface::getBehavior( StringTableEntry behaviorTemplateName )
-{
-   VALID_INTERFACE_ASSERT(BehaviorObject);
-
-   if ( getOwner() == NULL )
-      return NULL;
-
-   return reinterpret_cast<BehaviorObject *>( getOwner() )->getBehavior( behaviorTemplateName );
-}
-
-inline BehaviorInstance *BehaviorListInterface::getBehavior( S32 index )
-{
-   VALID_INTERFACE_ASSERT(BehaviorObject);
-
-   if ( getOwner() == NULL )
-      return NULL;
-
-   return reinterpret_cast<BehaviorObject *>( getOwner() )->getBehavior( index );
-}
-
-inline void BehaviorListInterface::clearBehaviors()
-{
-   VALID_INTERFACE_ASSERT(BehaviorObject);
-
-   if ( getOwner() != NULL )
-      reinterpret_cast<BehaviorObject *>( getOwner() )->clearBehaviors();
-}
-
-inline bool BehaviorListInterface::reOrder( BehaviorInstance *obj, U32 desiredIndex /* = 0 */ )
-{
-   VALID_INTERFACE_ASSERT(BehaviorObject);
-
-   if ( getOwner() == NULL )
-      return false;
-
-   return reinterpret_cast<BehaviorObject *>( getOwner() )->reOrder( obj, desiredIndex );
-}
-
-inline U32 BehaviorListInterface::getBehaviorCount() const
-{
-   VALID_INTERFACE_ASSERT(BehaviorObject);
-
-   if ( getOwner() == NULL )
-      return 0;
-
-   return reinterpret_cast<const BehaviorObject *>( getOwner() )->getBehaviorCount();
-}
-
-inline const char *BehaviorListInterface::callMethodOnBehaviors( S32 argc, const char *argv[] )
-{
-   VALID_INTERFACE_ASSERT(BehaviorObject);
-
-   if ( getOwner() == NULL )
-   {
-      char* empty = Con::getReturnBuffer(4);
-      empty[0] = 0;
-
-      return empty;
-   }
-
-   return reinterpret_cast<BehaviorObject *>( getOwner() )->_callMethod( argc, argv, false );
+Vector<T*> BehaviorObject::getBehaviors() {
+   Vector<T*> v;
+   mBehaviors.findObjectByType<T>(v);
+   return v;
 }
 #endif

@@ -73,7 +73,7 @@ struct ContactInfo
 
 };
 
-/*class CollisionInterface : public BehaviorInterface
+/*class CollisionInterface
 {
 public:
 	virtual bool checkCollisions( const F32 travelTime, Point3F *velocity, Point3F start )=0;
@@ -101,35 +101,10 @@ public:
    virtual BehaviorInstance *createInstance();
 };
 
-class CollisionBehaviorInstance : public BehaviorInstance
+class CollisionBehaviorInstance : public BehaviorInstance,
+   public CollisionInterface
 {
    typedef BehaviorInstance Parent;
-
-   struct CollisionBehaviorInterface : public CollisionInterface
-   {
-		inline bool checkCollisions( const F32 travelTime, Point3F *velocity, Point3F start )
-		{
-			CollisionBehaviorInstance *bI = reinterpret_cast<CollisionBehaviorInstance*>(getOwner());
-			if(bI)
-				return bI->checkCollisions(travelTime, velocity, start);
-		}
-
-		inline CollisionList *getCollisionList()
-		{
-			CollisionBehaviorInstance *bI = reinterpret_cast<CollisionBehaviorInstance*>(getOwner());
-			if(bI)
-				return bI->getCollisionList();
-		}
-
-		inline Collision *getCollision(S32 col) 
-		{ 
-			CollisionBehaviorInstance *bI = reinterpret_cast<CollisionBehaviorInstance*>(getOwner());
-			if(bI)
-				return bI->getCollision(col);
-		}
-   };
-
-   CollisionBehaviorInterface mCollisionInterface;
 
 protected:
 	Convex *mConvexList;

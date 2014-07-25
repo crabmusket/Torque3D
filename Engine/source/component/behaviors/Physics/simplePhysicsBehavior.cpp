@@ -138,26 +138,12 @@ void SimplePhysicsBehaviorInstance::onBehaviorRemove()
 
 /*void SimplePhysicsBehaviorInstance::onDeleteNotify( SimObject *obj )
 {
-   if ( obj == mCollisionObject ) 
-   {
-      mCollisionObject = NULL;
-      mCollisionTimeout = 0;
-   }
+if ( obj == mCollisionObject ) 
+{
+mCollisionObject = NULL;
+mCollisionTimeout = 0;
+}
 }*/
-
-void SimplePhysicsBehaviorInstance::registerInterfaces()
-{
-	Parent::registerInterfaces();
-
-	mBehaviorOwner->registerCachedInterface( "physics", "getVelocity", this, &mVelInterface );
-}
-
-void SimplePhysicsBehaviorInstance::unregisterInterfaces()
-{
-	Parent::unregisterInterfaces();
-
-	mBehaviorOwner->removeCachedInterface( "physics", "getVelocity", this );
-}
 
 void SimplePhysicsBehaviorInstance::initPersistFields()
 {
@@ -375,7 +361,7 @@ Point3F SimplePhysicsBehaviorInstance::_move( const F32 travelTime )
    S32 sMoveRetryCount = 5;
 
 
-    CollisionInterface* bI = dynamic_cast<CollisionInterface*>(mBehaviorOwner->getInterface("collision"));
+   CollisionInterface* bI = mBehaviorOwner->getBehavior<CollisionInterface>();
    
     if(!bI)
 	   return start + mVelocity * time;

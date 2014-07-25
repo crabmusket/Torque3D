@@ -107,8 +107,6 @@ void ExampleBehaviorInstance::onRemove()
 void ExampleBehaviorInstance::onBehaviorAdd()
 {
    Parent::onBehaviorAdd();
-
-   mBehaviorOwner->registerCachedInterface( "example", "doSomething", this, &mExampleInterface );
 }
 
 void ExampleBehaviorInstance::onBehaviorRemove()

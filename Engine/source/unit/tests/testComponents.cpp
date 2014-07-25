@@ -51,14 +51,6 @@ public:
 public:
    //////////////////////////////////////////////////////////////////////////
 
-   virtual void registerInterfaces( const SimComponent *owner )
-   {
-      // Register a cached interface for this 
-      registerCachedInterface( NULL, "aU32", this, &mMyId );
-   }
-
-   //////////////////////////////////////////////////////////////////////////
-
    bool onComponentRegister( SimComponent *owner )
    {
       // Call up to the parent first
