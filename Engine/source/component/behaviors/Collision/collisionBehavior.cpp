@@ -224,13 +224,7 @@ void CollisionBehaviorInstance::processTick(const Move* move)
 {
 	mCollisionList.clear();
 
-	BehaviorInterface *bI = mBehaviorOwner->getInterface(NULL, "getVelocity");
-	if(!bI)
-		return;
-
-	VelocityInterface *vI = dynamic_cast<VelocityInterface*>(bI);
-
-	if(vI)
+	if(VelocityInterface *vI = mBehaviorOwner->getBehavior<VelocityInterface>())
 	{
 		VectorF velocity = vI->getVelocity();
 	

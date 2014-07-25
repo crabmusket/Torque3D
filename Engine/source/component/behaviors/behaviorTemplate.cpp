@@ -56,21 +56,21 @@ BehaviorTemplate::~BehaviorTemplate()
 IMPLEMENT_CO_NETOBJECT_V1(BehaviorTemplate);
 
 #define DECLARE_NATIVE_BEHAVIOR( BehaviorTemplate )                   \
-	 BehaviorTemplate* staticBehaviorTemplate = new BehaviorTemplate; \
-     Sim::gNativeBehaviorSet->addObject(staticBehaviorTemplate);
+   BehaviorTemplate* staticBehaviorTemplate = new BehaviorTemplate; \
+   Sim::gNativeBehaviorSet->addObject(staticBehaviorTemplate);
 
 //////////////////////////////////////////////////////////////////////////
 
 void BehaviorTemplate::initPersistFields()
 {
    addGroup("Behavior");
-	  addField("behaviorType", TypeCaseString, Offset(mBehaviorType, BehaviorTemplate), "The type of behavior.");
-	  addField("networkType", TypeCaseString, Offset(mNetworkType, BehaviorTemplate), "The type of behavior.");
-      addField("friendlyName", TypeCaseString, Offset(mFriendlyName, BehaviorTemplate), "Human friendly name of this behavior");
-      addProtectedField("description", TypeCaseString, Offset(mDescription, BehaviorTemplate), &setDescription, &getDescription, 
-         "The description of this behavior which can be set to a \"string\" or a fileName\n");
+   addField("behaviorType", TypeCaseString, Offset(mBehaviorType, BehaviorTemplate), "The type of behavior.");
+   addField("networkType", TypeCaseString, Offset(mNetworkType, BehaviorTemplate), "The type of behavior.");
+   addField("friendlyName", TypeCaseString, Offset(mFriendlyName, BehaviorTemplate), "Human friendly name of this behavior");
+   addProtectedField("description", TypeCaseString, Offset(mDescription, BehaviorTemplate), &setDescription, &getDescription, 
+      "The description of this behavior which can be set to a \"string\" or a fileName\n");
 
-	  addField("networked", TypeBool, Offset(mNetworked, BehaviorTemplate), "Is this behavior ghosted to clients?");
+   addField("networked", TypeBool, Offset(mNetworked, BehaviorTemplate), "Is this behavior ghosted to clients?");
    endGroup("Behavior");
 
    Parent::initPersistFields();
@@ -102,7 +102,7 @@ bool BehaviorTemplate::onAdd()
    if(! Parent::onAdd())
       return false;
 
-	setScopeAlways();
+   setScopeAlways();
 
    setMaskBits(UpdateMask);
 
@@ -112,10 +112,10 @@ bool BehaviorTemplate::onAdd()
    //Con::executef(this, "onAdd");
 
    if(isServerObject()){
-	   mTemplateName = Parent::getName();
+      mTemplateName = Parent::getName();
 
-	   if(mTemplateName == NULL || !dStrcmp(mTemplateName, ""))
-		   mTemplateName = getClassRep()->getClassName();
+      if(mTemplateName == NULL || !dStrcmp(mTemplateName, ""))
+         mTemplateName = getClassRep()->getClassName();
    }
 
    return true;
@@ -130,54 +130,54 @@ void BehaviorTemplate::onRemove()
 
 U32 BehaviorTemplate::packUpdate(NetConnection *con, U32 mask, BitStream *stream)
 {
-	U32 retMask = Parent::packUpdate(con, mask, stream);
+   U32 retMask = Parent::packUpdate(con, mask, stream);
 
-	if(stream->writeFlag(mask & UpdateMask))
-	{
-		stream->writeString(mNetworkType);
-		stream->writeString(mBehaviorType);
-		stream->writeString(mTemplateName);
-	}
+   if(stream->writeFlag(mask & UpdateMask))
+   {
+      stream->writeString(mNetworkType);
+      stream->writeString(mBehaviorType);
+      stream->writeString(mTemplateName);
+   }
 
-	return retMask;
+   return retMask;
 }
 
 void BehaviorTemplate::unpackUpdate(NetConnection *con, BitStream *stream)
 {
-	Parent::unpackUpdate(con, stream);
+   Parent::unpackUpdate(con, stream);
 
-	char buf[256];
-	if(stream->readFlag()){
-		stream->readString(buf);
-		mNetworkType = StringTable->insert(buf);
+   char buf[256];
+   if(stream->readFlag()){
+      stream->readString(buf);
+      mNetworkType = StringTable->insert(buf);
 
-		stream->readString(buf);
-		mBehaviorType = StringTable->insert(buf);
+      stream->readString(buf);
+      mBehaviorType = StringTable->insert(buf);
 
-		stream->readString(buf);
-		mTemplateName = StringTable->insert(buf);
-	}
+      stream->readString(buf);
+      mTemplateName = StringTable->insert(buf);
+   }
 }
 
 //////////////////////////////////////////////////////////////////////////
 
- bool BehaviorTemplate::setupFields( BehaviorInstance *bi, bool forceSetup )
- {
-    for(S32 i = 0;i < mFields.size();++i)
-    {
-       BehaviorField &field = mFields[i];
+bool BehaviorTemplate::setupFields( BehaviorInstance *bi, bool forceSetup )
+{
+   for(S32 i = 0;i < mFields.size();++i)
+   {
+      BehaviorField &field = mFields[i];
 
-		 //check if this field already has data or not
-		 //if it's blank, we're good to continue setting it.
-		 //bi->getClassRep()->findField(
-		 const char* data = bi->getDataField(StringTable->insert(field.mFieldName), NULL);
+      //check if this field already has data or not
+      //if it's blank, we're good to continue setting it.
+      //bi->getClassRep()->findField(
+      const char* data = bi->getDataField(StringTable->insert(field.mFieldName), NULL);
 
-		 if(forceSetup || !dStrcmp(data, ""))
-			bi->setDataField(field.mFieldName, NULL, field.mDefaultValue);
-    }
- 
-    return true;
- }
+      if(forceSetup || !dStrcmp(data, ""))
+         bi->setDataField(field.mFieldName, NULL, field.mDefaultValue);
+   }
+
+   return true;
+}
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -242,7 +242,7 @@ const char * BehaviorTemplate::getDescriptionText(const char *desc)
 
    Stream *stream = &str;
    if(stream == NULL){
-	  str.close();
+      str.close();
       return NULL;
    }
 
@@ -281,28 +281,28 @@ BehaviorInstance *BehaviorTemplate::createInstance()
 
 void BehaviorTemplate::pushUpdate()
 {
-	setMaskBits(UpdateMask);
+   setMaskBits(UpdateMask);
 }
 
 void BehaviorTemplate::beginFieldGroup(const char* groupName)
 {
-	if(dStrcmp(mBehaviorGroup, ""))
-	{
-		Con::errorf("BehaviorTemplate: attempting to begin new field group with a group already begun!");
-		return;
-	}
+   if(dStrcmp(mBehaviorGroup, ""))
+   {
+      Con::errorf("BehaviorTemplate: attempting to begin new field group with a group already begun!");
+      return;
+   }
 
-	mBehaviorGroup = StringTable->insert(groupName);
+   mBehaviorGroup = StringTable->insert(groupName);
 }
 
 void BehaviorTemplate::endFieldGroup()
 {
-	mBehaviorGroup = StringTable->insert("");
+   mBehaviorGroup = StringTable->insert("");
 }
 
 void BehaviorTemplate::addDependency(StringTableEntry name)
 {
-	mDependencies.push_back_unique(name);
+   mDependencies.push_back_unique(name);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -312,11 +312,11 @@ ConsoleMethod(BehaviorTemplate, beginGroup, void, 3, 3, "(groupName)\n"
               "Starts the grouping for following fields being added to be grouped into\n"
               "@param groupName The name of this group\n"
               "@param desc The Description of this field\n"
-			  "@param type The DataType for this field (default, int, float, Point2F, bool, enum, Object, keybind, color)\n"
+              "@param type The DataType for this field (default, int, float, Point2F, bool, enum, Object, keybind, color)\n"
               "@param defaultValue The Default value for this field\n"
-			  "@param userData An extra data field that can be used for custom data on a per-field basis<br>Usage for default types<br>"
-			  "-enum: a TAB separated list of possible values<br>"
-			  "-object: the T2D object type that are valid choices for the field.  The object types observe inheritance, so if you have a t2dSceneObject field you will be able to choose t2dStaticSrpites, t2dAnimatedSprites, etc.\n"
+              "@param userData An extra data field that can be used for custom data on a per-field basis<br>Usage for default types<br>"
+              "-enum: a TAB separated list of possible values<br>"
+              "-object: the T2D object type that are valid choices for the field.  The object types observe inheritance, so if you have a t2dSceneObject field you will be able to choose t2dStaticSrpites, t2dAnimatedSprites, etc.\n"
               "@return Nothing\n")
 {
    object->beginFieldGroup(argv[2]);
@@ -326,11 +326,11 @@ ConsoleMethod(BehaviorTemplate, endGroup, void, 2, 2, "()\n"
               "Ends the grouping for prior fields being added to be grouped into\n"
               "@param groupName The name of this group\n"
               "@param desc The Description of this field\n"
-			  "@param type The DataType for this field (default, int, float, Point2F, bool, enum, Object, keybind, color)\n"
+              "@param type The DataType for this field (default, int, float, Point2F, bool, enum, Object, keybind, color)\n"
               "@param defaultValue The Default value for this field\n"
-			  "@param userData An extra data field that can be used for custom data on a per-field basis<br>Usage for default types<br>"
-			  "-enum: a TAB separated list of possible values<br>"
-			  "-object: the T2D object type that are valid choices for the field.  The object types observe inheritance, so if you have a t2dSceneObject field you will be able to choose t2dStaticSrpites, t2dAnimatedSprites, etc.\n"
+              "@param userData An extra data field that can be used for custom data on a per-field basis<br>Usage for default types<br>"
+              "-enum: a TAB separated list of possible values<br>"
+              "-object: the T2D object type that are valid choices for the field.  The object types observe inheritance, so if you have a t2dSceneObject field you will be able to choose t2dStaticSrpites, t2dAnimatedSprites, etc.\n"
               "@return Nothing\n")
 {
    object->endFieldGroup();
@@ -339,17 +339,17 @@ ConsoleMethod(BehaviorTemplate, addBehaviorField, void, 5, 8, "(fieldName, desc,
               "Adds a named BehaviorField to a Behavior Template\n"
               "@param fieldName The name of this field\n"
               "@param desc The Description of this field\n"
-			  "@param type The DataType for this field (default, int, float, Point2F, bool, enum, Object, keybind, color)\n"
+              "@param type The DataType for this field (default, int, float, Point2F, bool, enum, Object, keybind, color)\n"
               "@param defaultValue The Default value for this field\n"
-			  "@param userData An extra data field that can be used for custom data on a per-field basis<br>Usage for default types<br>"
-			  "-enum: a TAB separated list of possible values<br>"
-			  "-object: the T2D object type that are valid choices for the field.  The object types observe inheritance, so if you have a t2dSceneObject field you will be able to choose t2dStaticSrpites, t2dAnimatedSprites, etc.\n"
+              "@param userData An extra data field that can be used for custom data on a per-field basis<br>Usage for default types<br>"
+              "-enum: a TAB separated list of possible values<br>"
+              "-object: the T2D object type that are valid choices for the field.  The object types observe inheritance, so if you have a t2dSceneObject field you will be able to choose t2dStaticSrpites, t2dAnimatedSprites, etc.\n"
               "@return Nothing\n")
 {
    const char *defValue = argc > 5 ? argv[5] : NULL;
    const char *typeInfo = argc > 6 ? argv[6] : NULL;
    bool hidden = argc > 7 ? dAtob(argv[7]) : false;
-   
+
    object->addBehaviorField(argv[2], argv[3], argv[4], defValue, typeInfo, hidden);
 }
 
@@ -364,7 +364,7 @@ ConsoleMethod(BehaviorTemplate, getBehaviorFieldCount, S32, 2, 2, "() - Get the 
 
 ConsoleMethod(BehaviorTemplate, getBehaviorField, const char *, 3, 3, "(int index) - Gets a Tab-Delimited list of information about a BehaviorField specified by Index\n"
               "@param index The index of the behavior\n"
-			  "@return FieldName, FieldType and FieldDefaultValue, each separated by a TAB character.\n")
+              "@return FieldName, FieldType and FieldDefaultValue, each separated by a TAB character.\n")
 {
    BehaviorTemplate::BehaviorField *field = object->getBehaviorField(dAtoi(argv[2]));
    if(field == NULL)
@@ -378,7 +378,7 @@ ConsoleMethod(BehaviorTemplate, getBehaviorField, const char *, 3, 3, "(int inde
 
 ConsoleMethod(BehaviorTemplate, setBehaviorField, const char *, 3, 3, "(int index) - Gets a Tab-Delimited list of information about a BehaviorField specified by Index\n"
               "@param index The index of the behavior\n"
-			  "@return FieldName, FieldType and FieldDefaultValue, each separated by a TAB character.\n")
+              "@return FieldName, FieldType and FieldDefaultValue, each separated by a TAB character.\n")
 {
    BehaviorTemplate::BehaviorField *field = object->getBehaviorField(dAtoi(argv[2]));
    if(field == NULL)
@@ -391,8 +391,8 @@ ConsoleMethod(BehaviorTemplate, setBehaviorField, const char *, 3, 3, "(int inde
 }
 
 ConsoleMethod(BehaviorTemplate, getBehaviorFieldUserData, const char *, 3, 3, "(int index) - Gets the UserData associated with a field by index in the field list\n"
-			  "@param index The index of the behavior\n"
-			  "@return Returns a string representing the user data of this field\n")
+              "@param index The index of the behavior\n"
+              "@return Returns a string representing the user data of this field\n")
 {
    BehaviorTemplate::BehaviorField *field = object->getBehaviorField(dAtoi(argv[2]));
    if(field == NULL)
@@ -402,7 +402,7 @@ ConsoleMethod(BehaviorTemplate, getBehaviorFieldUserData, const char *, 3, 3, "(
 }
 
 ConsoleMethod(BehaviorTemplate, getBehaviorFieldDescription, const char *, 3, 3, "(int index) - Gets a field description by index\n"
-			  "@param index The index of the behavior\n"
+              "@param index The index of the behavior\n"
               "@return Returns a string representing the description of this field\n")
 {
    BehaviorTemplate::BehaviorField *field = object->getBehaviorField(dAtoi(argv[2]));
@@ -413,7 +413,7 @@ ConsoleMethod(BehaviorTemplate, getBehaviorFieldDescription, const char *, 3, 3,
 }
 
 ConsoleMethod(BehaviorTemplate, addDependency, void, 3, 3, "(string behaviorName) - Gets a field description by index\n"
-			  "@param index The index of the behavior\n"
+              "@param index The index of the behavior\n"
               "@return Returns a string representing the description of this field\n")
 {
    object->addDependency(argv[2]);
@@ -422,7 +422,7 @@ ConsoleMethod(BehaviorTemplate, addDependency, void, 3, 3, "(string behaviorName
 //////////////////////////////////////////////////////////////////////////
 
 ConsoleMethod(BehaviorTemplate, createInstance, S32, 2, 2, "() - Create an instance of this behavior\n"
-			  "@return (BehaviorInstance inst) The behavior instance created")
+              "@return (BehaviorInstance inst) The behavior instance created")
 {
    BehaviorInstance *inst = object->createInstance();
    return inst ? inst->getId() : 0;

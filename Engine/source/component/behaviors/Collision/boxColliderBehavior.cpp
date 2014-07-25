@@ -268,32 +268,6 @@ void BoxColliderBehaviorInstance::onBehaviorAdd()
 		prepCollision();
 }
 
-void BoxColliderBehaviorInstance::registerInterfaces()
-{
-	Parent::registerInterfaces();
-
-	mBehaviorOwner->registerCachedInterface( "collision", "checkCollisions", this, &mColInterface );
-	mBehaviorOwner->registerCachedInterface( "collision", "getCollisionList", this, &mColInterface );
-	mBehaviorOwner->registerCachedInterface( "collision", "getCollision", this, &mColInterface );
-
-	mBehaviorOwner->registerCachedInterface( "collision", "buildConvex", this, &mConvexInterface );
-
-	mBehaviorOwner->registerCachedInterface( "render", "editorPrepRenderImage", this, &mEditorRenderInterface );
-}
-
-void BoxColliderBehaviorInstance::unregisterInterfaces()
-{
-	Parent::unregisterInterfaces();
-
-	mBehaviorOwner->removeCachedInterface( "collision", "checkCollisions", this );
-	mBehaviorOwner->removeCachedInterface( "collision", "getCollisionList", this );
-	mBehaviorOwner->removeCachedInterface( "collision", "getCollision", this );
-
-	mBehaviorOwner->removeCachedInterface( "collision", "buildConvex", this );
-
-	mBehaviorOwner->removeCachedInterface( "render", "editorPrepRenderImage", this );
-}
-
 void BoxColliderBehaviorInstance::initPersistFields()
 {
    Parent::initPersistFields();
@@ -535,13 +509,8 @@ void BoxColliderBehaviorInstance::updateWorkingCollisionSet(const U32 mask)
    // box by the possible movement in that tick.
 	VectorF velocity = Point3F(0,0,0);
 
-	BehaviorInterface *bI = mBehaviorOwner->getInterface(NULL, "getVelocity");
-	if(bI)
-	{
-		VelocityInterface *vI = dynamic_cast<VelocityInterface*>(bI);
-		if(vI)
-			velocity = vI->getVelocity();
-	}
+	if(VelocityInterface *vI = mBehaviorOwner->getBehavior<VelocityInterface>())
+		velocity = vI->getVelocity();
 
    Point3F scaledVelocity = velocity * TickSec;
    F32 len    = scaledVelocity.len();

@@ -598,51 +598,6 @@ void BehaviorObject::clearBehaviors(bool deleteBehaviors)
    }
 }
 
-BehaviorInterface *BehaviorObject::getInterface(const char *type /* = NULL */, const char *name /* = NULL */, 
-                                               const BehaviorInstance *owner /* = NULL */, bool notOwner /* = false  */)
-{
-   BehaviorInterfaceList iLst;
-
-   if( getInterfaces( &iLst, type, name, owner, notOwner ) )
-      return iLst[0];
-
-   return NULL;
-}
-
-bool BehaviorObject::getInterfaces( BehaviorInterfaceList *list, const char *type /* = NULL */, const char *name /* = NULL  */,
-                                 const BehaviorInstance *owner /* = NULL */, bool notOwner /* = false */ )
-{
-   AssertFatal( list != NULL, "Passing NULL for a list is not supported functionality for SimComponents." );
-   return ( mInterfaceCache.enumerate( list, type, name, owner, notOwner ) > 0 );
-}
-
-bool BehaviorObject::registerCachedInterface( const char *type, const char *name, BehaviorInstance *interfaceOwner, BehaviorInterface *cinterface )
-{
-   if( mInterfaceCache.add( type, name, interfaceOwner, cinterface ) )
-   {
-      cinterface->mOwner = interfaceOwner;
-
-      return true;
-   }
-
-   // So this is not a good assert, because it will get triggered due to the recursive
-   // nature of interface caching. I want to keep it here, though, just so nobody
-   // else thinks, "Oh I'll add an assert here."
-   //
-   //AssertFatal( false, avar( "registerCachedInterface failed, probably because interface with type '%s', name '%s' and owner with SimObjectId '%d' already exists",
-   //   type, name, interfaceOwner->getId() ) );
-
-   return false;
-}
-
-bool BehaviorObject::removeCachedInterface( const char *type, const char *name, BehaviorInstance *interfaceOwner )
-{
-   if( mInterfaceCache.remove( type, name, interfaceOwner ) )
-      return true;
-
-   return false;
-}
-
 //////////////////////////////////////////////////////////////////////////
 BehaviorInstance *BehaviorObject::getBehavior( S32 index )
 {

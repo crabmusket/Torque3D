@@ -105,60 +105,11 @@ public:
    virtual BehaviorInstance *createInstance();
 };
 
-class MeshColliderBehaviorInstance : public CollisionBehaviorInstance
+class MeshColliderBehaviorInstance : public CollisionBehaviorInstance,
+   public PrepRenderImageInterface,
+   public BuildConvexInterface
 {
    typedef CollisionBehaviorInstance Parent;
-
-	class editorRenderInterface : public PrepRenderImageInterface
-	{
-		virtual void prepRenderImage( SceneRenderState *state )
-		{
-			MeshColliderBehaviorInstance *bI = reinterpret_cast<MeshColliderBehaviorInstance*>(getOwner());
-			if(bI && bI->isEnabled())
-				bI->prepRenderImage(state);
-		}
-	};
-
-	class boxColInterface : public CollisionInterface
-	{
-		virtual bool checkCollisions( const F32 travelTime, Point3F *velocity, Point3F start )
-		{
-			MeshColliderBehaviorInstance *bI = reinterpret_cast<MeshColliderBehaviorInstance*>(getOwner());
-			if(bI && bI->isEnabled())
-				return bI->checkCollisions(travelTime, velocity, start);
-			return false;
-		}
-
-		virtual CollisionList *getCollisionList()
-		{
-			MeshColliderBehaviorInstance *bI = reinterpret_cast<MeshColliderBehaviorInstance*>(getOwner());
-			if(bI && bI->isEnabled())
-				return bI->getCollisionList();
-			return NULL;
-		}
-
-		virtual Collision *getCollision(S32 col)
-		{
-			MeshColliderBehaviorInstance *bI = reinterpret_cast<MeshColliderBehaviorInstance*>(getOwner());
-			if(bI && bI->isEnabled())
-				return bI->getCollision(col);
-			return NULL;
-		}
-	};
-
-	class boxConvexInterface : public BuildConvexInterface
-	{
-		virtual void buildConvex(const Box3F& box, Convex* convex)
-		{
-			MeshColliderBehaviorInstance *bI = reinterpret_cast<MeshColliderBehaviorInstance*>(getOwner());
-			if(bI && bI->isEnabled())
-				bI->buildConvex(box, convex);
-		}
-	};
-
-	editorRenderInterface mEditorRenderInterface;
-	boxColInterface mColInterface;
-	boxConvexInterface mConvexInterface;
 
 protected:
 	Convex *mConvexList;
@@ -173,9 +124,6 @@ public:
    virtual bool onAdd();
    virtual void onRemove();
    static void initPersistFields();
-
-	virtual void registerInterfaces();
-	virtual void unregisterInterfaces();
 
 	virtual void update();
 

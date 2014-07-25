@@ -32,23 +32,23 @@ public:
 
       StringTableEntry mDefaultValue;
 
-	  StringTableEntry mGroup;
+      StringTableEntry mGroup;
 
-	  StringTableEntry mDependency;
+      StringTableEntry mDependency;
 
-	  bool mHidden;
+      bool mHidden;
    };
 
 protected:
    StringTableEntry mFriendlyName;
    StringTableEntry mDescription;
-   
+
    StringTableEntry mFromResource;
    StringTableEntry mBehaviorGroup;
    StringTableEntry mBehaviorType;
    StringTableEntry mNetworkType;
    StringTableEntry mTemplateName;
-   
+
    Vector<StringTableEntry> mDependencies;
    Vector<BehaviorField> mFields;
 
@@ -108,7 +108,7 @@ public:
 
    const char *getName() { return mTemplateName; }
 
-	bool isNetworked() { return mNetworked; }
+   bool isNetworked() { return mNetworked; }
 
    void beginFieldGroup(const char* groupName);
    void endFieldGroup();

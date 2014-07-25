@@ -135,8 +135,6 @@ void CameraBehaviorInstance::onRemove()
 void CameraBehaviorInstance::onBehaviorAdd()
 {
    Parent::onBehaviorAdd();
-
-   mBehaviorOwner->registerCachedInterface( "camera", "getCameraTransform", this, &mCameraInterface );
 }
 
 void CameraBehaviorInstance::onBehaviorRemove()

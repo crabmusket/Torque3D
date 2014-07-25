@@ -66,7 +66,11 @@ public:
    virtual BehaviorInstance *createInstance();
 };
 
-class RenderShapeBehaviorInstance : public BehaviorInstance
+class RenderShapeBehaviorInstance : public BehaviorInstance,
+   public PrepRenderImageInterface,
+   public TSShapeInstanceInterface,
+   //public GeometryInterface,
+   public EditorInspectInterface
 {
    typedef BehaviorInstance Parent;
 
@@ -75,60 +79,6 @@ class RenderShapeBehaviorInstance : public BehaviorInstance
 	   ShapeMask = Parent::NextFreeMask,
 	   NextFreeMask = Parent::NextFreeMask << 1,
    };
-
-   /*class geoInterface : public GeometryInterface
-   {
-		virtual Geometry* getGeometry()
-		{
-			RenderShapeBehaviorInstance *bI = reinterpret_cast<RenderShapeBehaviorInstance*>(getOwner());
-			if(bI && bI->isEnabled())
-				return bI->getGeometry();
-			return NULL;
-		}
-   };*/
-
-   class renderInterface : public PrepRenderImageInterface
-	{
-		virtual void prepRenderImage( SceneRenderState *state )
-		{
-			RenderShapeBehaviorInstance *bI = reinterpret_cast<RenderShapeBehaviorInstance*>(getOwner());
-			if(bI && bI->isEnabled())
-				bI->prepRenderImage(state);
-		}
-	};
-
-	class shapeInterface : public TSShapeInstanceInterface
-	{
-		virtual TSShapeInstance* getShapeInstance()
-		{
-			RenderShapeBehaviorInstance *bI = reinterpret_cast<RenderShapeBehaviorInstance*>(getOwner());
-			if(bI && bI->isEnabled())
-				return bI->getShape();
-			return NULL;
-		}
-	};
-
-	class inspectInterface : public EditorInspectInterface
-	{
-		virtual void onInspect()
-		{
-			RenderShapeBehaviorInstance *bI = reinterpret_cast<RenderShapeBehaviorInstance*>(getOwner());
-			if(bI && bI->isEnabled())
-				bI->onInspect();
-		}
-
-		virtual void onEndInspect()
-		{
-			RenderShapeBehaviorInstance *bI = reinterpret_cast<RenderShapeBehaviorInstance*>(getOwner());
-			if(bI && bI->isEnabled())
-				bI->onEndInspect();
-		}
-	};
-
-	//geoInterface mGeometryInterface;
-	renderInterface mRenderInterface;
-	shapeInterface mShapeInterface;
-	inspectInterface mInspectInterface;
 
 protected:
    StringTableEntry		mShapeName;
@@ -180,6 +130,7 @@ public:
 	const char* _getShape( void *object, const char *data );
 
    TSShapeInstance* getShape() { return mShapeInstance; }
+   virtual TSShapeInstance* getShapeInstance() { return getShape(); }
 	void _onResourceChanged( const Torque::Path &path );
 
    virtual bool castRayRendered(const Point3F &start, const Point3F &end, RayInfo *info);

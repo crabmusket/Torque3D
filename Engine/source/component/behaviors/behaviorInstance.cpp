@@ -149,26 +149,10 @@ void BehaviorInstance::onRemove()
 
 void BehaviorInstance::onBehaviorAdd()
 {
-	registerInterfaces();
 }
 
 void BehaviorInstance::onBehaviorRemove()
 {
-	unregisterInterfaces();
-}
-
-void BehaviorInstance::registerInterfaces()
-{
-	mBehaviorOwner->registerCachedInterface( "update", "processTick", this, &mUpdateInterface );
-	mBehaviorOwner->registerCachedInterface( "update", "advanceTime", this, &mUpdateInterface );
-	mBehaviorOwner->registerCachedInterface( "update", "interpolateTick", this, &mUpdateInterface );
-}
-
-void BehaviorInstance::unregisterInterfaces()
-{
-	mBehaviorOwner->removeCachedInterface( "update", "processTick", this );
-	mBehaviorOwner->removeCachedInterface( "update", "advanceTime", this );
-	mBehaviorOwner->removeCachedInterface( "update", "interpolateTick", this );
 }
 
 /*bool BehaviorInstance::isPackable(NetConnection *con)
@@ -598,16 +582,6 @@ void BehaviorInstance::processTick(const Move* move)
 			}
 		}
 	}
-}
-
-//
-template <class T>
-T *BehaviorInstance::getInterface()
-{
-	if(mInterface)
-		return static_cast<T *>( *this );
-
-	return NULL;
 }
 
 //

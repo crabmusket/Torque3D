@@ -149,32 +149,6 @@ void MeshColliderBehaviorInstance::onBehaviorAdd()
 		prepCollision();
 }
 
-void MeshColliderBehaviorInstance::registerInterfaces()
-{
-	Parent::registerInterfaces();
-
-	mBehaviorOwner->registerCachedInterface( "collision", "checkCollisions", this, &mColInterface );
-	mBehaviorOwner->registerCachedInterface( "collision", "getCollisionList", this, &mColInterface );
-	mBehaviorOwner->registerCachedInterface( "collision", "getCollision", this, &mColInterface );
-
-	mBehaviorOwner->registerCachedInterface( "collision", "buildConvex", this, &mConvexInterface );
-
-	mBehaviorOwner->registerCachedInterface( "render", "editorPrepRenderImage", this, &mEditorRenderInterface );
-}
-
-void MeshColliderBehaviorInstance::unregisterInterfaces()
-{
-	Parent::unregisterInterfaces();
-
-	mBehaviorOwner->removeCachedInterface( "collision", "checkCollisions", this );
-	mBehaviorOwner->removeCachedInterface( "collision", "getCollisionList", this );
-	mBehaviorOwner->removeCachedInterface( "collision", "getCollision", this );
-
-	mBehaviorOwner->removeCachedInterface( "collision", "buildConvex", this );
-
-	mBehaviorOwner->removeCachedInterface( "render", "editorPrepRenderImage", this );
-}
-
 void MeshColliderBehaviorInstance::initPersistFields()
 {
    Parent::initPersistFields();
@@ -196,7 +170,7 @@ void MeshColliderBehaviorInstance::unpackUpdate(NetConnection *con, BitStream *s
 
 TSShapeInstance* MeshColliderBehaviorInstance::getShapeInstance()
 {
-	TSShapeInstanceInterface* shapeInterface = mBehaviorOwner->getInterface<TSShapeInstanceInterface>();
+	TSShapeInstanceInterface* shapeInterface = mBehaviorOwner->getBehavior<TSShapeInstanceInterface>();
 
 	if(!shapeInterface)
 		return NULL;

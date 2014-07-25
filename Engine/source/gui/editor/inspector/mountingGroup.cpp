@@ -317,7 +317,7 @@ GuiControl* GuiInspectorMountingGroup::buildMenuCtrl()
 
 bool GuiInspectorMountingGroup::buildList(Entity* ent, GuiPopUpMenuCtrl* menu)
 {
-	TSShapeInstanceInterface* tsI = ent->getInterface<TSShapeInstanceInterface>();
+	TSShapeInstanceInterface* tsI = ent->getBehavior<TSShapeInstanceInterface>();
 
 	if(tsI)
 	{
@@ -812,7 +812,7 @@ void GuiInspectorNodeListField::setData( const char* data, bool callbacks )
 		Entity* target = dynamic_cast<Entity*>(mTargetEntity->getObjectMount());
 		if(target)
 		{
-			TSShapeInstanceInterface* tsI = target->getInterface<TSShapeInstanceInterface>();
+			TSShapeInstanceInterface* tsI = target->getBehavior<TSShapeInstanceInterface>();
 			if(tsI)
 			{
 				if(tsI->getShapeInstance())
@@ -849,7 +849,7 @@ void GuiInspectorNodeListField::updateValue()
 			mMenu->addEntry("Origin");
 			mMenu->setActive(true);
 
-			TSShapeInstanceInterface* tsI = target->getInterface<TSShapeInstanceInterface>();
+			TSShapeInstanceInterface* tsI = target->getBehavior<TSShapeInstanceInterface>();
 
 			if(tsI)
 			{

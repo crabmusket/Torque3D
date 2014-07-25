@@ -33,25 +33,19 @@ public:
    virtual BehaviorInstance *createInstance();
 };
 
-class ExampleBehaviorInstance : public BehaviorInstance
+class ExampleBehaviorInterface
+{
+public:
+   virtual bool doSomething() = 0;
+};
+
+class ExampleBehaviorInstance : public BehaviorInstance,
+   public ExampleBehaviorInterface
 {
    typedef BehaviorInstance Parent;
 
-   struct ExampleBehaviorInterface : public BehaviorInterface
-   {
-		inline bool doSomething()
-		{
-			ExampleBehaviorInstance *bI = reinterpret_cast<ExampleBehaviorInstance*>(getOwner());
-			if(bI)
-				return bI->doSomething();
-			return false;
-		}
-   };
-
-   ExampleBehaviorInterface mExampleInterface;
-
 protected:
-   bool doSomething() { return true; }
+   virtual bool doSomething() { return true; }
 
 public:
    ExampleBehaviorInstance(BehaviorTemplate *btemplate = NULL);

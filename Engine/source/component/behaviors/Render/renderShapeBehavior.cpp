@@ -142,13 +142,6 @@ bool RenderShapeBehaviorInstance::onAdd()
 void RenderShapeBehaviorInstance::onBehaviorAdd()
 {
    Parent::onBehaviorAdd();
-
-   //mBehaviorOwner->registerCachedInterface( "geometry", "getGeometry", this, &mGeometryInterface );
-	mBehaviorOwner->registerCachedInterface( "render", "prepRenderImage", this, &mRenderInterface );
-	mBehaviorOwner->registerCachedInterface( "render", "getShapeInstance", this, &mShapeInterface );
-
-	mBehaviorOwner->registerCachedInterface( "editor", "onInspect", this, &mInspectInterface );
-
 }
 
 void RenderShapeBehaviorInstance::onRemove()

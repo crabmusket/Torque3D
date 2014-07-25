@@ -72,62 +72,11 @@ public:
    virtual BehaviorInstance *createInstance();
 };
 
-class BoxColliderBehaviorInstance : public CollisionBehaviorInstance
+class BoxColliderBehaviorInstance : public CollisionBehaviorInstance,
+   public PrepRenderImageInterface,
+   public BuildConvexInterface
 {
    typedef CollisionBehaviorInstance Parent;
-
-	//this exists pretty much solely so we can render stuff while in the editor. We're not really a render class, but being able to render
-	//can be pretty important sometimes - like when editing
-	class editorRenderInterface : public PrepRenderImageInterface
-	{
-		virtual void prepRenderImage( SceneRenderState *state )
-		{
-			BoxColliderBehaviorInstance *bI = reinterpret_cast<BoxColliderBehaviorInstance*>(getOwner());
-			if(bI && bI->isEnabled())
-				bI->prepRenderImage(state);
-		}
-	};
-
-	class boxColInterface : public CollisionInterface
-	{
-		virtual bool checkCollisions( const F32 travelTime, Point3F *velocity, Point3F start )
-		{
-			BoxColliderBehaviorInstance *bI = reinterpret_cast<BoxColliderBehaviorInstance*>(getOwner());
-			if(bI && bI->isEnabled())
-				return bI->checkCollisions(travelTime, velocity, start);
-			return false;
-		}
-
-		virtual CollisionList *getCollisionList()
-		{
-			BoxColliderBehaviorInstance *bI = reinterpret_cast<BoxColliderBehaviorInstance*>(getOwner());
-			if(bI && bI->isEnabled())
-				return bI->getCollisionList();
-			return NULL;
-		}
-
-		virtual Collision *getCollision(S32 col)
-		{
-			BoxColliderBehaviorInstance *bI = reinterpret_cast<BoxColliderBehaviorInstance*>(getOwner());
-			if(bI && bI->isEnabled())
-				return bI->getCollision(col);
-			return NULL;
-		}
-	};
-
-	class boxConvexInterface : public BuildConvexInterface
-	{
-		virtual void buildConvex(const Box3F& box, Convex* convex)
-		{
-			BoxColliderBehaviorInstance *bI = reinterpret_cast<BoxColliderBehaviorInstance*>(getOwner());
-			if(bI && bI->isEnabled())
-				bI->buildConvex(box, convex);
-		}
-	};
-
-	editorRenderInterface mEditorRenderInterface;
-	boxColInterface mColInterface;
-	boxConvexInterface mConvexInterface;
 
 protected:
 	Point3F colliderScale;
@@ -148,9 +97,6 @@ public:
 
    virtual void onBehaviorRemove();
    virtual void onBehaviorAdd();
-
-	virtual void registerInterfaces();
-	virtual void unregisterInterfaces();
 
    void prepCollision();
    void _updatePhysics();

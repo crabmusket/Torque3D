@@ -4,15 +4,12 @@
 #ifndef _SCENERENDERSTATE_H_
    #include "scene/sceneRenderState.h"
 #endif
-#ifndef _BEHAVIORINTERFACE_H_
-	#include "component/behaviorInterface.h"
-#endif
 /*#ifndef _GEOMETRY_H_
 	#include "math/mGeometry.h"
 #endif*/
 
 //Basically a file for generic interfaces that many behaviors may make use of
-class SetTransformInterface : public BehaviorInterface
+class SetTransformInterface
 {
 public:
    virtual void setTransform( MatrixF transform );
@@ -20,7 +17,7 @@ public:
    //void setTransform( TransformF transform );
 };
 
-class UpdateInterface : public BehaviorInterface
+class UpdateInterface
 {
 public:
 	virtual void processTick(const Move* move){}
@@ -28,25 +25,25 @@ public:
 	virtual void advanceTime(F32 dt){}
 };
 
-class BehaviorFieldInterface : public BehaviorInterface
+class BehaviorFieldInterface
 {
 public:
 	virtual void onFieldChange(const char* fieldName, const char* newValue){};
 };
 
-class CameraInterface : public BehaviorInterface
+class CameraInterface
 {
 public:
 	virtual bool getCameraTransform(F32* pos,MatrixF* mat)=0;
 };
 
-class CastRayInterface : public BehaviorInterface
+class CastRayInterface
 {
 public:
 	virtual bool castRay(const Point3F &start, const Point3F &end, RayInfo* info)=0;
 };
 
-class EditorInspectInterface : public BehaviorInterface
+class EditorInspectInterface
 {
 public:
 	virtual void onInspect()=0;
