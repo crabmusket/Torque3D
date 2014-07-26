@@ -29,6 +29,13 @@ addEngineSrcDir('sfx');
 // Components
 addEngineSrcDir('component');
 addEngineSrcDir('component/interfaces');
+addEngineSrcDir('component/behaviors');
+addEngineSrcDir('component/behaviors/animation');
+addEngineSrcDir('component/behaviors/collision');
+addEngineSrcDir('component/behaviors/game');
+addEngineSrcDir('component/behaviors/light');
+addEngineSrcDir('component/behaviors/physics');
+addEngineSrcDir('component/behaviors/render');
 
 // Core
 if (T3D_Generator::isApp())
