@@ -131,6 +131,70 @@ public:
    virtual BehaviorInstance *getBehaviorByType( StringTableEntry behaviorTypeName );
    virtual BehaviorInstance *getBehavior( BehaviorTemplate *bTemplate );
 
+   struct BehaviorIterator
+   {
+      struct Predicate { virtual bool check(SimSet::iterator) = 0; };
+      Vector<Predicate*> predicates;
+
+      template <class T> struct PredicateFor : public Predicate
+      {
+         T** handle;
+         PredicateFor(T** h = NULL) : handle(h) {}
+         bool check(SimSet::iterator bi) {
+            T* t = dynamic_cast<T*>(*bi);
+            if(t) {
+               if(handle) {
+                  *handle = t;
+               }
+               return true;
+            }
+            return false;
+         }
+      };
+
+      template <class T> BehaviorIterator &with(T** handle) {
+         predicates.push_back(new PredicateFor<T>(handle));
+         while(!check(it) && hasNext()) { (*this)++; }
+         return *this;
+      }
+
+      bool check(SimSet::iterator bi) {
+         for(U32 i = 0; i < predicates.size(); i++) {
+            if(!predicates[i]->check(bi)) {
+               return false;
+            }
+         }
+         return true;
+      }
+
+      SimSet::iterator it;
+      SimSet& set;
+      BehaviorIterator(SimSet &s) : set(s) {
+         it = s.begin();
+      }
+
+      BehaviorIterator& operator++ (int) {
+         while(true) {
+            it++;
+            if(it != set.end()) {
+               if(check(it))
+                  break;
+            }
+            else
+               break;
+         }
+         return *this;
+      }
+
+      bool hasNext() {
+         return it != set.end();
+      }
+   };
+
+   BehaviorIterator getBehaviorIterator() {
+      return BehaviorIterator(mBehaviors);
+   }
+
    template <class T>
    T *getBehavior();
    template <class T>

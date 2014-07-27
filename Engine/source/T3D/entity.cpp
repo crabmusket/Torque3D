@@ -216,9 +216,9 @@ void Entity::processTick(const Move* move)
 {
    if(!isHidden()) 
    {
-      Vector<UpdateInterface*> updaters = getBehaviors<UpdateInterface>();
-      for(Vector<UpdateInterface*>::iterator it = updaters.begin(); it != updaters.end(); it++) {
-         (*it)->processTick(move);
+      UpdateInterface *update;
+      for(BehaviorIterator b = getBehaviorIterator().with(&update); b.hasNext(); b++) {
+         update->processTick(move);
       }
 
       if (isMounted()) 
