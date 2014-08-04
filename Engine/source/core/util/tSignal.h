@@ -54,7 +54,6 @@ public:
    {
       mList.next = mList.prev = &mList;
       mList.order = 0.5f;
-      mTriggerNext = NULL;
    }
 
    ~SignalBase();
@@ -149,7 +148,7 @@ public:
    }
 
 protected:
-   friend class SignalSig;
+   friend class SignalBaseT< Signature >;
 
    void _setSignal(SignalSig *sig)
    {      
