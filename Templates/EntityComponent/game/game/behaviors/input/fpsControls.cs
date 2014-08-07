@@ -5,7 +5,7 @@
 
 if (!isObject(FPSControls))
 {
-   %template = new BehaviorTemplate(FPSControls);
+   %template = new Component(FPSControls);
    
    %template.friendlyName = "FPS Controls";
    %template.behaviorType = "Input";

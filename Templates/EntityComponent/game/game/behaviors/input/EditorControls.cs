@@ -3,7 +3,7 @@
 // Copyright (C) GarageGames.com, Inc.
 //-----------------------------------------------------------------------------
 
-singleton BehaviorTemplate(EditorControls)
+singleton Component(EditorControls)
 {   
    friendlyName = "Editor Controls";
    behaviorType = "Input";

@@ -29,17 +29,17 @@
 #ifndef _MOVEMANAGER_H_
 #include "T3D/gameBase/moveManager.h"
 #endif
-#ifndef _BEHAVIOR_OBJECT_H_
-#include "component/behaviorObject.h"
+#ifndef _COMPONENT_OBJECT_H_
+#include "component/ComponentObject.h"
 #endif
-#ifndef _BEHAVIORINSTANCE_H_
-#include "component/behaviors/behaviorInstance.h"
+#ifndef _COMPONENTINSTANCE_H_
+#include "component/components/componentInstance.h"
 #endif
 #ifndef _SIMSET_H_
 #include "console/simSet.h"
 #endif
 #ifndef _STOCK_INTERFACES_H_
-#include "component/behaviors/stockInterfaces.h"
+#include "component/components/stockInterfaces.h"
 #endif
 
 class PhysicsBody;
@@ -48,10 +48,10 @@ class SimGroup;
 //**************************************************************************
 // Entity
 //**************************************************************************
-class Entity : public BehaviorObject
+class Entity : public ComponentObject
 {
-   typedef BehaviorObject Parent;
-   friend class BehaviorInstance;
+   typedef ComponentObject Parent;
+   friend class ComponentInstance;
 
 private:
    Point3F				mRot;
@@ -125,7 +125,7 @@ public:
    void unpackUpdate( NetConnection *conn, BitStream *stream );
 
    //Behaviors
-   BehaviorInstance *behavior(const char *name);
+   ComponentInstance *behavior(const char *name);
    virtual bool deferAddingBehaviors() const { return true; }
 
    virtual void setObjectBox(Box3F objBox);

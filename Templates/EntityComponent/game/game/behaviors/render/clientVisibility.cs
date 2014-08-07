@@ -5,7 +5,7 @@
 
 if (!isObject(ClientVisibilityBehavior))
 {
-   %template = new BehaviorTemplate(ClientVisibilityBehavior);
+   %template = new Component(ClientVisibilityBehavior);
    
    %template.friendlyName = "Client Visibility";
    %template.behaviorType = "Render";

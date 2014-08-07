@@ -897,7 +897,7 @@ void Prefab::write( Stream &stream, U32 tabStop, U32 flags )
 
 	//first, check if our
 
-   /*VectorPtr<BehaviorObject *> &componentList = lockComponentList();
+   /*VectorPtr<ComponentObject *> &componentList = lockComponentList();
    // export selected only?
    if( ( flags & SelectedOnly ) && !isSelected() )
    {

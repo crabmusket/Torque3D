@@ -128,3 +128,30 @@ singleton Material(Mat_Yellow_Soldier_Main : Mat_Soldier_Main)
    mapTo = "Yellow_Soldier_Main";
    diffuseMap[0] = "Soldier_Yellow_Dif.dds";
 };
+
+singleton Material(soldier_rigged_base_Soldier_Main)
+{
+   mapTo = "base_Soldier_Main";
+   diffuseMap[0] = "Soldier_Dif";
+   specular[0] = "0.9 0.9 0.9 1";
+   specularPower[0] = "10";
+   translucentBlendOp = "None";
+};
+
+singleton Material(soldier_rigged_base_Soldier_Dazzle)
+{
+   mapTo = "base_Soldier_Dazzle";
+   diffuseMap[0] = "Soldier_Dazzle";
+   specular[0] = "0.9 0.9 0.9 1";
+   specularPower[0] = "10";
+   translucentBlendOp = "None";
+};
+
+singleton Material(soldier_rigged_ShapeBounds)
+{
+   mapTo = "ShapeBounds";
+   diffuseColor[0] = "0.164706 1 0 1";
+   specular[0] = "0.9 0.9 0.9 1";
+   specularPower[0] = "10";
+   translucentBlendOp = "None";
+};

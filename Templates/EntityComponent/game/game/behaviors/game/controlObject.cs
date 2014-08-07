@@ -5,7 +5,7 @@
 
 if (!isObject(ControlObjectBehavior))
 {
-   %template = new BehaviorTemplate(ControlObjectBehavior);
+   %template = new Component(ControlObjectBehavior);
    
    %template.friendlyName = "Control Object";
    %template.behaviorType = "Game";

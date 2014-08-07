@@ -5,7 +5,7 @@
 
 if (!isObject(MountedCamera))
 {
-   %template = new CameraBehavior(MountedCamera);
+   %template = new CameraComponent(MountedCamera);
    
    %template.friendlyName = "Mounted Camera";
    %template.behaviorType = "Game";

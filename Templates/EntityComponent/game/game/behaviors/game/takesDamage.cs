@@ -5,7 +5,7 @@
 
 if (!isObject(TakesDamageBehavior))
 {
-   %template = new BehaviorTemplate(TakesDamageBehavior);
+   %template = new Component(TakesDamageBehavior);
    
    %template.friendlyName = "Takes Damage";
    %template.behaviorType = "Game";

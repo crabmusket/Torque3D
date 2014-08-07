@@ -18,7 +18,7 @@ function registerBehavior( %behaviorClass, %behaviorSuperclass)
       error ("registerBehavior - "@%behaviorClass@" already exists.  Deleting old version and replacing.");
       %templateName.delete();
    }
-   %behavior = new BehaviorTemplate(%templateName)
+   %behavior = new Component(%templateName)
    {
       internalName = %behaviorClass;
       friendlyName = %behaviorClass;
@@ -162,11 +162,11 @@ function BehaviorManager::removeBehavior(%this, %obj,%behavior)
 //! \li dependencies (unfulfilled requirements)
 //! \li dependencies (conflicted with other behaviors)
 //! \li prefix (same as other behaviors)
-//! @param this This BehaviorTemplate
+//! @param this This Component
 //! @param obj The object to check 
 //! @param skipDependencyRequirements If true, unmet dependency requirements are ignored
 //! @return If there is a conflict, a list of tab separated conflict strings.  These strings are in plain English, since the purpose of this function is to generate readable warnings.  If no warnings, returns empty string
-function BehaviorTemplate::getConflictList (%this, %obj, %behavior, %skipDependencyRequirements)
+function Component::getConflictList (%this, %obj, %behavior, %skipDependencyRequirements)
 { 
    return ""; //IDS FOR NOW
    
@@ -305,7 +305,7 @@ function BehaviorManager::checkForDependants(%behavior)
    return %conflictList;
 }
 
-function BehaviorInstance::ghostToClient(%this, %client)
+function ComponentInstance::ghostToClient(%this, %client)
 {
    if(%this.template.networked == true && %client !$= "")
    {
@@ -372,7 +372,7 @@ function BehaviorManager::getAvailableBehaviors(%this)
 // for future behavior object
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-//! @class BehaviorTemplate
+//! @class Component
 //! This is the class of all behavior template objects.  These objects contain info about the 
 //! behavior, such as fields, dependencies, etc.  See fields for a complete listing
 //!
@@ -399,7 +399,7 @@ function BehaviorManager::getAvailableBehaviors(%this)
 //! Instantiator.  Set counts to 0
 //! @param this This behavior
 //----------------------------------------------------------------------------------------
-function BehaviorTemplate::onAdd( %this)
+function Component::onAdd( %this)
 {
    %this.dependencyCount = 0;
    %this.requirementCount = 0;
@@ -408,19 +408,19 @@ function BehaviorTemplate::onAdd( %this)
 
 //We initialize some important variables for all behavior instances later, like
 //dependencies stuffs
-function BehaviorInstance::onAdd( %this)
+function ComponentInstance::onAdd( %this)
 {
    %this.missingDependencies = "";
 }
 
-function BehaviorInstance::insantiateNamespace( %this, %templateName )
+function ComponentInstance::insantiateNamespace( %this, %templateName )
 {
    %thurp = %this.isClientObject();
    %temp = ScriptObject(%templateName);
    %temp.delete();
 }
 
-function BehaviorTemplate::onBehaviorAdd( %this )
+function Component::onBehaviorAdd( %this )
 {
    
    for(%i = 0; %i < %this.owner.getBehaviorCount(); %i++)
@@ -443,7 +443,7 @@ function BehaviorTemplate::onBehaviorAdd( %this )
    }
 }
 
-function BehaviorTemplate::onBehaviorRemove( %this )
+function Component::onBehaviorRemove( %this )
 {
    for(%i = 0; %i < %this.owner.getBehaviorCount(); %i++)
    {
@@ -493,7 +493,7 @@ function BehaviorComponent::onBehaviorsLoaded( %this )
 //! @param objectClass The object class to be added
 //----------------------------------------------------------------------------------------
 
-function BehaviorTemplate::addValidObjectClass( %this, %objectClass)
+function Component::addValidObjectClass( %this, %objectClass)
 {
    //if we have it already, skip out
    if (wordPos(%this.objectClassList, %newObjectClass) != -1) return; 
@@ -511,7 +511,7 @@ function BehaviorTemplate::addValidObjectClass( %this, %objectClass)
 //! @param prefix The field prefix
 //----------------------------------------------------------------------------------------
 
-function BehaviorTemplate::setFieldPrefix( %this, %prefix)
+function Component::setFieldPrefix( %this, %prefix)
 {
    %this.fieldPrefix = %prefix;
 }
@@ -524,7 +524,7 @@ function BehaviorTemplate::setFieldPrefix( %this, %prefix)
 //! @param description The description
 //----------------------------------------------------------------------------------------
 
-function BehaviorTemplate::setDescription( %this, %description)
+function Component::setDescription( %this, %description)
 {
    %this.description = %description;
 }
@@ -542,7 +542,7 @@ function BehaviorTemplate::setDescription( %this, %description)
 //! @param description The description
 //----------------------------------------------------------------------------------------
 
-function BehaviorTemplate::setDescriptionFile( %this, %descriptionFile)
+function Component::setDescriptionFile( %this, %descriptionFile)
 {
    %this.description = loadFileText(%descriptionFile);
 }
@@ -574,7 +574,7 @@ function BehaviorTemplate::setDescriptionFile( %this, %descriptionFile)
 //! @param extraInfo Extra gui information... different depending on the 'type' parameter (optional)
 //----------------------------------------------------------------------------------------
 
-function BehaviorTemplate::addFieldOld( %this, %name, %default, %type, %description, %extraInfo)
+function Component::addFieldOld( %this, %name, %default, %type, %description, %extraInfo)
 {
    //don't be confused... we're using TAB delimited text 'fields' to define behavior dynamic fields
    %fieldInfo = setField(%fieldInfo, 0, %name);
@@ -598,7 +598,7 @@ function BehaviorTemplate::addFieldOld( %this, %name, %default, %type, %descript
 //! @param requiredValue The value that the field must be for the behavior to work
 //----------------------------------------------------------------------------------------
 
-function BehaviorTemplate::addDependency( %this, %behaviorName )
+function Component::addDependency( %this, %behaviorName )
 {
    %dependencyInfo = %behaviorName;
    
@@ -607,7 +607,7 @@ function BehaviorTemplate::addDependency( %this, %behaviorName )
    %this.dependencyCount++;
 }
 
-/*function BehaviorTemplate::addDependency( %this, %fieldName, %requiredValue)
+/*function Component::addDependency( %this, %fieldName, %requiredValue)
 {
    %dependencyInfo = setField(%dependencyInfo, 0, %fieldName);
    %dependencyInfo = setField(%dependencyInfo, 1, %requiredValue);
@@ -625,11 +625,11 @@ function BehaviorTemplate::addDependency( %this, %behaviorName )
 //! @param obj The object to set the value in
 //----------------------------------------------------------------------------------------
 
-function BehaviorTemplate::setDependencyObjectValue( %this, %dependencyNum, %obj)
+function Component::setDependencyObjectValue( %this, %dependencyNum, %obj)
 {
    %fieldName = getField(%this.dependency[%dependencyNum], 0);
    %fieldValue = getField(%this.dependency[%dependencyNum], 1);
-   if (%fieldName $= "") echo ("BehaviorTemplate::setDependencyObjectValue Unable to find dependency number '"@%dependencyNum @"'");
+   if (%fieldName $= "") echo ("Component::setDependencyObjectValue Unable to find dependency number '"@%dependencyNum @"'");
    if (%obj.isMethod("set"@%fieldName))
    {
       %command = "%obj.set"@%fieldName@"("@%fieldValue@");";
@@ -650,10 +650,10 @@ function BehaviorTemplate::setDependencyObjectValue( %this, %dependencyNum, %obj
 //! @param obj The object to get the value from 
 //----------------------------------------------------------------------------------------
 
-function BehaviorTemplate::getDependencyObjectValue( %this, %dependencyNum, %obj)
+function Component::getDependencyObjectValue( %this, %dependencyNum, %obj)
 {
    %fieldName = getField(%this.dependency[%dependencyNum], 0);
-   if (%fieldName $= "") echo ("BehaviorTemplate::getDependencyObjectValue Unable to find dependency number '"@%dependencyNum @"'");
+   if (%fieldName $= "") echo ("Component::getDependencyObjectValue Unable to find dependency number '"@%dependencyNum @"'");
    if (%obj.isMethod("get"@%fieldName))
    {
       %command = "%value = %obj.get"@%fieldName@"();";
@@ -675,7 +675,7 @@ function BehaviorTemplate::getDependencyObjectValue( %this, %dependencyNum, %obj
 //! @return True if the object's dependency requirement is met
 //----------------------------------------------------------------------------------------
 
-function BehaviorTemplate::validateDependencyObjectValue( %this, %dependencyNum, %obj)
+function Component::validateDependencyObjectValue( %this, %dependencyNum, %obj)
 {
    %requiredValue = getField(%this.dependency[%dependencyNum], 1);
    %value = %this.getDependencyObjectValue( %dependencyNum, %obj);
@@ -696,7 +696,7 @@ function BehaviorTemplate::validateDependencyObjectValue( %this, %dependencyNum,
 //! @param obj The behavior this object is applied to.  Needed only for conflict checking.  If this is left out, conflict checking is simply skipped.
 //! @param skipDependencyRequirements If this is true, conflict check ignores any field dependencies that are not currently met in obj.  It still checks for conflicts with other behaviors.
 //----------------------------------------------------------------------------------------
-function BehaviorTemplate::getFullDescription( %this, %obj, %skipDependencyRequirements)
+function Component::getFullDescription( %this, %obj, %skipDependencyRequirements)
 { 
    //description
    if (%fullDescription !$= "") %fullDescription = %fullDescription @ "\n\n";
@@ -738,7 +738,7 @@ function BehaviorTemplate::getFullDescription( %this, %obj, %skipDependencyRequi
 //! @param this This behavior
 //! @return true If object's class is acceptable
 //----------------------------------------------------------------------------------------
-function BehaviorTemplate::validateObjectClass(%this, %obj)
+function Component::validateObjectClass(%this, %obj)
 {
    for (%i = 0; %i < %this.validObjectClassCount; %i++)
    {

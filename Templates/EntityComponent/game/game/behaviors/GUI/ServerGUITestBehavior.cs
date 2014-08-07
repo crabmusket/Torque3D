@@ -5,7 +5,7 @@
 
 if (!isObject(ServerGuiTestBehavior))
 {
-   %template = new BehaviorTemplate(ServerGuiTestBehavior);
+   %template = new Component(ServerGuiTestBehavior);
    
    %template.friendlyName = "Server GUI Test";
    %template.behaviorType = "GUI";

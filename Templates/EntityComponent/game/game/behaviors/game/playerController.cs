@@ -3,7 +3,7 @@
 // Copyright (C) GarageGames.com, Inc.
 //-----------------------------------------------------------------------------
 
-singleton BehaviorTemplate(PlayerController)
+singleton Component(PlayerController)
 { 
    friendlyName = "Player Controller";
    behaviorType = "Player";

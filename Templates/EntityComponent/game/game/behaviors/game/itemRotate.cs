@@ -3,7 +3,7 @@
 // Copyright (C) GarageGames.com, Inc.
 //-----------------------------------------------------------------------------
 
-singleton BehaviorTemplate(ItemRotateBehavior)
+singleton Component(ItemRotateBehavior)
 {
    friendlyName = "Item Rotation";
    behaviorType = "Game";

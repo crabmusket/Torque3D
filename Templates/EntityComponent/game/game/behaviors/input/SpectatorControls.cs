@@ -3,7 +3,7 @@
 // Copyright (C) GarageGames.com, Inc.
 //-----------------------------------------------------------------------------
 
-singleton BehaviorTemplate(SpectatorControls)
+singleton Component(SpectatorControls)
 {   
    friendlyName = "Spectator Controls";
    behaviorType = "Input";

@@ -1,4 +1,4 @@
-singleton BehaviorTemplate(BehaviorName)
+singleton Component(BehaviorName)
 {
    friendlyName = "Friendly Name";
    behaviorType = "Game";

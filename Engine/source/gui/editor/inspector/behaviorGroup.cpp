@@ -23,10 +23,10 @@
 #include "gui/buttons/guiIconButtonCtrl.h"
 #include "gui/editor/guiInspector.h"
 #include "gui/editor/inspector/behaviorGroup.h"
-//#include "gui/editor/inspector/behaviorField.h"
+//#include "gui/editor/inspector/ComponentField.h"
 #include "core/strings/stringUnit.h"
 //#include "T3D/Entity.h"
-#include "component/behaviors/behaviorTemplate.h"
+#include "component/components/component.h"
 
 IMPLEMENT_CONOBJECT(GuiInspectorBehaviorGroup);
 
@@ -72,7 +72,7 @@ bool GuiInspectorBehaviorGroup::createContent()
       addBehaviorBtn->setBitmap("tools/gui/images/iconAdd.png");
 
       //char commandBuf[64];
-      //dSprintf(commandBuf, 64, "%d.addBehavior();", this->getId());
+      //dSprintf(commandBuf, 64, "%d.addComponent();", this->getId());
       //addBehaviorBtn->setField("command", commandBuf);
       addBehaviorBtn->setSizing(horizResizeRight,vertResizeCenter);
       //addFieldBtn->setField("buttonMargin", "2 2");
@@ -135,7 +135,7 @@ bool GuiInspectorBehaviorGroup::inspectGroup()
    const U32 numTargets = mParent->getNumInspectObjects();
    if(numTargets == 1)
    {
-	   BehaviorObject* target = dynamic_cast<BehaviorObject*>(mParent->getInspectObject(0));
+	   ComponentObject* target = dynamic_cast<ComponentObject*>(mParent->getInspectObject(0));
 
 	   Con::executef( this, "inspectObject", target->getIdString() );
 
@@ -143,12 +143,12 @@ bool GuiInspectorBehaviorGroup::inspectGroup()
        /*Con::evaluatef( "%d.objectToAdd = %d;", mAddBhvrList->getId(), target->getId() );
 
 	   //get all our behaviors, if any
-	   for( U32 i = 0; i < target->getBehaviorCount(); i++)
+	   for( U32 i = 0; i < target->getComponentCount(); i++)
 	   {
-		    if(target->getBehavior(i)->isHidden())
+		    if(target->getComponent(i)->isHidden())
 				continue;
 
-		    StringTableEntry templateName = StringTable->insert(target->getBehavior(i)->getTemplateName());
+		    StringTableEntry templateName = StringTable->insert(target->getComponent(i)->getTemplateName());
 			GuiRolloutCtrl *behaviorCtrl = new GuiRolloutCtrl();
 			char szName[512];
 			//dSprintf( szName, 512, "IE_%d_%s_Behavior", behaviorCtrl->getClassName(), target->getId(), templateName );
@@ -174,10 +174,10 @@ bool GuiInspectorBehaviorGroup::inspectGroup()
 					behaviorFieldStack->setPadding(4);
 					behaviorCtrl->addObject(behaviorFieldStack);
 
-					BehaviorInstance* bI = target->getBehavior(i);
+					ComponentInstance* bI = target->getComponent(i);
 					if(bI != NULL)
 					{
-						for(U32 bF = 0; bF < bI->getTemplate()->getBehaviorFieldCount(); bF++)
+						for(U32 bF = 0; bF < bI->getTemplate()->getComponentFieldCount(); bF++)
 						{
 							GuiInspectorBehaviorField *bhvFld = new GuiInspectorBehaviorField( mParent, this, bI, bF );
 
@@ -322,7 +322,7 @@ void GuiInspectorBehaviorGroup::addDynamicField()
    instantExpand();*/
 }
 
-AbstractClassRep::Field* GuiInspectorBehaviorGroup::findObjectBehaviorField(BehaviorInstance* target, String fieldName)
+AbstractClassRep::Field* GuiInspectorBehaviorGroup::findObjectBehaviorField(ComponentInstance* target, String fieldName)
 {
    AbstractClassRep::FieldList& fieldList = target->getClassRep()->mFieldList;
    for( AbstractClassRep::FieldList::iterator itr = fieldList.begin();

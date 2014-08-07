@@ -27,8 +27,8 @@
 
 #include "console/simFieldDictionary.h"
 
-#include "component/behaviors/behaviorInstance.h"
-//#include "gui/editor/inspector/behaviorField.h"
+#include "component/components/componentInstance.h"
+//#include "gui/editor/inspector/ComponentField.h"
 
 #include "gui/controls/guiPopUpCtrlEx.h"
 
@@ -71,7 +71,7 @@ public:
    // Find an already existent field by name in the dictionary
    virtual SimFieldDictionary::Entry* findDynamicFieldInDictionary( StringTableEntry fieldName );
 
-   AbstractClassRep::Field* findObjectBehaviorField(BehaviorInstance* target, String fieldName);
+   AbstractClassRep::Field* findObjectBehaviorField(ComponentInstance* target, String fieldName);
 protected:
    // create our inner controls when we add
    virtual bool createContent();

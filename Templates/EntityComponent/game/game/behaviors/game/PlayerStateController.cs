@@ -5,7 +5,7 @@
 
 if (!isObject(PlayerStateController))
 {
-   %template = new BehaviorTemplate(PlayerStateController);
+   %template = new Component(PlayerStateController);
    
    %template.friendlyName = "Player State Controller";
    %template.behaviorType = "Game";

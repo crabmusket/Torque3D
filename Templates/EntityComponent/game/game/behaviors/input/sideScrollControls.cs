@@ -5,7 +5,7 @@
 
 if (!isObject(SideScrollControls))
 {
-   %template = new BehaviorTemplate(SideScrollControls);
+   %template = new Component(SideScrollControls);
    
    %template.friendlyName = "Side Scroll Controls";
    %template.behaviorType = "Input";

@@ -73,13 +73,13 @@ new SimGroup(MissionGroup) {
       persistentId = "ecd1ea52-e861-11e3-9c86-9deffc8b199a";
       eulerRotation = "25.2406 0 -104.183";
 
-      new CameraBehaviorInstance() {
+      new CameraComponentInstance() {
          template = "CameraBehav";
       };
-      new BehaviorInstance() {
+      new ComponentInstance() {
          template = "ControlObjectBehavior";
       };
-      new BehaviorInstance() {
+      new ComponentInstance() {
          template = "SpectatorControls";
       };
 
@@ -97,7 +97,7 @@ new SimGroup(MissionGroup) {
          template = "RenderShape";
          shapeName = "game/art/actors/Soldier/soldier_rigged.DAE";
       };
-      new BehaviorInstance() {
+      new ComponentInstance() {
          template = "PlayerController";
          rootAnim = "Root";
          runFAnim = "Run";
@@ -107,7 +107,7 @@ new SimGroup(MissionGroup) {
          lookAnim = "Look";
          lookAngle = "-4.08149";
       };
-      new BehaviorInstance() {
+      new ComponentInstance() {
          template = "ControlObjectBehavior";
       };
       new AnimationBehaviorInstance() {

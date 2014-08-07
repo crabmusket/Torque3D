@@ -23,13 +23,13 @@
 #include "gui/buttons/guiIconButtonCtrl.h"
 #include "gui/editor/guiInspector.h"
 #include "gui/editor/inspector/mountingGroup.h"
-//#include "gui/editor/inspector/behaviorField.h"
+//#include "gui/editor/inspector/ComponentField.h"
 #include "core/strings/stringUnit.h"
 #include "T3D/Entity.h"
-#include "component/behaviors/behaviorTemplate.h"
+#include "component/components/component.h"
 
 //Need this to get node lists
-#include "Component/Behaviors/Render/renderInterfaces.h"
+#include "Component/components/Render/renderInterfaces.h"
 
 IMPLEMENT_CONOBJECT(GuiInspectorMountingGroup);
 
@@ -85,7 +85,7 @@ bool GuiInspectorMountingGroup::createContent()
       addBehaviorBtn->setBitmap("tools/gui/images/iconAdd.png");
 
       //char commandBuf[64];
-      //dSprintf(commandBuf, 64, "%d.addBehavior();", this->getId());
+      //dSprintf(commandBuf, 64, "%d.addComponent();", this->getId());
       //addBehaviorBtn->setField("command", commandBuf);
       addBehaviorBtn->setSizing(horizResizeRight,vertResizeCenter);
       //addFieldBtn->setField("buttonMargin", "2 2");
@@ -317,7 +317,7 @@ GuiControl* GuiInspectorMountingGroup::buildMenuCtrl()
 
 bool GuiInspectorMountingGroup::buildList(Entity* ent, GuiPopUpMenuCtrl* menu)
 {
-	TSShapeInstanceInterface* tsI = ent->getBehavior<TSShapeInstanceInterface>();
+	TSShapeInstanceInterface* tsI = ent->getComponent<TSShapeInstanceInterface>();
 
 	if(tsI)
 	{
@@ -754,7 +754,7 @@ void GuiInspectorMountingGroup::addDynamicField()
    instantExpand();*/
 }
 
-AbstractClassRep::Field* GuiInspectorMountingGroup::findObjectBehaviorField(BehaviorInstance* target, String fieldName)
+AbstractClassRep::Field* GuiInspectorMountingGroup::findObjectBehaviorField(ComponentInstance* target, String fieldName)
 {
    AbstractClassRep::FieldList& fieldList = target->getClassRep()->mFieldList;
    for( AbstractClassRep::FieldList::iterator itr = fieldList.begin();
@@ -812,7 +812,7 @@ void GuiInspectorNodeListField::setData( const char* data, bool callbacks )
 		Entity* target = dynamic_cast<Entity*>(mTargetEntity->getObjectMount());
 		if(target)
 		{
-			TSShapeInstanceInterface* tsI = target->getBehavior<TSShapeInstanceInterface>();
+			TSShapeInstanceInterface* tsI = target->getComponent<TSShapeInstanceInterface>();
 			if(tsI)
 			{
 				if(tsI->getShapeInstance())
@@ -849,7 +849,7 @@ void GuiInspectorNodeListField::updateValue()
 			mMenu->addEntry("Origin");
 			mMenu->setActive(true);
 
-			TSShapeInstanceInterface* tsI = target->getBehavior<TSShapeInstanceInterface>();
+			TSShapeInstanceInterface* tsI = target->getComponent<TSShapeInstanceInterface>();
 
 			if(tsI)
 			{

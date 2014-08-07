@@ -32,14 +32,14 @@
 #include "console/engineAPI.h"
 #include "T3D/gameBase/gameConnection.h"
 #include "math/mathIO.h"
-#include "component/behaviors/behaviorTemplate.h"
+#include "component/components/component.h"
 #include "math/mTransform.h"
 
 #include "T3D/tagLibrary.h"
 
-#include "Component/Behaviors/stockInterfaces.h"
-#include "Component/Behaviors/Render/renderInterfaces.h"
-#include "Component/Behaviors/Collision/collisionInterfaces.h"
+#include "Component/components/stockInterfaces.h"
+#include "Component/components/Render/renderInterfaces.h"
+#include "Component/components/Collision/collisionInterfaces.h"
 
 #include "gui/controls/guiTreeViewCtrl.h"
 
@@ -195,7 +195,7 @@ bool Entity::onAdd()
 
 void Entity::onRemove()
 {
-   clearBehaviors(true);
+   clearComponents(true);
    removeFromScene();
 
    Parent::onRemove();
@@ -203,11 +203,11 @@ void Entity::onRemove()
 
 void Entity::pushEvent(const char* eventName, Vector<const char*> eventParams)
 {
-   //An event happened, pass it to all our behaviors so if they react to that, they do their thing
-   for(U32 b=0; b < getBehaviorCount(); b++)
+   //An event happened, pass it to all our components so if they react to that, they do their thing
+   for(U32 b=0; b < getComponentCount(); b++)
    {
-      if(getBehavior(b)->isEnabled())
-         getBehavior(b)->handleEvent(eventName, eventParams);
+      if(getComponent(b)->isEnabled())
+         getComponent(b)->handleEvent(eventName, eventParams);
    }
 }
 
@@ -216,7 +216,7 @@ void Entity::processTick(const Move* move)
 {
    if(!isHidden()) 
    {
-      Vector<UpdateInterface*> updaters = getBehaviors<UpdateInterface>();
+      Vector<UpdateInterface*> updaters = getComponents<UpdateInterface>();
       for(Vector<UpdateInterface*>::iterator it = updaters.begin(); it != updaters.end(); it++) {
          (*it)->processTick(move);
       }
@@ -239,7 +239,7 @@ void Entity::advanceTime( F32 dt )
 {
    if(!isHidden()) 
    {
-      Vector<UpdateInterface*> updaters = getBehaviors<UpdateInterface>();
+      Vector<UpdateInterface*> updaters = getComponents<UpdateInterface>();
       for(Vector<UpdateInterface*>::iterator it = updaters.begin(); it != updaters.end(); it++) {
          (*it)->advanceTime(dt);
       }
@@ -269,7 +269,7 @@ void Entity::interpolateTick(F32 dt)
 
    if(!isHidden()) 
    {
-      Vector<UpdateInterface*> updaters = getBehaviors<UpdateInterface>();
+      Vector<UpdateInterface*> updaters = getComponents<UpdateInterface>();
       for(Vector<UpdateInterface*>::iterator it = updaters.begin(); it != updaters.end(); it++) {
          (*it)->interpolateTick(dt);
       }
@@ -279,7 +279,7 @@ void Entity::interpolateTick(F32 dt)
 //Render
 void Entity::prepRenderImage( SceneRenderState *state )
 {
-   Vector<PrepRenderImageInterface*> updaters = getBehaviors<PrepRenderImageInterface>();
+   Vector<PrepRenderImageInterface*> updaters = getComponents<PrepRenderImageInterface>();
    for(Vector<PrepRenderImageInterface*>::iterator it = updaters.begin(); it != updaters.end(); it++) {
       (*it)->prepRenderImage(state);
    }
@@ -532,7 +532,7 @@ void Entity::setMountRotation(EulerF rotOffset)
 //
 void Entity::getCameraTransform(F32* pos,MatrixF* mat)
 {
-   Vector<CameraInterface*> updaters = getBehaviors<CameraInterface>();
+   Vector<CameraInterface*> updaters = getComponents<CameraInterface>();
    for(Vector<CameraInterface*>::iterator it = updaters.begin(); it != updaters.end(); it++) {
       if((*it)->getCameraTransform(pos, mat)) {
          return;
@@ -542,7 +542,7 @@ void Entity::getCameraTransform(F32* pos,MatrixF* mat)
 
 void Entity::getMountTransform( S32 index, const MatrixF &xfm, MatrixF *outMat )
 {
-   TSShapeInstanceInterface* tsI = getBehavior<TSShapeInstanceInterface>();
+   TSShapeInstanceInterface* tsI = getComponent<TSShapeInstanceInterface>();
 
    if(tsI)
    {
@@ -572,7 +572,7 @@ void Entity::getMountTransform( S32 index, const MatrixF &xfm, MatrixF *outMat )
 
 void Entity::getRenderMountTransform( F32 delta, S32 index, const MatrixF &xfm, MatrixF *outMat )
 {
-   TSShapeInstanceInterface* tsI = getBehavior<TSShapeInstanceInterface>();
+   TSShapeInstanceInterface* tsI = getComponent<TSShapeInstanceInterface>();
 
    if(tsI)
    {
@@ -603,10 +603,10 @@ void Entity::getRenderMountTransform( F32 delta, S32 index, const MatrixF &xfm, 
 //These basically just redirect to any collision behaviors we have
 bool Entity::castRay(const Point3F &start, const Point3F &end, RayInfo* info)
 {
-   for(U32 b=0; b < getBehaviorCount(); b++)
+   for(U32 b=0; b < getComponentCount(); b++)
    {
-      if(getBehavior(b)->isEnabled())
-         if(getBehavior(b)->castRay(start, end, info))
+      if(getComponent(b)->isEnabled())
+         if(getComponent(b)->castRay(start, end, info))
             return true;
    }
    return false;
@@ -614,7 +614,7 @@ bool Entity::castRay(const Point3F &start, const Point3F &end, RayInfo* info)
 
 bool Entity::castRayRendered(const Point3F &start, const Point3F &end, RayInfo *info)
 {
-   Vector<CastRayRenderedInterface*> updaters = getBehaviors<CastRayRenderedInterface>();
+   Vector<CastRayRenderedInterface*> updaters = getComponents<CastRayRenderedInterface>();
    for(Vector<CastRayRenderedInterface*>::iterator it = updaters.begin(); it != updaters.end(); it++) {
       if((*it)->castRayRendered(start, end, info)) {
          return true;
@@ -625,9 +625,9 @@ bool Entity::castRayRendered(const Point3F &start, const Point3F &end, RayInfo *
 
 bool Entity::buildPolyList(PolyListContext context, AbstractPolyList* polyList, const Box3F &box, const SphereF &sphere)
 {
-   /*for(U32 b=0; b < getBehaviorCount(); b++){
-   CollisionBehaviorInstance *cB = dynamic_cast<CollisionBehaviorInstance*>(getBehavior(b));
-   if(cB && (cB->getBehaviorType() == String("Collision")))
+   /*for(U32 b=0; b < getComponentCount(); b++){
+   CollisionBehaviorInstance *cB = dynamic_cast<CollisionBehaviorInstance*>(getComponent(b));
+   if(cB && (cB->getComponentType() == String("Collision")))
    {
    return cB->buildPolyList(context,polyList,box,sphere);
    }
@@ -637,7 +637,7 @@ bool Entity::buildPolyList(PolyListContext context, AbstractPolyList* polyList, 
 
 void Entity::buildConvex(const Box3F& box, Convex* convex)
 {
-   Vector<BuildConvexInterface*> updaters = getBehaviors<BuildConvexInterface>();
+   Vector<BuildConvexInterface*> updaters = getComponents<BuildConvexInterface>();
    for(Vector<BuildConvexInterface*>::iterator it = updaters.begin(); it != updaters.end(); it++) {
       (*it)->buildConvex(box, convex);
    }
@@ -706,7 +706,7 @@ void Entity::addObject( SimObject* object )
       String node = e->getDataField("mountNode", NULL);
       if(!node.isEmpty())
       {
-         TSShapeInterface *sI = getBehavior<TSShapeInterface>();
+         TSShapeInterface *sI = getComponent<TSShapeInterface>();
          if(sI)
          {
             TSShape* shape = sI->getShape();
@@ -745,7 +745,7 @@ void Entity::removeObject( SimObject* object )
 
 void Entity::onInspect()
 {
-   Vector<EditorInspectInterface*> updaters = getBehaviors<EditorInspectInterface>();
+   Vector<EditorInspectInterface*> updaters = getComponents<EditorInspectInterface>();
    for(Vector<EditorInspectInterface*>::iterator it = updaters.begin(); it != updaters.end(); it++) {
       (*it)->onInspect();
    }
@@ -753,7 +753,7 @@ void Entity::onInspect()
 
 void Entity::onEndInspect()
 {
-   Vector<EditorInspectInterface*> updaters = getBehaviors<EditorInspectInterface>();
+   Vector<EditorInspectInterface*> updaters = getComponents<EditorInspectInterface>();
    for(Vector<EditorInspectInterface*>::iterator it = updaters.begin(); it != updaters.end(); it++) {
       (*it)->onEndInspect();
    }
@@ -769,14 +769,14 @@ void Entity::setObjectBox(Box3F objBox)
       setMaskBits(BoundsMask); 
 }
 //Behaviors
-BehaviorInstance * Entity::behavior(const char *name)
+ComponentInstance * Entity::behavior(const char *name)
 {
    /*StringTableEntry stName = StringTable->insert(name);
    VectorPtr<SimComponent *>&componentList = lockComponentList();
 
    for( SimComponentIterator nItr = componentList.begin(); nItr != componentList.end(); nItr++ )
    {
-   BehaviorInstance *pComponent = dynamic_cast<BehaviorInstance*>(*nItr);
+   ComponentInstance *pComponent = dynamic_cast<ComponentInstance*>(*nItr);
    if( pComponent && StringTable->insert(pComponent->getTemplateName()) == stName )
    {
    unlockComponentList();
@@ -795,7 +795,7 @@ ConsoleMethod(Entity, behavior, S32, 3, 3, "(string behaviorName) - Gets the beh
               "@param behaviorName The name of the behavior you want to get the instance ID of.\n"
               "@return (integer behaviorID) The id of the behavior instance.")
 {
-   BehaviorInstance *inst = object->behavior(argv[2]);
+   ComponentInstance *inst = object->behavior(argv[2]);
    return inst ? inst->getId() : 0;
 }
 

@@ -1,4 +1,4 @@
-singleton BehaviorTemplate(mountToNodeBehavior)
+singleton Component(mountToNodeBehavior)
 {
    friendlyName = "Friendly Name";
    behaviorType = "Game";

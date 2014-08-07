@@ -5,7 +5,7 @@
 
 if (!isObject(CameraBehav))
 {
-   %template = new CameraBehavior(CameraBehav);
+   %template = new CameraComponent(CameraBehav);
    
    %template.friendlyName = "Camera";
    %template.behaviorType = "Game";
@@ -124,17 +124,17 @@ function buildEditorCamera()
 	   //make one!
 	   new Entity(EditorCamera)
 	   {
-		   new BehaviorInstance()
+		   new ComponentInstance()
 		   {
 			   template = ControlObjectBehavior;
 		   };
 		
-		   new CameraBehaviorInstance()
+		   new CameraComponentInstance()
 		   {
 			   template = CameraBehav;
 		   };
 		
-		   new BehaviorInstance()
+		   new ComponentInstance()
 		   { 
 			   template = SpectatorControls;
 		   };
