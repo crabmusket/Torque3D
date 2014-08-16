@@ -69,6 +69,7 @@ public:
 class RenderShapeBehaviorInstance : public ComponentInstance,
    public PrepRenderImageInterface,
    public TSShapeInstanceInterface,
+   public TSShapeInterface,
    //public GeometryInterface,
    public EditorInspectInterface
 {
@@ -129,8 +130,9 @@ public:
    static bool _setShape( void *object, const char *index, const char *data );
    const char* _getShape( void *object, const char *data );
 
-   TSShapeInstance* getShape() { return mShapeInstance; }
-   virtual TSShapeInstance* getShapeInstance() { return getShape(); }
+   virtual TSShape* getShape() { if(mShapeInstance)  return mShapeInstance->getShape(); else return NULL; }
+   virtual TSShapeInstance* getShapeInstance() { return mShapeInstance; }
+
    void _onResourceChanged( const Torque::Path &path );
 
    virtual bool castRayRendered(const Point3F &start, const Point3F &end, RayInfo *info);

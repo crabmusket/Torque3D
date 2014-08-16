@@ -4,7 +4,6 @@
 //-----------------------------------------------------------------------------
 
 #include "component/components/Collision/meshColliderBehavior.h"
-#include "component/components/Physics/physicsBehavior.h"
 
 //#include "platform/platform.h"
 #include "console/consoleTypes.h"
@@ -33,6 +32,8 @@
 #include "opcode/Ice/IcePoint.h"
 #include "opcode/OPC_AABBTree.h"
 #include "opcode/OPC_AABBCollider.h"
+
+#include "component/components/Physics/physicsInterfaces.h"
 
 //#include "math/mGeometry.h"
 
@@ -99,6 +100,7 @@ MeshColliderBehaviorInstance::MeshColliderBehaviorInstance( Component *btemplate
    mOwner = NULL;
 
    mConvexList = NULL;
+   mTimeoutList = NULL;
 
    mWorkingQueryBox.minExtents.set(-1e9f, -1e9f, -1e9f);
    mWorkingQueryBox.maxExtents.set(-1e9f, -1e9f, -1e9f);
@@ -109,6 +111,7 @@ MeshColliderBehaviorInstance::MeshColliderBehaviorInstance( Component *btemplate
       StaticShapeObjectType | VehicleObjectType |
       VehicleBlockerObjectType | DynamicShapeObjectType);
 
+   mDebugRender.shapeInstance = NULL;
 }
 
 MeshColliderBehaviorInstance::~MeshColliderBehaviorInstance()
@@ -231,6 +234,48 @@ void MeshColliderBehaviorInstance::prepCollision()
    _updatePhysics();
 }
 
+void MeshColliderBehaviorInstance::processTick(const Move* move)
+{
+   mCollisionList.clear();
+
+   if(VelocityInterface *vI = mOwner->getComponent<VelocityInterface>())
+   {
+      VectorF velocity = vI->getVelocity();
+
+      //No need to update our working set if we don't have our convex or we're not moving
+      if(mConvexList && mConvexList->getObject() && !velocity.isZero())
+         updateWorkingCollisionSet((U32)-1);
+   }
+}
+
+bool MeshColliderBehaviorInstance::checkCollisions( const F32 travelTime, Point3F *velocity, Point3F start )
+{
+   if(!mConvexList || !mConvexList->getObject())
+      return false;
+
+   Point3F end = start + *velocity * travelTime;
+
+   VectorF vector = end - start;
+
+   mCollisionList.clear();
+
+   if (checkEarlyOut(start, *velocity, travelTime, mOwner->getObjBox(), mOwner->getScale(), mConvexList->getBoundingBox(), 0xFFFFFF, mConvexList->getWorkingList()))
+      return false;
+
+   bool collided = updateCollisions(travelTime, vector, *velocity);
+
+   handleCollisionList(mCollisionList, *velocity);
+
+   //Basically, if this is false, we still track collisions as normal, but we don't
+   //stop the colliding objects, instead only firing off callbacks.
+   //This lets use act like a trigger.
+   bool mBlockColliding = true;
+   if(mBlockColliding)
+      return collided;
+   else
+      return false;
+}
+
 void MeshColliderBehaviorInstance::_updatePhysics()
 {
    SAFE_DELETE( (dynamic_cast<Entity*>(mOwner))->mPhysicsRep );
@@ -337,11 +382,11 @@ void MeshColliderBehaviorInstance::updateWorkingCollisionSet(const U32 mask)
    // working list is updated on a Tick basis, which means we only expand our
    // box by the possible movement in that tick.
    VectorF velocity;
-   ComponentInstance* bI = mOwner->getComponentByType("PhysicsBehavior");
-   if(!bI)
+   VelocityInterface* velInterface = mOwner->getComponent<VelocityInterface>();
+   if(!velInterface)
       velocity = Point3F(0,0,0);
    else 
-      velocity = (reinterpret_cast<PhysicsBehaviorInstance*>(bI))->getVelocity();
+      velocity = velInterface->getVelocity();
 
    Point3F scaledVelocity = velocity * TickSec;
    F32 len    = scaledVelocity.len();
@@ -388,39 +433,105 @@ void MeshColliderBehaviorInstance::updateWorkingCollisionSet(const U32 mask)
 
 void MeshColliderBehaviorInstance::prepRenderImage( SceneRenderState *state )
 {
-   return;
    if(gEditingMission && mOwner->isSelected())
    {
       TSShapeInstance* shapeInstance = getShapeInstance();
-      if(mConvexList == NULL && shapeInstance)
+
+      if(shapeInstance != NULL && mDebugRender.shapeInstance != shapeInstance)
       {
+         mDebugRender.shapeInstance = shapeInstance;
+         mDebugRender.triCount = 0;
+         mDebugRender.vertA.clear();
+         mDebugRender.vertB.clear();
+         mDebugRender.vertC.clear();
+
          Vector<S32> losDetails;
 
          shapeInstance->getShape()->findColDetails( true, &mCollisionDetails, &losDetails );
 
          if(!mCollisionDetails.empty())
          {
-            MeshColliderPolysoupConvex* mC = new MeshColliderPolysoupConvex();
-            mC->init(mOwner);
+            TSShape* shape = shapeInstance->getShape();
 
-            mConvexList = mC;
+            for(U32 i=0; i < mCollisionDetails.size(); i++)
+            {
+               // get subshape and object detail
+               const TSDetail * detail = &shape->details[mCollisionDetails[i]];
+               S32 ss = detail->subShapeNum;
+               S32 od = detail->objectDetailNum;
 
-            Convex *c = new Convex();
-            for (U32 i = 0; i < mCollisionDetails.size(); i++)
-               buildConvexOpcode( shapeInstance, mCollisionDetails[i], mOwner->getWorldBox(), c, mConvexList );
+               // nothing emitted yet...
+               bool emitted = false;
 
-            mConvexList->render();
+               S32 start = shape->subShapeFirstObject[ss];
+               S32 end   = shape->subShapeNumObjects[ss] + start;
+               if (start<end)
+               {
+                  MatrixF initialMat = mOwner->getObjToWorld();
+                  Point3F initialScale = mOwner->getScale();
+
+                  // set up for first object's node
+                  MatrixF mat;
+                  MatrixF scaleMat(true);
+                  F32* p = scaleMat;
+                  p[0]  = initialScale.x;
+                  p[5]  = initialScale.y;
+                  p[10] = initialScale.z;
+                  const MatrixF * previousMat = &shapeInstance->mMeshObjects[start].getTransform();
+                  mat.mul(initialMat,scaleMat);
+                  mat.mul(*previousMat);
+
+                  // Update our bounding box...
+                  Box3F localBox = mOwner->getWorldBox();
+                  MatrixF otherMat = mat;
+                  otherMat.inverse();
+                  otherMat.mul(localBox);
+
+                  // run through objects and collide
+                  Opcode::VertexPointers vp;
+                  for (S32 i=start; i<end; i++)
+                  {
+                     TSShapeInstance::MeshObjectInstance * meshInstance = &shapeInstance->mMeshObjects[i];
+
+                     TSMesh * mesh = meshInstance->getMesh(od);
+
+                     mDebugRender.triCount = mesh->mOptTree->GetMeshInterface()->GetNbTriangles();
+                     for(U32 j=0; j < mDebugRender.triCount; j++)
+                     {
+                        mesh->mOptTree->GetMeshInterface()->GetTriangle( vp, j );
+
+                        Point3F a( vp.Vertex[0]->x, vp.Vertex[0]->y, vp.Vertex[0]->z );
+                        Point3F b( vp.Vertex[1]->x, vp.Vertex[1]->y, vp.Vertex[1]->z );
+                        Point3F c( vp.Vertex[2]->x, vp.Vertex[2]->y, vp.Vertex[2]->z );
+
+                        MatrixF meshToObjectMat = meshInstance->getTransform();
+
+                        // Transform the result into object space!
+                        meshToObjectMat.mulP( a );
+                        meshToObjectMat.mulP( b );
+                        meshToObjectMat.mulP( c );
+
+                        //build the shape-center offset
+                        Point3F center = getShapeInstance()->getShape()->center;
+                        Point3F position = mOwner->getPosition();
+
+                        //mOwner->getTransform().mulP(center);
+
+                        Point3F posOffset = position;// - center;
+
+                        a += posOffset;
+                        b += posOffset;
+                        c += posOffset;
+
+                        mDebugRender.vertA.push_back(a);
+                        mDebugRender.vertB.push_back(b);
+                        mDebugRender.vertC.push_back(c);
+                     }
+                  }
+               }
+            }
          }
       }
-
-      /*DebugDrawer * debugDraw = DebugDrawer::get();  
-      if (debugDraw)  
-      {  
-      Point3F min = mWorkingQueryBox.minExtents;
-      Point3F max = mWorkingQueryBox.maxExtents;
-
-      debugDraw->drawBox(mOwner->getWorldBox().minExtents, mOwner->getWorldBox().maxExtents, ColorI(255, 0, 255, 128));  
-      } */
 
       ObjectRenderInst *ri = state->getRenderPass()->allocInst<ObjectRenderInst>();
       ri->renderDelegate.bind( this, &MeshColliderBehaviorInstance::renderConvex );
@@ -434,7 +545,46 @@ void MeshColliderBehaviorInstance::renderConvex( ObjectRenderInst *ri, SceneRend
 {
    GFX->enterDebugEvent( ColorI(255,0,255), "MeshColliderBehaviorInstance_renderConvex" );
 
-   mConvexList->render();
+   GFXStateBlockDesc desc;
+   desc.setZReadWrite( true, false );
+   desc.setBlend( true );
+   desc.fillMode = GFXFillWireframe;
+
+   GFXDrawUtil *drawer = GFX->getDrawUtil();
+
+   if(mDebugRender.shapeInstance == NULL)
+      return;
+
+   //if ( ri->objectIndex != -1 )
+   //{
+     // MountedImage &image = mMountedImageList[ ri->objectIndex ];
+
+      //if ( image.shapeInstance )
+      //{
+         //MatrixF mat;
+         //getRenderImageTransform( ri->objectIndex, &mat );         
+
+         //const Box3F &objBox = image.shapeInstance[getImageShapeIndex(image)]->getShape()->bounds;
+         Frustum f = state->getCullingFrustum();
+         Box3F bounds;
+         U32 clipMask;
+
+         //drawer->drawCube( desc, objBox, ColorI( 255, 255, 255 ), &mat );
+         for(U32 i=0; i < mDebugRender.triCount; i++)
+         {
+            bounds = Box3F();
+            bounds.extend(mDebugRender.vertA[i]);
+            bounds.extend(mDebugRender.vertB[i]);
+            bounds.extend(mDebugRender.vertC[i]);
+
+            clipMask = f.testPlanes( bounds, Frustum::PlaneMaskAll );
+            if ( clipMask == -1 )
+               continue;
+
+            drawer->drawTriangle(desc, mDebugRender.vertA[i], mDebugRender.vertB[i], mDebugRender.vertC[i], ColorI(255, 0, 255, 128));
+         }
+      //}
+   //}
 
    GFX->leaveDebugEvent();
 }
@@ -444,6 +594,13 @@ bool MeshColliderBehaviorInstance::buildConvex(const Box3F& box, Convex* convex)
    TSShapeInstance *shapeInstance = getShapeInstance();
    if(!shapeInstance)
       return false;
+
+   // These should really come out of a pool
+   mConvexList->collectGarbage();
+
+   Con::printf("MESHCOLLIDER: buildConvex CALLED");
+   Con::printf("MESHCOLLIDER: Entity bounds.min: %g %g %g, max: %g %g %g", mOwner->getWorldBox().minExtents.x, mOwner->getWorldBox().minExtents.y, mOwner->getWorldBox().minExtents.z,
+                                                                           mOwner->getWorldBox().maxExtents.x, mOwner->getWorldBox().maxExtents.y, mOwner->getWorldBox().maxExtents.z);
 
    for (U32 i = 0; i < mCollisionDetails.size(); i++)
       buildConvexOpcode( shapeInstance, mCollisionDetails[i], box, convex, mConvexList );
@@ -458,6 +615,9 @@ bool MeshColliderBehaviorInstance::buildConvexOpcode( TSShapeInstance* sI, S32 d
 
    TSShape* shape = sI->getShape();
 
+   const MatrixF &objMat = mOwner->getObjToWorld();
+   const Point3F &objScale = mOwner->getScale();
+
    // get subshape and object detail
    const TSDetail * detail = &shape->details[dl];
    S32 ss = detail->subShapeNum;
@@ -470,8 +630,8 @@ bool MeshColliderBehaviorInstance::buildConvexOpcode( TSShapeInstance* sI, S32 d
    S32 end   = shape->subShapeNumObjects[ss] + start;
    if (start<end)
    {
-      MatrixF initialMat = mOwner->getObjToWorld();
-      Point3F initialScale = mOwner->getScale();
+      MatrixF initialMat = objMat;
+      Point3F initialScale = objScale;
 
       // set up for first object's node
       MatrixF mat;
@@ -493,15 +653,15 @@ bool MeshColliderBehaviorInstance::buildConvexOpcode( TSShapeInstance* sI, S32 d
       // run through objects and collide
       for (S32 i=start; i<end; i++)
       {
-         TSShapeInstance::MeshObjectInstance * mesh = &sI->mMeshObjects[i];
+         TSShapeInstance::MeshObjectInstance * meshInstance = &sI->mMeshObjects[i];
 
-         if (od >= mesh->object->numMeshes)
+         if (od >= meshInstance->object->numMeshes)
             continue;
 
-         if (&mesh->getTransform() != previousMat)
+         if (&meshInstance->getTransform() != previousMat)
          {
             // different node from before, set up for this node
-            previousMat = &mesh->getTransform();
+            previousMat = &meshInstance->getTransform();
 
             if (previousMat != NULL)
             {
@@ -518,141 +678,142 @@ bool MeshColliderBehaviorInstance::buildConvexOpcode( TSShapeInstance* sI, S32 d
 
          // collide... note we pass the original mech transform
          // here so that the convex data returned is in mesh space.
-         emitted |= buildMeshOpcode(mesh, *previousMat, od, localBox, c, list);
+         TSMesh * mesh = meshInstance->getMesh(od);
+         if ( mesh && !meshInstance->forceHidden && meshInstance->visible > 0.01f && localBox.isOverlapped( mesh->getBounds() ) )
+            emitted |= buildMeshOpcode(mesh, *previousMat, localBox, c, list);
+         else
+            emitted |= false;
       }
    }
 
    return emitted;
 }
 
-bool MeshColliderBehaviorInstance::buildMeshOpcode(  TSShapeInstance::MeshObjectInstance *meshInstance, const MatrixF &meshToObjectMat, 
-                                                   S32 objectDetail, const Box3F &bounds, Convex *convex, Convex *list)
+bool MeshColliderBehaviorInstance::buildMeshOpcode(  TSMesh *mesh, const MatrixF &meshToObjectMat, 
+                                                   const Box3F &nodeBox, Convex *convex, Convex *list)
 {
-   TSMesh * mesh = meshInstance->getMesh(objectDetail);
-   if ( mesh && !meshInstance->forceHidden && meshInstance->visible > 0.01f && bounds.isOverlapped( mesh->getBounds() ) )
+   PROFILE_SCOPE( MeshCollider_buildConvexOpcode );
+
+   // This is small... there is no win for preallocating it.
+   Opcode::AABBCollider opCollider;
+   opCollider.SetPrimitiveTests( true );
+
+   // This isn't really needed within the AABBCollider as 
+   // we don't use temporal coherance... use a static to 
+   // remove the allocation overhead.
+   static Opcode::AABBCache opCache;
+
+   //-JR
+   Con::printf("MESHCOLLIDER: TSMesh bounds.min: %g %g %g, max: %g %g %g", nodeBox.minExtents.x, nodeBox.minExtents.y, nodeBox.minExtents.z,
+                                                                           nodeBox.maxExtents.x, nodeBox.maxExtents.y, nodeBox.maxExtents.z);
+   //-JR
+
+   IceMaths::AABB opBox;
+   opBox.SetMinMax(  Point( nodeBox.minExtents.x, nodeBox.minExtents.y, nodeBox.minExtents.z ),
+                     Point( nodeBox.maxExtents.x, nodeBox.maxExtents.y, nodeBox.maxExtents.z ) );
+   Opcode::CollisionAABB opCBox(opBox);
+
+   if( !opCollider.Collide( opCache, opCBox, *mesh->mOptTree ) )
+      return false;
+
+   U32 cnt = opCollider.GetNbTouchedPrimitives();
+   const udword *idx = opCollider.GetTouchedPrimitives();
+
+   Opcode::VertexPointers vp;
+   for ( S32 i = 0; i < cnt; i++ )
    {
-      //return mesh->buildConvexOpcode(mat, bounds, c, list);
+      // First, check our active convexes for a potential match (and clean things
+      // up, too.)
+      const U32 curIdx = idx[i];
 
-      PROFILE_SCOPE( TSMesh_buildConvexOpcode );
-
-      // This is small... there is no win for preallocating it.
-      Opcode::AABBCollider opCollider;
-      opCollider.SetPrimitiveTests( true );
-
-      // This isn't really needed within the AABBCollider as 
-      // we don't use temporal coherance... use a static to 
-      // remove the allocation overhead.
-      static Opcode::AABBCache opCache;
-
-      IceMaths::AABB opBox;
-      opBox.SetMinMax(  Point( bounds.minExtents.x, bounds.minExtents.y, bounds.minExtents.z ),
-         Point( bounds.maxExtents.x, bounds.maxExtents.y, bounds.maxExtents.z ) );
-      Opcode::CollisionAABB opCBox(opBox);
-
-      if( !opCollider.Collide( opCache, opCBox, *mesh->mOptTree ) )
-         return false;
-
-      U32 cnt = opCollider.GetNbTouchedPrimitives();
-      const udword *idx = opCollider.GetTouchedPrimitives();
-
-      Opcode::VertexPointers vp;
-      for ( S32 i = 0; i < cnt; i++ )
+      // See if the square already exists as part of the working set.
+      bool gotMatch = false;
+      CollisionWorkingList& wl = convex->getWorkingList();
+      for ( CollisionWorkingList* itr = wl.wLink.mNext; itr != &wl; itr = itr->wLink.mNext )
       {
-         // First, check our active convexes for a potential match (and clean things
-         // up, too.)
-         const U32 curIdx = idx[i];
-
-         // See if the square already exists as part of the working set.
-         bool gotMatch = false;
-         CollisionWorkingList& wl = convex->getWorkingList();
-         for ( CollisionWorkingList* itr = wl.wLink.mNext; itr != &wl; itr = itr->wLink.mNext )
-         {
-            if( itr->mConvex->getType() != TSPolysoupConvexType )
-               continue;
-
-            const MeshColliderPolysoupConvex *chunkc = static_cast<MeshColliderPolysoupConvex*>( itr->mConvex );
-
-            if( chunkc->getObject() != mOwner )
-               continue;
-
-            if( chunkc->mesh != mesh )
-               continue;
-
-            if( chunkc->idx != curIdx )
-               continue;
-
-            // A match! Don't need to add it.
-            gotMatch = true;
-            break;
-         }
-
-         if( gotMatch )
+         if( itr->mConvex->getType() != TSPolysoupConvexType )
             continue;
 
-         // Get the triangle...
-         mesh->mOptTree->GetMeshInterface()->GetTriangle( vp, idx[i] );
+         const MeshColliderPolysoupConvex *chunkc = static_cast<MeshColliderPolysoupConvex*>( itr->mConvex );
 
-         Point3F a( vp.Vertex[0]->x, vp.Vertex[0]->y, vp.Vertex[0]->z );
-         Point3F b( vp.Vertex[1]->x, vp.Vertex[1]->y, vp.Vertex[1]->z );
-         Point3F c( vp.Vertex[2]->x, vp.Vertex[2]->y, vp.Vertex[2]->z );
+         if( chunkc->getObject() != mOwner )
+            continue;
 
-         // Transform the result into object space!
-         meshToObjectMat.mulP( a );
-         meshToObjectMat.mulP( b );
-         meshToObjectMat.mulP( c );
+         if( chunkc->mesh != mesh )
+            continue;
 
-         //build the shape-center offset
-         Point3F center = getShapeInstance()->getShape()->center;
-         Point3F position = mOwner->getPosition();
+         if( chunkc->idx != curIdx )
+            continue;
 
-         mOwner->getTransform().mulP(center);
-
-         Point3F posOffset = position - center;
-
-         a += posOffset;
-         b += posOffset;
-         c += posOffset;
-         //
-
-         PlaneF p( c, b, a );
-         Point3F peak = ((a + b + c) / 3.0f) - (p * 0.15f);
-
-         // Set up the convex...
-         MeshColliderPolysoupConvex *cp = new MeshColliderPolysoupConvex();
-
-         list->registerObject( cp );
-         convex->addToWorkingList( cp );
-
-         cp->mesh    = mesh;
-         cp->idx     = curIdx;
-         cp->mObject = mOwner;
-
-         cp->normal = p;
-         cp->verts[0] = a;
-         cp->verts[1] = b;
-         cp->verts[2] = c;
-         cp->verts[3] = peak;
-
-         // Update the bounding box.
-         Box3F &bounds = cp->box;
-         bounds.minExtents.set( F32_MAX,  F32_MAX,  F32_MAX );
-         bounds.maxExtents.set( -F32_MAX, -F32_MAX, -F32_MAX );
-
-         bounds.minExtents.setMin( a );
-         bounds.minExtents.setMin( b );
-         bounds.minExtents.setMin( c );
-         bounds.minExtents.setMin( peak );
-
-         bounds.maxExtents.setMax( a );
-         bounds.maxExtents.setMax( b );
-         bounds.maxExtents.setMax( c );
-         bounds.maxExtents.setMax( peak );
+         // A match! Don't need to add it.
+         gotMatch = true;
+         break;
       }
 
-      return true;
+      if( gotMatch )
+         continue;
+
+      // Get the triangle...
+      mesh->mOptTree->GetMeshInterface()->GetTriangle( vp, idx[i] );
+
+      Point3F a( vp.Vertex[0]->x, vp.Vertex[0]->y, vp.Vertex[0]->z );
+      Point3F b( vp.Vertex[1]->x, vp.Vertex[1]->y, vp.Vertex[1]->z );
+      Point3F c( vp.Vertex[2]->x, vp.Vertex[2]->y, vp.Vertex[2]->z );
+
+      // Transform the result into object space!
+      meshToObjectMat.mulP( a );
+      meshToObjectMat.mulP( b );
+      meshToObjectMat.mulP( c );
+
+      //build the shape-center offset
+      /*Point3F center = getShapeInstance()->getShape()->center;
+      Point3F position = mOwner->getPosition();
+
+      //mOwner->getTransform().mulP(center);
+
+      Point3F posOffset = position;// - center;
+
+      a += posOffset;
+      b += posOffset;
+      c += posOffset;*/
+      //
+
+      PlaneF p( c, b, a );
+      Point3F peak = ((a + b + c) / 3.0f) - (p * 0.15f);
+
+      // Set up the convex...
+      MeshColliderPolysoupConvex *cp = new MeshColliderPolysoupConvex();
+
+      list->registerObject( cp );
+      convex->addToWorkingList( cp );
+
+      cp->mesh    = mesh;
+      cp->idx     = curIdx;
+      cp->mObject = mOwner;
+
+      cp->normal = p;
+      cp->verts[0] = a;
+      cp->verts[1] = b;
+      cp->verts[2] = c;
+      cp->verts[3] = peak;
+
+      // Update the bounding box.
+      Box3F &bounds = cp->box;
+      bounds.minExtents.set( F32_MAX,  F32_MAX,  F32_MAX );
+      bounds.maxExtents.set( -F32_MAX, -F32_MAX, -F32_MAX );
+
+      bounds.minExtents.setMin( a );
+      bounds.minExtents.setMin( b );
+      bounds.minExtents.setMin( c );
+      bounds.minExtents.setMin( peak );
+
+      bounds.maxExtents.setMax( a );
+      bounds.maxExtents.setMax( b );
+      bounds.maxExtents.setMax( c );
+      bounds.maxExtents.setMax( peak );
    }
 
-   return false;
+   return true;
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 MeshColliderPolysoupConvex::MeshColliderPolysoupConvex()

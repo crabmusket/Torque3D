@@ -35,6 +35,8 @@ class CameraInterface
 {
 public:
    virtual bool getCameraTransform(F32* pos,MatrixF* mat)=0;
+   virtual void onCameraScopeQuery(NetConnection *cr, CameraScopeQuery * query)=0;
+   virtual Frustum getFrustum()=0;
 };
 
 class CastRayInterface

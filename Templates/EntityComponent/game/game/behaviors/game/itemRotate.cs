@@ -47,4 +47,7 @@ function ItemRotateBehavior::Update(%this)
    //}
    //else
       %this.counter++;
+	
+   %test = PlayGUI.getID();
+   %test2 = 1;
 }

@@ -20,7 +20,7 @@
 #include "T3D/gameBase/gameConnection.h"
 #include "collision/collision.h"
 
-#include "component/components/Collision/collisionBehavior.h"
+#include "component/components/Collision/collisionInterfaces.h"
 
 //////////////////////////////////////////////////////////////////////////
 // Callbacks
@@ -480,12 +480,10 @@ void SimplePhysicsBehaviorInstance::updateForces()
 {
    VectorF acc = mGravity * mGravityMod * TickSec;
 
-   ComponentInstance* bI = mOwner->getComponent("Collision");
-   if(bI && bI->isEnabled())
+   CollisionInterface* cI = mOwner->getComponent<CollisionInterface>();
+   if(cI)
    {
-      CollisionBehaviorInstance *cBI = reinterpret_cast<CollisionBehaviorInstance*>(bI);
-
-      if(cBI->getCollisionList()->getCount() > 0 && (mVelocity + acc != Point3F(0,0,0)))
+      if(cI->getCollisionList()->getCount() > 0 && (mVelocity + acc != Point3F(0,0,0)))
       {
          Point3F contactNormal = Point3F(0,0,0);
          bool moveable = false;
@@ -494,9 +492,9 @@ void SimplePhysicsBehaviorInstance::updateForces()
          F32 bestVd = -1.0f;
 
          //get our best normal, and if it's a move-able surface
-         for(U32 i = 0; i < cBI->getCollisionList()->getCount(); i++)
+         for(U32 i = 0; i < cI->getCollisionList()->getCount(); i++)
          {
-            Collision c = *cBI->getCollision(i);
+            Collision c = *cI->getCollision(i);
 
             //find the flattest surface
             F32 vd = mDot(Point3F(0,0,1), c.normal);//poly->plane.z;       // i.e.  mDot(Point3F(0,0,1), poly->plane);

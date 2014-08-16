@@ -37,6 +37,9 @@ function CameraBehav::onAdd(%this)
       
       %clientID.camera = %this.owner;
    }
+
+   %res = $pref::Video::mode;
+   %derp = 0;
 }
 
 function CameraBehav::onRemove(%this)

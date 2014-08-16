@@ -120,6 +120,8 @@ public:
    /// Control object scoping
    void onCameraScopeQuery(NetConnection *cr, CameraScopeQuery *camInfo);
 
+   virtual Frustum getFrustum() { Frustum f; return f;};
+
 protected:
    DECLARE_CALLBACK( F32, validateCameraFov, (F32 fov) );
 

@@ -5,7 +5,6 @@
 
 #ifndef _BOX_COLLISION_BEHAVIOR_H_
 #define _BOX_COLLISION_BEHAVIOR_H_
-#include "component/components/Collision/collisionBehavior.h"
 
 #ifndef __RESOURCE_H__
 #include "core/resource.h"
@@ -57,9 +56,9 @@ public:
 };
 
 
-class BoxColliderBehavior : public CollisionBehavior
+class BoxColliderBehavior : public Component
 {
-   typedef CollisionBehavior Parent;
+   typedef Component Parent;
 
 public:
    BoxColliderBehavior();
@@ -72,11 +71,12 @@ public:
    virtual ComponentInstance *createInstance();
 };
 
-class BoxColliderBehaviorInstance : public CollisionBehaviorInstance,
+class BoxColliderBehaviorInstance : public ComponentInstance,
+   public CollisionInterface,
    public PrepRenderImageInterface,
    public BuildConvexInterface
 {
-   typedef CollisionBehaviorInstance Parent;
+   typedef ComponentInstance Parent;
 
 protected:
    Point3F colliderScale;
@@ -90,6 +90,8 @@ public:
    virtual void onRemove();
    static void initPersistFields();
 
+   virtual void processTick(const Move* move);
+
    virtual void prepRenderImage( SceneRenderState *state );
 
    virtual U32 packUpdate(NetConnection *con, U32 mask, BitStream *stream);
@@ -100,6 +102,8 @@ public:
 
    void prepCollision();
    void _updatePhysics();
+
+   virtual bool checkCollisions( const F32 travelTime, Point3F *velocity, Point3F start );
 
    virtual bool buildConvex(const Box3F& box, Convex* convex);
    virtual bool castRay(const Point3F &start, const Point3F &end, RayInfo* info);

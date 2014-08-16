@@ -97,16 +97,20 @@ void RenderShapeBehaviorInstance::boneObject::addObject(SimObject* object)
 {
    //Parent::addObject(object);
    SceneObject* sc = dynamic_cast<SceneObject*>(object);
-   if(sc && mOwner && mOwner->getShape())
+
+   if(sc && mOwner)
    {
-      S32 nodeID = mOwner->getShape()->getShape()->findNode(mBoneName);
+      if(TSShape* shape = mOwner->getShape())
+      {
+         S32 nodeID = shape->findNode(mBoneName);
 
-      //we may have a offset on the shape's center
-      //so make sure we accomodate for that when setting up the mount offsets
-      MatrixF mat = mOwner->getShape()->mNodeTransforms[nodeID];
-      //mat.setPosition(mat.getPosition() + mOwner->getShape()->getShape()->center);
+         //we may have a offset on the shape's center
+         //so make sure we accomodate for that when setting up the mount offsets
+         MatrixF mat = mOwner->getShapeInstance()->mNodeTransforms[nodeID];
+         //mat.setPosition(mat.getPosition() + mOwner->getShape()->getShape()->center);
 
-      mOwner->getBehaviorOwner()->mountObject(sc, nodeID, mat);
+         mOwner->getBehaviorOwner()->mountObject(sc, nodeID, mat);
+      }
    }
 }
 
@@ -122,6 +126,7 @@ RenderShapeBehaviorInstance::RenderShapeBehaviorInstance( Component *btemplate )
 
 RenderShapeBehaviorInstance::~RenderShapeBehaviorInstance()
 {
+   mShapeInstance = NULL;
 }
 IMPLEMENT_CO_NETOBJECT_V1(RenderShapeBehaviorInstance);
 
@@ -142,6 +147,9 @@ bool RenderShapeBehaviorInstance::onAdd()
 void RenderShapeBehaviorInstance::onComponentAdd()
 {
    Parent::onComponentAdd();
+
+   //get the default shape, if any
+   updateShape();
 }
 
 void RenderShapeBehaviorInstance::onRemove()
@@ -337,11 +345,11 @@ void RenderShapeBehaviorInstance::updateShape()
 
          e->getWorldToObj().mulP(pos);
 
-         min = mShape->bounds.minExtents - (pos + mShapeInstance->getShape()->center);
-         max = mShape->bounds.maxExtents - (pos + mShapeInstance->getShape()->center);
+         //min = mShape->bounds.minExtents - (pos + mShapeInstance->getShape()->center);
+         //max = mShape->bounds.maxExtents - (pos + mShapeInstance->getShape()->center);
 
-         //min = mShape->bounds.minExtents;
-         //max = mShape->bounds.maxExtents;
+         min = mShape->bounds.minExtents;
+         max = mShape->bounds.maxExtents;
 
          mShapeBounds.set(min, max);
 
@@ -410,12 +418,17 @@ void RenderShapeBehaviorInstance::mountObjectToNode(SceneObject* objB, String no
 {
    const char* test;
    test = node.c_str();
-   if(dIsdigit(test[0])){
+   if(dIsdigit(test[0]))
+   {
       getBehaviorOwner()->mountObject(objB, dAtoi(node), txfm);
    }
-   else{
-      S32 idx = getShape()->getShape()->findNode(node);
-      getBehaviorOwner()->mountObject(objB, idx, txfm);
+   else
+   {
+      if(TSShape* shape = getShape())
+      {
+         S32 idx = shape->findNode(node);
+         getBehaviorOwner()->mountObject(objB, idx, txfm);
+      }
    }
 }
 

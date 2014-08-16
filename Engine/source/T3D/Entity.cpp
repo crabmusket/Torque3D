@@ -603,11 +603,13 @@ void Entity::getRenderMountTransform( F32 delta, S32 index, const MatrixF &xfm, 
 //These basically just redirect to any collision behaviors we have
 bool Entity::castRay(const Point3F &start, const Point3F &end, RayInfo* info)
 {
-   for(U32 b=0; b < getComponentCount(); b++)
+   Vector<CastRayInterface*> updaters = getComponents<CastRayInterface>();
+   for(Vector<CastRayInterface*>::iterator it = updaters.begin(); it != updaters.end(); it++) 
    {
-      if(getComponent(b)->isEnabled())
-         if(getComponent(b)->castRay(start, end, info))
-            return true;
+      if((*it)->castRay(start, end, info)) 
+      {
+         return true;
+      }
    }
    return false;
 }
@@ -615,8 +617,10 @@ bool Entity::castRay(const Point3F &start, const Point3F &end, RayInfo* info)
 bool Entity::castRayRendered(const Point3F &start, const Point3F &end, RayInfo *info)
 {
    Vector<CastRayRenderedInterface*> updaters = getComponents<CastRayRenderedInterface>();
-   for(Vector<CastRayRenderedInterface*>::iterator it = updaters.begin(); it != updaters.end(); it++) {
-      if((*it)->castRayRendered(start, end, info)) {
+   for(Vector<CastRayRenderedInterface*>::iterator it = updaters.begin(); it != updaters.end(); it++) 
+   {
+      if((*it)->castRayRendered(start, end, info)) 
+      {
          return true;
       }
    }
@@ -638,7 +642,8 @@ bool Entity::buildPolyList(PolyListContext context, AbstractPolyList* polyList, 
 void Entity::buildConvex(const Box3F& box, Convex* convex)
 {
    Vector<BuildConvexInterface*> updaters = getComponents<BuildConvexInterface>();
-   for(Vector<BuildConvexInterface*>::iterator it = updaters.begin(); it != updaters.end(); it++) {
+   for(Vector<BuildConvexInterface*>::iterator it = updaters.begin(); it != updaters.end(); it++) 
+   {
       (*it)->buildConvex(box, convex);
    }
 }
@@ -759,6 +764,17 @@ void Entity::onEndInspect()
    }
 }
 
+//
+void Entity::onCameraScopeQuery( NetConnection* connection, CameraScopeQuery* query )
+{
+   // Object itself is in scope.
+   Parent::onCameraScopeQuery(connection, query);
+
+   if(CameraInterface* cI = getComponent<CameraInterface>())
+   {
+      cI->onCameraScopeQuery(connection, query);
+   }
+}
 //
 void Entity::setObjectBox(Box3F objBox) 
 { 

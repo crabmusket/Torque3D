@@ -180,6 +180,12 @@ void cameraComponentInstance::onCameraScopeQuery(NetConnection *cr, CameraScopeQ
          query->sinFov = mSin(query->fov);
          query->cosFov = mCos(query->fov);
       }
+      else
+      {
+         query->fov = mDegToRad(mCameraFov/2);
+         query->sinFov = mSin(query->fov);
+         query->cosFov = mCos(query->fov);
+      }
    }
 
    // use eye rather than camera transform (good enough and faster)
@@ -191,7 +197,7 @@ void cameraComponentInstance::onCameraScopeQuery(NetConnection *cr, CameraScopeQ
    if (mOwner->getSceneManager() != NULL)
       query->visibleDistance = mOwner->getSceneManager()->getVisibleDistance();
 
-   Parent::onCameraScopeQuery( cr, query );
+   //mOwner->Parent::onCameraScopeQuery( cr, query );
 }
 
 bool cameraComponentInstance::getCameraTransform(F32* pos,MatrixF* mat)

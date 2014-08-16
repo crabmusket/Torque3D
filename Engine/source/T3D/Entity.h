@@ -138,12 +138,13 @@ public:
    bool castRay(const Point3F &start, const Point3F &end, RayInfo* info);
    bool castRayRendered(const Point3F &start, const Point3F &end, RayInfo* info);
    bool buildPolyList(PolyListContext context, AbstractPolyList* polyList, const Box3F &box, const SphereF &sphere);
-   void buildConvex(const Box3F& box, Convex* convex);
+   virtual void buildConvex(const Box3F& box, Convex* convex);
 
    void pushEvent(const char* eventName, Vector<const char*> eventParams);
 
    //camera stuff
    virtual void getCameraTransform(F32* pos,MatrixF* mat);
+   virtual void onCameraScopeQuery( NetConnection* connection, CameraScopeQuery* query );
 
    //Heirarchy stuff
    virtual void addObject( SimObject* object );

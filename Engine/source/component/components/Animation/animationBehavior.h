@@ -98,8 +98,8 @@ public:
 
    //virtual bool setBehaviorSubField( const char *data );
 
-   //shortcut function. finds if our owner has a renderShape behavior and gets the shape instance
-   RenderShapeBehaviorInstance* getShapeBehavior();
+   TSShapeInstance* getShapeInstance();
+   TSShape* getShape();
 
    virtual void processTick(const Move* move);
    virtual void advanceTime(F32 dt);

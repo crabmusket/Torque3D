@@ -131,6 +131,8 @@ public:
    virtual ComponentInstance *getComponentByType( StringTableEntry behaviorTypeName );
    virtual ComponentInstance *getComponent( Component *bTemplate );
 
+   //template <class T>
+   //static void findComponentByType( Simset* objectsList, Vector<T*> &foundObjects );
    template <class T>
    T *getComponent();
    template <class T>
@@ -175,6 +177,34 @@ public:
    DECLARE_CONOBJECT(ComponentObject);
 };
 
+template< class T >
+void findComponentByType( SimSet* set, Vector<T*> &foundObjects )
+{
+   T *curObj;
+   SimSet *curSet;
+   ComponentInstance* compInst;
+
+   set->lock();
+
+   // Loop through our child objects.
+   SimObjectList::iterator itr = set->begin();   
+
+   for ( ; itr != set->end(); itr++ )
+   {
+      compInst =  dynamic_cast<ComponentInstance*>( *itr );
+      if(!compInst->isEnabled())
+         continue;
+
+      curObj = dynamic_cast<T*>( *itr );
+
+      // Add this child object if appropriate.
+      if ( curObj )
+         foundObjects.push_back( curObj );      
+   }
+
+   set->unlock();
+}
+
 template <class T>
 T *ComponentObject::getComponent()
 {
@@ -191,7 +221,7 @@ T *ComponentObject::getComponent()
 template <class T>
 Vector<T*> ComponentObject::getComponents() {
    Vector<T*> v;
-   mComponents.findObjectByType<T>(v);
+   findComponentByType<T>(&mComponents, v);
    return v;
 }
 #endif

@@ -5,7 +5,6 @@
 
 #ifndef _BOX_COLLISION_BEHAVIOR_H_
 #define _BOX_COLLISION_BEHAVIOR_H_
-#include "component/components/Collision/collisionBehavior.h"
 
 #ifndef __RESOURCE_H__
 #include "core/resource.h"
@@ -90,9 +89,9 @@ public:
    Point3F support(const VectorF& v) const;
 };
 
-class MeshColliderBehavior : public CollisionBehavior
+class MeshColliderBehavior : public Component
 {
-   typedef CollisionBehavior Parent;
+   typedef Component Parent;
 
 public:
    MeshColliderBehavior();
@@ -105,16 +104,30 @@ public:
    virtual ComponentInstance *createInstance();
 };
 
-class MeshColliderBehaviorInstance : public CollisionBehaviorInstance,
+class MeshColliderBehaviorInstance : public ComponentInstance,
+   public CollisionInterface,
    public PrepRenderImageInterface,
    public BuildConvexInterface
 {
-   typedef CollisionBehaviorInstance Parent;
+   typedef ComponentInstance Parent;
 
 protected:
    Convex *mConvexList;
 
    Vector<S32> mCollisionDetails;
+
+   struct DebugRenderStash
+   {
+      TSShapeInstance* shapeInstance;
+
+      U32 triCount;
+
+      Vector<Point3F> vertA;
+      Vector<Point3F> vertB;
+      Vector<Point3F> vertC;
+   };
+
+   DebugRenderStash mDebugRender;
 
 public:
    MeshColliderBehaviorInstance(Component *btemplate = NULL);
@@ -126,6 +139,8 @@ public:
    static void initPersistFields();
 
    virtual void update();
+
+   virtual void processTick(const Move* move);
 
    virtual void prepRenderImage( SceneRenderState *state );
    virtual void renderConvex( ObjectRenderInst *ri, SceneRenderState *state, BaseMatInstance *overrideMat );
@@ -139,13 +154,14 @@ public:
    void prepCollision();
    void _updatePhysics();
 
+   virtual bool checkCollisions( const F32 travelTime, Point3F *velocity, Point3F start );
+
    virtual bool buildConvex(const Box3F& box, Convex* convex);
    virtual bool castRay(const Point3F &start, const Point3F &end, RayInfo* info);
 
    bool buildConvexOpcode( TSShapeInstance* sI, S32 dl, const Box3F &bounds, Convex *c, Convex *list );
 
-   bool buildMeshOpcode(  TSShapeInstance::MeshObjectInstance *meshInstance, const MatrixF &meshToObjectMat, 
-      S32 objectDetail, const Box3F &bounds, Convex *convex, Convex *list);
+   bool buildMeshOpcode(  TSMesh *mesh, const MatrixF &meshToObjectMat, const Box3F &bounds, Convex *convex, Convex *list);
 
    virtual bool updateCollisions(F32 time, VectorF vector, VectorF velocity);
 

@@ -153,6 +153,7 @@ void ComponentInstance::onComponentAdd()
 
 void ComponentInstance::onComponentRemove()
 {
+   mEnabled = false;
 }
 
 /*bool ComponentInstance::isPackable(NetConnection *con)

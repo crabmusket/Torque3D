@@ -168,7 +168,7 @@ bool AnimationBehaviorInstance::onAdd()
          bool reset = st.thread != 0;
          st.thread = 0;
 
-         //st.sequence = getShapeBehavior()->getShape()->getShape()->findSequence( prevSeqName );
+         //st.sequence = shapeInstance->getShape()->findSequence( prevSeqName );
 
          if ( st.sequence != -1 )
          {
@@ -292,11 +292,11 @@ void AnimationBehaviorInstance::processTick(const Move* move)
       //draw the bones as points
       /*if(gEditingMission)
       {
-      getShapeBehavior()->getShape()->animate();
-      S32 boneCount = getShapeBehavior()->getShape()->getShape()->nodes.size();
+      shapeInstance->animate();
+      S32 boneCount = shapeInstance->getShape()->nodes.size();
       for(S32 i=0; i < boneCount; i++)
       {
-      MatrixF mountTransform = getShapeBehavior()->getShape()->mNodeTransforms[i];
+      MatrixF mountTransform = shapeInstance->mNodeTransforms[i];
       //mountTransform.mul( xfm );
       //const Point3F& scale = mOwner->getScale();
 
@@ -340,15 +340,22 @@ const char *AnimationBehaviorInstance::getThreadSequenceName( U32 slot )
    }
 
    // Name Index
-   const U32 nameIndex = getShapeBehavior()->getShape()->getShape()->sequences[st.sequence].nameIndex;
+   TSShape* shape = getShape();
 
-   // Return Name.
-   return getShapeBehavior()->getShape()->getShape()->getName( nameIndex );
+   if(shape)
+   {
+      const U32 nameIndex = shape->sequences[st.sequence].nameIndex;
+
+      // Return Name.
+      return shape->getName( nameIndex );
+   }
+
+   return "";
 }
 
 bool AnimationBehaviorInstance::setThreadSequence(U32 slot, S32 seq, bool reset, bool transition, F32 transTime)
 {
-   if(!getShapeBehavior())
+   if(!getShapeInstance())
       return false;
 
    Thread& st = mAnimationThreads[slot];
@@ -372,18 +379,19 @@ bool AnimationBehaviorInstance::setThreadSequence(U32 slot, S32 seq, bool reset,
          st.position = 0.f;
       }
 
-      if (getShapeBehavior()->getShape()) 
+      TSShapeInstance* shapeInstance = getShapeInstance();
+      if (shapeInstance) 
       {
          if (!st.thread)
-            st.thread = getShapeBehavior()->getShape()->addThread();
+            st.thread = shapeInstance->addThread();
 
          if(transition)
          {
-            getShapeBehavior()->getShape()->transitionToSequence(st.thread, seq, st.position, transTime, true);
+            shapeInstance->transitionToSequence(st.thread, seq, st.position, transTime, true);
          }
          else
          {
-            getShapeBehavior()->getShape()->setSequence(st.thread,seq,0);
+            shapeInstance->setSequence(st.thread,seq,0);
             stopThreadSound(st);
          }
 
@@ -408,23 +416,27 @@ S32 AnimationBehaviorInstance::getThreadSequenceID(S32 slot)
 
 void AnimationBehaviorInstance::updateThread(Thread& st)
 {
+   TSShapeInstance* shapeInstance = getShapeInstance();
+   if(!shapeInstance)
+      return;
+
    switch (st.state)
    {
    case Thread::Stop:
       {
-         getShapeBehavior()->getShape()->setTimeScale( st.thread, 1.f );
-         getShapeBehavior()->getShape()->setPos( st.thread, ( st.timescale > 0.f ) ? 0.0f : 1.0f );
+         shapeInstance->setTimeScale( st.thread, 1.f );
+         shapeInstance->setPos( st.thread, ( st.timescale > 0.f ) ? 0.0f : 1.0f );
       } // Drop through to pause state
 
    case Thread::Pause:
       {
          if ( st.position != -1.f )
          {
-            getShapeBehavior()->getShape()->setTimeScale( st.thread, 1.f );
-            getShapeBehavior()->getShape()->setPos( st.thread, st.position );
+            shapeInstance->setTimeScale( st.thread, 1.f );
+            shapeInstance->setPos( st.thread, st.position );
          }
 
-         getShapeBehavior()->getShape()->setTimeScale( st.thread, 0.f );
+         shapeInstance->setTimeScale( st.thread, 0.f );
          stopThreadSound( st );
       } break;
 
@@ -432,9 +444,9 @@ void AnimationBehaviorInstance::updateThread(Thread& st)
       {
          if (st.atEnd)
          {
-            getShapeBehavior()->getShape()->setTimeScale(st.thread,1);
-            getShapeBehavior()->getShape()->setPos( st.thread, ( st.timescale > 0.f ) ? 1.0f : 0.0f );
-            getShapeBehavior()->getShape()->setTimeScale(st.thread,0);
+            shapeInstance->setTimeScale(st.thread,1);
+            shapeInstance->setPos( st.thread, ( st.timescale > 0.f ) ? 1.0f : 0.0f );
+            shapeInstance->setTimeScale(st.thread,0);
             stopThreadSound(st);
             st.state = Thread::Stop;
          }
@@ -442,11 +454,11 @@ void AnimationBehaviorInstance::updateThread(Thread& st)
          {
             if ( st.position != -1.f )
             {
-               getShapeBehavior()->getShape()->setTimeScale( st.thread, 1.f );
-               getShapeBehavior()->getShape()->setPos( st.thread, st.position );
+               shapeInstance->setTimeScale( st.thread, 1.f );
+               shapeInstance->setPos( st.thread, st.position );
             }
 
-            getShapeBehavior()->getShape()->setTimeScale(st.thread, st.timescale );
+            shapeInstance->setTimeScale(st.thread, st.timescale );
             if (!st.sound)
             {
                startSequenceSound(st);
@@ -461,7 +473,7 @@ void AnimationBehaviorInstance::updateThread(Thread& st)
          st.sequence = -1;
          if(st.thread)
          {
-            getShapeBehavior()->getShape()->destroyThread(st.thread);
+            shapeInstance->destroyThread(st.thread);
             st.thread = 0;
          }
       } break;
@@ -579,14 +591,18 @@ void AnimationBehaviorInstance::startSequenceSound(Thread& thread)
 
 void AnimationBehaviorInstance::advanceThreads(F32 dt)
 {
+   TSShapeInstance* shapeInstance = getShapeInstance();
+   if(!shapeInstance)
+      return;
+
    for (U32 i = 0; i < MaxScriptThreads; i++) 
    {
       Thread& st = mAnimationThreads[i];
       if (st.thread) 
       {
-         if (!getShapeBehavior()->getShape()->getShape()->sequences[st.sequence].isCyclic() && !st.atEnd &&
-            ( ( st.timescale > 0.f )? getShapeBehavior()->getShape()->getPos(st.thread) >= 1.0:
-            getShapeBehavior()->getShape()->getPos(st.thread) <= 0)) 
+         if (!getShape()->sequences[st.sequence].isCyclic() && !st.atEnd &&
+            ( ( st.timescale > 0.f )? shapeInstance->getPos(st.thread) >= 1.0:
+            shapeInstance->getPos(st.thread) <= 0)) 
          {
             st.atEnd = true;
             updateThread(st);
@@ -605,14 +621,14 @@ void AnimationBehaviorInstance::advanceThreads(F32 dt)
          // Someone could have called destroyThread() while in there.
          if(st.thread)
          {
-            getShapeBehavior()->getShape()->advanceTime(dt,st.thread);
+            shapeInstance->advanceTime(dt,st.thread);
          }
 
-         if (getShapeBehavior()->getShape() && !isGhost()) 
+         if (shapeInstance && !isGhost()) 
          {  
             for (U32 i = 1; i < 32; i++)
             {  
-               if (getShapeBehavior()->getShape()->getTriggerState(i)) 
+               if (shapeInstance->getTriggerState(i)) 
                {  
                   const char* animName = st.thread->getSequenceName().c_str();
                   onAnimationTrigger_callback(this,animName,i);  
@@ -629,45 +645,46 @@ void AnimationBehaviorInstance::advanceThreads(F32 dt)
 }
 
 //Checks if we have a shape
-RenderShapeBehaviorInstance* AnimationBehaviorInstance::getShapeBehavior()
+TSShapeInstance* AnimationBehaviorInstance::getShapeInstance()
 {
-   ComponentInstance* bI = mOwner->getComponent<RenderShapeBehaviorInstance>();
-   //ComponentInstance* bI = mOwner->getComponent( "RenderShapeBehavior" );
-   if(!bI || !bI->isEnabled())
+   TSShapeInstanceInterface *instanceInterface = mOwner->getComponent<TSShapeInstanceInterface>();
+   if(!instanceInterface || !instanceInterface->getShapeInstance())
       return NULL; 
 
-   return (reinterpret_cast<RenderShapeBehaviorInstance*>(bI));
+   return instanceInterface->getShapeInstance();
+}
+
+TSShape* AnimationBehaviorInstance::getShape()
+{
+   TSShapeInterface *instanceInterface = mOwner->getComponent<TSShapeInterface>();
+   if(!instanceInterface || !instanceInterface->getShape())
+      return NULL; 
+
+   return instanceInterface->getShape();
 }
 
 S32 AnimationBehaviorInstance::getAnimationCount()
 {
-   RenderShapeBehaviorInstance *rSI = getShapeBehavior();
-
-   if(rSI)
-      return rSI->getShape()->getShape()->sequences.size();
+   if(getShape())
+      return getShape()->sequences.size();
    else
       return 0;
-
 }
 
 S32 AnimationBehaviorInstance::getAnimationIndex( const char* name )
 {
-   RenderShapeBehaviorInstance *rSI = getShapeBehavior();
-
-   if(rSI)
-      return rSI->getShape()->getShape()->findSequence( name );
+   if(getShape())
+      return getShape()->findSequence( name );
    else
       return -1;
 }
 
 const char* AnimationBehaviorInstance::getAnimationName(S32 index)
 {
-   RenderShapeBehaviorInstance *rSI = getShapeBehavior();
-
-   if(rSI)
+   if(getShape())
    {
-      if(index >= 0 && index < rSI->getShape()->getShape()->sequences.size())
-         return rSI->getShape()->getShape()->getName( rSI->getShape()->getShape()->sequences[index].nameIndex );
+      if(index >= 0 && index < getShape()->sequences.size())
+         return getShape()->getName( getShape()->sequences[index].nameIndex );
    }
 
    return "";
@@ -701,21 +718,18 @@ DefineEngineMethod( AnimationBehaviorInstance, playThread, bool, ( S32 slot, con
    {
       if (!dStrEqual(name, "")) 
       {
-         if(object->getShapeBehavior())
+         if(TSShape* shape = object->getShape())
          {
-            if (object->getShapeBehavior()->getShape()->getShape()) 
+            S32 seq = shape->findSequence(name);
+            if (seq != -1 && object->setThreadSequence(slot,seq,true,transition,transitionTime))
             {
-               S32 seq = object->getShapeBehavior()->getShape()->getShape()->findSequence(name);
-               if (seq != -1 && object->setThreadSequence(slot,seq,true,transition,transitionTime))
-               {
-                  return true;
-               }
-               else if(seq == -1)
-               {
-                  //We tried to play a non-existaint sequence, so stop the thread just in case
-                  object->destroyThread(slot);
-                  return false;
-               }
+               return true;
+            }
+            else if(seq == -1)
+            {
+               //We tried to play a non-existaint sequence, so stop the thread just in case
+               object->destroyThread(slot);
+               return false;
             }
          }
       }
@@ -789,20 +803,17 @@ DefineEngineMethod( AnimationBehaviorInstance, setThreadAnimation, bool, ( S32 s
    {
       if (!dStrEqual(name, "")) 
       {
-         if(object->getShapeBehavior())
+         if(TSShape* shape = object->getShape())
          {
-            if (object->getShapeBehavior()->getShape() && object->getShapeBehavior()->getShape()->getShape()) 
+            S32 seq = shape->findSequence(name);
+            if(object->getThreadSequenceID(slot) != seq)
             {
-               S32 seq = object->getShapeBehavior()->getShape()->getShape()->findSequence(name);
-               if(object->getThreadSequenceID(slot) != seq)
+               object->destroyThread(slot);
+               if (seq != -1)
                {
-                  object->destroyThread(slot);
-                  if (seq != -1)
-                  {
-                     object->setThreadSequence(slot,seq,false,false);
-                     S32 seqtest = object->getThreadSequenceID(slot);
-                     return true;
-                  }
+                  object->setThreadSequence(slot,seq,false,false);
+                  S32 seqtest = object->getThreadSequenceID(slot);
+                  return true;
                }
             }
          }

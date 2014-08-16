@@ -35,6 +35,61 @@
 
 extern bool gEditingMission;
 
+//Docs
+ConsoleDocClass( BoxColliderBehavior,
+   "@brief The Box Collider component uses a box or rectangular convex shape for collisions.\n\n"
+   
+   "Colliders are individualized components that are similarly based off the CollisionInterface core.\n"
+   "They are basically the entire functionality of how Torque handles collisions compacted into a single component.\n"
+   "A collider will both collide against and be collided with, other entities.\n"
+   "Individual colliders will offer different shapes. This box collider will generate a box/rectangle convex, \n"
+   "while the mesh collider will take the owner Entity's rendered shape and do polysoup collision on it, etc.\n\n"
+
+   "The general flow of operations for how collisions happen is thus:\n"
+   "  -When the component is added(or updated) prepCollision() is called.\n"
+   "    This will set up our initial convex shape for usage later.\n\n"
+
+   "  -When we update via processTick(), we first test if our entity owner is mobile.\n"
+   "    If our owner isn't mobile(as in, they have no components that provide it a velocity to move)\n"
+   "    then we skip doing our active collision checks. Collisions are checked by the things moving, as\n"
+   "    opposed to being reactionary. If we're moving, we call updateWorkingCollisionSet().\n"
+   "    updateWorkingCollisionSet() estimates our bounding space for our current ticket based on our position and velocity.\n"
+   "    If our bounding space has changed since the last tick, we proceed to call updateWorkingList() on our convex.\n"
+   "    This notifies any object in the bounding space that they may be collided with, so they will call buildConvex().\n"
+   "    buildConvex() will set up our ConvexList with our collision convex info.\n\n"
+
+   "  -When the component that is actually causing our movement, such as SimplePhysicsBehavior, updates, it will check collisions.\n"
+   "    It will call checkCollisions() on us. checkCollisions() will first build a bounding shape for our convex, and test\n"
+   "    if we can early out because we won't hit anything based on our starting point, velocity, and tick time.\n"
+   "    If we don't early out, we proceed to call updateCollisions(). This builds an ExtrudePolyList, which is then extruded\n"
+   "    based on our velocity. We then test our extruded polies on our working list of objects we build\n"
+   "    up earlier via updateWorkingCollisionSet. Any collisions that happen here will be added to our mCollisionList.\n"
+   "    Finally, we call handleCollisionList() on our collisionList, which then queues out the colliison notice\n"
+   "    to the object(s) we collided with so they can do callbacks and the like. We also report back on if we did collide\n"
+   "    to the physics component via our bool return in checkCollisions() so it can make the physics react accordingly.\n\n"
+   
+   "One interesting point to note is the usage of mBlockColliding.\n"
+   "This is set so that it dictates the return on checkCollisions(). If set to false, it will ensure checkCollisions()\n"
+   "will return false, regardless if we actually collided. This is useful, because even if checkCollisions() returns false,\n"
+   "we still handle the collisions so the callbacks happen. This enables us to apply a collider to an object that doesn't block\n"
+   "objects, but does have callbacks, so it can act as a trigger, allowing for arbitrarily shaped triggers, as any collider can\n"
+   "act as a trigger volume(including MeshCollider).\n\n"
+
+   "@tsexample\n"
+   "new BoxColliderComponentInstance()\n"
+   "{\n"
+   "   template = BoxColliderComponentTemplate;\n"
+   "   colliderSize = \"1 1 2\";\n"
+   "   blockColldingObject = \"1\";\n"
+   "};\n"
+   "@endtsexample\n"
+      
+   "@see SimplePhysicsBehavior\n"
+   "@ingroup Collision\n"
+   "@ingroup Components\n"
+);
+//Docs
+
 //////////////////////////////////////////////////////////////////////////
 // Constructor/Destructor
 //////////////////////////////////////////////////////////////////////////
@@ -220,6 +275,8 @@ BoxColliderBehaviorInstance::BoxColliderBehaviorInstance( Component *btemplate )
 
    mConvexList = NULL;
 
+   mTimeoutList = NULL;
+
    mWorkingQueryBox.minExtents.set(-1e9f, -1e9f, -1e9f);
    mWorkingQueryBox.maxExtents.set(-1e9f, -1e9f, -1e9f);
 
@@ -235,7 +292,7 @@ BoxColliderBehaviorInstance::~BoxColliderBehaviorInstance()
 {
    delete mConvexList;
    mConvexList = NULL;
-}
+ }
 IMPLEMENT_CO_NETOBJECT_V1(BoxColliderBehaviorInstance);
 
 bool BoxColliderBehaviorInstance::onAdd()
@@ -332,6 +389,76 @@ void BoxColliderBehaviorInstance::prepCollision()
 
    mOwner->enableCollision();
    _updatePhysics();
+}
+
+void BoxColliderBehaviorInstance::processTick(const Move* move)
+{
+   //ProcessTick is where our collision testing begins!
+
+	//First, we clear our old collision list. We do this, because if we're still colliding with something, 
+	//it'll be added back in, but we don't want to risk colliding with something we've moved past
+   mCollisionList.clear();
+
+   //So, US checking collisions is irrelevent if we're not moving
+   //All collision detection is active. Our Entity that is moving will detect collisions against other objects.
+   //If we're not moving, we don't do checks outselves, but other moving entities may check and find they'll collide 
+   //with us.
+   //As such, the first thing we need to do if we're going to check collisions is to see if we have a valid interface
+   //to a component that would give us a means to move. This would be the VelocityInterface.
+   //If we don't have this, we're not moving, so we can just be done here and now.
+   if(VelocityInterface *vI = mOwner->getComponent<VelocityInterface>())
+   {
+	   //Welp, looks like we have another component on our entity that has velocity, so grab that.
+	   //We'll be passing it along so we can correctly estimate our position along the next tick.
+      VectorF velocity = vI->getVelocity();
+
+      //If we're not moving, or we never made any convex elements, we won't bother updating out working set
+      if(mConvexList && mConvexList->getObject() && !velocity.isZero())
+         updateWorkingCollisionSet((U32)-1);
+   }
+}
+
+bool BoxColliderBehaviorInstance::checkCollisions( const F32 travelTime, Point3F *velocity, Point3F start )
+{
+   //Check collisions is inherited down from our interface. It's the main method for invoking collisions checks from other components
+
+   //First, the obvious confirmation that we even have our convexes set up. If not, we can't be collided with, so bail out now.
+   if(!mConvexList || !mConvexList->getObject())
+      return false;
+
+   //The way this is checked, is we build an estimate of where the end point of our owner will be based on the provided starting point, velocity and time
+   Point3F end = start + *velocity * travelTime;
+
+   //Build our vector of movement off that
+   VectorF vector = end - start;
+
+   //Now, as we're doing a new collision, any old collision information we had is no longer needed, so we can clear our collisionList in anticipation
+   //of it being updated
+   mCollisionList.clear();
+
+   //We proceed to use our info above with our owner's properties to do an early out test against our working set we created earlier.
+   //This is a simplified version of the checks we do later, so it's cheaper. If we can early out on the cheaper check now, we save a lot
+   //of time and processing.
+   //We only do the 'real' collision checks if we detect we might hit something after all when doing the early out.
+   //See the checkEarlyOut function in the CollisionInterface for an explination on how it works.
+   if (checkEarlyOut(start, *velocity, travelTime, mOwner->getObjBox(), mOwner->getScale(), mConvexList->getBoundingBox(), 0xFFFFFF, mConvexList->getWorkingList()))
+      return false;
+
+   //If we've made it this far, there's a very good chance we can actually collide with something in our working list. 
+   //As such, go ahead and do our real collision update now
+   bool collided = updateCollisions(travelTime, vector, *velocity);
+
+   //Once that's been done, we proceed to handle our collision list, to notify any collidees.
+   handleCollisionList(mCollisionList, *velocity);
+
+   //This is only partially implemented.
+   //The idea will be that you can define on a collider if it actually blocks when a collision occurs.
+   //This would let colliders act as normal collision objects, or act as triggers.
+   bool mBlockColliding = true;
+   if(mBlockColliding)
+      return collided;
+   else
+      return false;
 }
 
 void BoxColliderBehaviorInstance::_updatePhysics()
@@ -473,9 +600,12 @@ bool BoxColliderBehaviorInstance::updateCollisions(F32 time, VectorF vector, Vec
    // Build list from convex states here...
    CollisionWorkingList& rList = mConvexList->getWorkingList();
    CollisionWorkingList* pList = rList.wLink.mNext;
-   while (pList != &rList) {
+   while (pList != &rList) 
+   {
       Convex* pConvex = pList->mConvex;
-      if (pConvex->getObject()->getTypeMask() & CollisionMoveMask) {
+      SceneObject* scObj = pConvex->getObject();
+      if (pConvex->getObject()->getTypeMask() & CollisionMoveMask) 
+      {
          Box3F convexBox = pConvex->getBoundingBox();
          if (plistBox.isOverlapped(convexBox))
          {
@@ -502,6 +632,11 @@ bool BoxColliderBehaviorInstance::updateCollisions(F32 time, VectorF vector, Vec
 
 void BoxColliderBehaviorInstance::updateWorkingCollisionSet(const U32 mask)
 {
+   //UpdateWorkingCollisionSet
+   //What we do here, is check our estimated path along the current tick based on our
+   //position, velocity, and tick time
+   //From that information, we check other entities in our bin that we may potentially collide against
+
    // First, we need to adjust our velocity for possible acceleration.  It is assumed
    // that we will never accelerate more than 20 m/s for gravity, plus 10 m/s for
    // jetting, and an equivalent 10 m/s for jumping.  We also assume that the
@@ -547,9 +682,17 @@ void BoxColliderBehaviorInstance::updateWorkingCollisionSet(const U32 mask)
       mWorkingQueryBox.minExtents -= twolPoint;
       mWorkingQueryBox.maxExtents += twolPoint;
 
+      //So first we scale our workingQueryBox to catch everything we may potentially collide with this tick
+	   //Then disable our entity owner so we don't run into it like an idiot
       mOwner->disableCollision();
+
+      //Now we officially update our working list.
+      //What this basically does is find any objects our working box(which, again, is our theoretical collision space)
+      //and has them call buildConvex().
+      //This makes them update their convex information so we can check if we actually collide with it for real)
       mConvexList->updateWorkingList(mWorkingQueryBox, U32(-1));
-      //isGhost() ? sClientCollisionContactMask : sServerCollisionContactMask);
+
+	  //Once we've updated, re-enable our entity owner's collision so that other things can collide with us if needed
       mOwner->enableCollision();
    }
 }
@@ -564,10 +707,29 @@ void BoxColliderBehaviorInstance::prepRenderImage( SceneRenderState *state )
       DebugDrawer * debugDraw = DebugDrawer::get();  
       if (debugDraw)  
       {  
-         Point3F min = mWorkingQueryBox.minExtents;
+         /*Point3F min = mWorkingQueryBox.minExtents;
          Point3F max = mWorkingQueryBox.maxExtents;
 
-         debugDraw->drawBox(mWorkingQueryBox.minExtents, mWorkingQueryBox.maxExtents, ColorI(255, 0, 255, 128));  
+         debugDraw->drawBox(mWorkingQueryBox.minExtents, mWorkingQueryBox.maxExtents, ColorI(255, 0, 255, 128)); 
+
+         mOwner->disableCollision();
+         mConvexList->updateWorkingList(mWorkingQueryBox, U32(-1));
+         //isGhost() ? sClientCollisionContactMask : sServerCollisionContactMask);
+         mOwner->enableCollision();
+
+         CollisionWorkingList& rList = mConvexList->getWorkingList();
+         CollisionWorkingList* pList = rList.wLink.mNext;
+         while (pList != &rList) 
+         {
+            Convex* pConvex = pList->mConvex;
+
+            pConvex->getPolyList(&extrudePoly);
+
+            pConvex->render(
+
+            pList = pList->wLink.mNext;
+         }*/
+         mConvexList->render();
       } 
 
       // Box for the center of Mass
