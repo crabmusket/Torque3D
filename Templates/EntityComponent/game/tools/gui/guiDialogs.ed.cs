@@ -38,5 +38,8 @@ exec("./objectSelection.ed.cs");
 
 exec("./messageBoxYesNot.ed.gui");
 
+exec("./FrameOverlayGui.gui");
+exec("./metrics.cs");
+
 if (isDemo())
    exec("./messageBoxOKBuy.ed.gui");

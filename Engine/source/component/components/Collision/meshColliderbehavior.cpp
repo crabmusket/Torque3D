@@ -43,6 +43,18 @@
 
 extern bool gEditingMission;
 
+static bool sRenderMeshColliders = false;
+
+static Point3F	texGenAxis[18] =
+{
+   Point3F(0,0,1), Point3F(1,0,0), Point3F(0,-1,0),
+   Point3F(0,0,-1), Point3F(1,0,0), Point3F(0,1,0),
+   Point3F(1,0,0), Point3F(0,1,0), Point3F(0,0,1),
+   Point3F(-1,0,0), Point3F(0,1,0), Point3F(0,0,-1),
+   Point3F(0,1,0), Point3F(1,0,0), Point3F(0,0,1),
+   Point3F(0,-1,0), Point3F(-1,0,0), Point3F(0,0,-1)
+};
+
 //
 MeshColliderBehavior::MeshColliderBehavior()
 {
@@ -109,7 +121,7 @@ MeshColliderBehaviorInstance::MeshColliderBehaviorInstance( Component *btemplate
 
    CollisionMoveMask = ( TerrainObjectType     | PlayerObjectType  | 
       StaticShapeObjectType | VehicleObjectType |
-      VehicleBlockerObjectType | DynamicShapeObjectType);
+      VehicleBlockerObjectType | DynamicShapeObjectType | EntityObjectType);
 
    mDebugRender.shapeInstance = NULL;
 }
@@ -155,6 +167,14 @@ void MeshColliderBehaviorInstance::onComponentAdd()
 void MeshColliderBehaviorInstance::initPersistFields()
 {
    Parent::initPersistFields();
+}
+
+void MeshColliderBehaviorInstance::consoleInit()
+{
+   Con::addVariable("$MeshCollider::renderCollision", TypeBool, &sRenderMeshColliders, 
+      "@brief Determines if the mesh colliders collision mesh should be rendered.\n\n"
+      "This is mainly used for the tools and debugging.\n"
+	   "@ingroup GameObjects\n");
 }
 
 U32 MeshColliderBehaviorInstance::packUpdate(NetConnection *con, U32 mask, BitStream *stream)
@@ -307,14 +327,17 @@ bool MeshColliderBehaviorInstance::castRay(const Point3F &start, const Point3F &
 
    // Cast the ray against the currently visible detail
    RayInfo localInfo;
-   bool res = shapeInstance->castRayOpcode( shapeInstance->getCurrentDetail(), start, end, &localInfo );
+   bool res = castRayOpcode( shapeInstance->getCurrentDetail(), start, end, &localInfo );
 
    if ( res )
    {
+      Con::printf("Raycast successful on MeshCollider!");
       *info = localInfo;
       info->object = this->getBehaviorOwner();
       return true;
    }
+   else
+      Con::printf("Raycast NOT successful on MeshCollider!");
 
    //do our callback
    //onRaycastCollision_callback( this, enter );
@@ -433,17 +456,14 @@ void MeshColliderBehaviorInstance::updateWorkingCollisionSet(const U32 mask)
 
 void MeshColliderBehaviorInstance::prepRenderImage( SceneRenderState *state )
 {
-   if(gEditingMission && mOwner->isSelected())
+   if(sRenderMeshColliders)
    {
       TSShapeInstance* shapeInstance = getShapeInstance();
 
       if(shapeInstance != NULL && mDebugRender.shapeInstance != shapeInstance)
       {
+         mDebugRender.clear();
          mDebugRender.shapeInstance = shapeInstance;
-         mDebugRender.triCount = 0;
-         mDebugRender.vertA.clear();
-         mDebugRender.vertB.clear();
-         mDebugRender.vertC.clear();
 
          Vector<S32> losDetails;
 
@@ -461,7 +481,7 @@ void MeshColliderBehaviorInstance::prepRenderImage( SceneRenderState *state )
                S32 od = detail->objectDetailNum;
 
                // nothing emitted yet...
-               bool emitted = false;
+               //bool emitted = false;
 
                S32 start = shape->subShapeFirstObject[ss];
                S32 end   = shape->subShapeNumObjects[ss] + start;
@@ -481,12 +501,6 @@ void MeshColliderBehaviorInstance::prepRenderImage( SceneRenderState *state )
                   mat.mul(initialMat,scaleMat);
                   mat.mul(*previousMat);
 
-                  // Update our bounding box...
-                  Box3F localBox = mOwner->getWorldBox();
-                  MatrixF otherMat = mat;
-                  otherMat.inverse();
-                  otherMat.mul(localBox);
-
                   // run through objects and collide
                   Opcode::VertexPointers vp;
                   for (S32 i=start; i<end; i++)
@@ -504,24 +518,22 @@ void MeshColliderBehaviorInstance::prepRenderImage( SceneRenderState *state )
                         Point3F b( vp.Vertex[1]->x, vp.Vertex[1]->y, vp.Vertex[1]->z );
                         Point3F c( vp.Vertex[2]->x, vp.Vertex[2]->y, vp.Vertex[2]->z );
 
-                        MatrixF meshToObjectMat = meshInstance->getTransform();
+                        //MatrixF instanceTrans = shapeInstance->mMeshObjects[start].getTransform();
+                        //MatrixF meshTrans = meshInstance->getTransform();
+                        //MatrixF meshToObjectMat;
+
+                        //meshToObjectMat.mul(meshTrans, scaleMat);
+                        //initialMat.mul(meshToObjectMat);
+                        //mat.mul(*meshToObjectMat);
 
                         // Transform the result into object space!
-                        meshToObjectMat.mulP( a );
-                        meshToObjectMat.mulP( b );
-                        meshToObjectMat.mulP( c );
+                        //meshToObjectMat.mulP( a );
+                        //meshToObjectMat.mulP( b );
+                        //meshToObjectMat.mulP( c );
 
-                        //build the shape-center offset
-                        Point3F center = getShapeInstance()->getShape()->center;
-                        Point3F position = mOwner->getPosition();
-
-                        //mOwner->getTransform().mulP(center);
-
-                        Point3F posOffset = position;// - center;
-
-                        a += posOffset;
-                        b += posOffset;
-                        c += posOffset;
+                        mat.mulP( a );
+                        mat.mulP( b );
+                        mat.mulP( c );
 
                         mDebugRender.vertA.push_back(a);
                         mDebugRender.vertB.push_back(b);
@@ -548,43 +560,35 @@ void MeshColliderBehaviorInstance::renderConvex( ObjectRenderInst *ri, SceneRend
    GFXStateBlockDesc desc;
    desc.setZReadWrite( true, false );
    desc.setBlend( true );
+   desc.setCullMode( GFXCullNone );
+   //desc.setZReadWrite( false, false );
    desc.fillMode = GFXFillWireframe;
 
-   GFXDrawUtil *drawer = GFX->getDrawUtil();
-
-   if(mDebugRender.shapeInstance == NULL)
+   if(mDebugRender.triCount <= 0)
       return;
 
-   //if ( ri->objectIndex != -1 )
-   //{
-     // MountedImage &image = mMountedImageList[ ri->objectIndex ];
+   GFXStateBlockRef sb = GFX->createStateBlock( desc );
+   GFX->setStateBlock( sb );
 
-      //if ( image.shapeInstance )
-      //{
-         //MatrixF mat;
-         //getRenderImageTransform( ri->objectIndex, &mat );         
+   PrimBuild::color3i( 255, 0, 255 );
 
-         //const Box3F &objBox = image.shapeInstance[getImageShapeIndex(image)]->getShape()->bounds;
-         Frustum f = state->getCullingFrustum();
-         Box3F bounds;
-         U32 clipMask;
+   Point3F *pnt;
 
-         //drawer->drawCube( desc, objBox, ColorI( 255, 255, 255 ), &mat );
-         for(U32 i=0; i < mDebugRender.triCount; i++)
-         {
-            bounds = Box3F();
-            bounds.extend(mDebugRender.vertA[i]);
-            bounds.extend(mDebugRender.vertB[i]);
-            bounds.extend(mDebugRender.vertC[i]);
+   PrimBuild::begin( GFXTriangleList, mDebugRender.triCount * 3 );      
 
-            clipMask = f.testPlanes( bounds, Frustum::PlaneMaskAll );
-            if ( clipMask == -1 )
-               continue;
+   for(U32 i=0; i < mDebugRender.triCount; i++)
+   {
+      pnt = &mDebugRender.vertA[i];
+      PrimBuild::vertex3fv( pnt );
 
-            drawer->drawTriangle(desc, mDebugRender.vertA[i], mDebugRender.vertB[i], mDebugRender.vertC[i], ColorI(255, 0, 255, 128));
-         }
-      //}
-   //}
+      pnt = &mDebugRender.vertB[i];
+      PrimBuild::vertex3fv( pnt );
+
+      pnt = &mDebugRender.vertC[i];
+      PrimBuild::vertex3fv( pnt );
+   }
+
+   PrimBuild::end();
 
    GFX->leaveDebugEvent();
 }
@@ -597,10 +601,6 @@ bool MeshColliderBehaviorInstance::buildConvex(const Box3F& box, Convex* convex)
 
    // These should really come out of a pool
    mConvexList->collectGarbage();
-
-   Con::printf("MESHCOLLIDER: buildConvex CALLED");
-   Con::printf("MESHCOLLIDER: Entity bounds.min: %g %g %g, max: %g %g %g", mOwner->getWorldBox().minExtents.x, mOwner->getWorldBox().minExtents.y, mOwner->getWorldBox().minExtents.z,
-                                                                           mOwner->getWorldBox().maxExtents.x, mOwner->getWorldBox().maxExtents.y, mOwner->getWorldBox().maxExtents.z);
 
    for (U32 i = 0; i < mCollisionDetails.size(); i++)
       buildConvexOpcode( shapeInstance, mCollisionDetails[i], box, convex, mConvexList );
@@ -703,11 +703,6 @@ bool MeshColliderBehaviorInstance::buildMeshOpcode(  TSMesh *mesh, const MatrixF
    // remove the allocation overhead.
    static Opcode::AABBCache opCache;
 
-   //-JR
-   Con::printf("MESHCOLLIDER: TSMesh bounds.min: %g %g %g, max: %g %g %g", nodeBox.minExtents.x, nodeBox.minExtents.y, nodeBox.minExtents.z,
-                                                                           nodeBox.maxExtents.x, nodeBox.maxExtents.y, nodeBox.maxExtents.z);
-   //-JR
-
    IceMaths::AABB opBox;
    opBox.SetMinMax(  Point( nodeBox.minExtents.x, nodeBox.minExtents.y, nodeBox.minExtents.z ),
                      Point( nodeBox.maxExtents.x, nodeBox.maxExtents.y, nodeBox.maxExtents.z ) );
@@ -776,8 +771,9 @@ bool MeshColliderBehaviorInstance::buildMeshOpcode(  TSMesh *mesh, const MatrixF
       a += posOffset;
       b += posOffset;
       c += posOffset;*/
-      //
 
+
+      //If we're not doing debug rendering on the client, then set up our convex list as normal
       PlaneF p( c, b, a );
       Point3F peak = ((a + b + c) / 3.0f) - (p * 0.15f);
 
@@ -815,6 +811,298 @@ bool MeshColliderBehaviorInstance::buildMeshOpcode(  TSMesh *mesh, const MatrixF
 
    return true;
 }
+
+bool MeshColliderBehaviorInstance::castRayOpcode( S32 dl, const Point3F & startPos, const Point3F & endPos, RayInfo *info)
+{
+   // if dl==-1, nothing to do
+   if (dl==-1 || !getShapeInstance())
+      return false;
+
+   TSShape *shape = getShapeInstance()->getShape();
+
+   AssertFatal(dl>=0 && dl < shape->details.size(),"TSShapeInstance::castRayOpcode");
+
+   info->t = 100.f;
+
+   // get subshape and object detail
+   const TSDetail * detail = &shape->details[dl];
+   S32 ss = detail->subShapeNum;
+   if ( ss < 0 )
+      return false;
+
+   S32 od = detail->objectDetailNum;
+
+   // nothing emitted yet...
+   bool emitted = false;
+
+   const MatrixF* saveMat = NULL;
+   S32 start = shape->subShapeFirstObject[ss];
+   S32 end   = shape->subShapeNumObjects[ss] + start;
+   if (start<end)
+   {
+      MatrixF mat;
+      const MatrixF * previousMat = &getShapeInstance()->mMeshObjects[start].getTransform();
+      mat = *previousMat;
+      mat.inverse();
+      Point3F localStart, localEnd;
+      mat.mulP(startPos, &localStart);
+      mat.mulP(endPos, &localEnd);
+
+      // run through objects and collide
+      for (S32 i=start; i<end; i++)
+      {
+         TSShapeInstance::MeshObjectInstance * meshInstance = &getShapeInstance()->mMeshObjects[i];
+
+         if (od >= meshInstance->object->numMeshes)
+            continue;
+
+         if (&meshInstance->getTransform() != previousMat)
+         {
+            // different node from before, set up for this node
+            previousMat = &meshInstance->getTransform();
+
+            if (previousMat != NULL)
+            {
+               mat = *previousMat;
+               mat.inverse();
+               mat.mulP(startPos, &localStart);
+               mat.mulP(endPos, &localEnd);
+            }
+         }
+
+         // collide...
+         TSMesh * mesh = meshInstance->getMesh(od);
+         if (mesh && !meshInstance->forceHidden && meshInstance->visible > 0.01f)
+         {
+            if ( castRayMeshOpcode(mesh, localStart, localEnd, info, getShapeInstance()->mMaterialList) )
+            {
+               saveMat = previousMat;
+               emitted = true;
+            }
+         }
+      }
+   }
+
+   if ( emitted )
+   {
+      saveMat->mulV(info->normal);
+      info->point  = endPos - startPos;
+      info->point *= info->t;
+      info->point += startPos;
+   }
+
+   return emitted;
+}
+
+bool MeshColliderBehaviorInstance::castRayMeshOpcode(TSMesh *mesh, const Point3F &s, const Point3F &e, RayInfo *info, TSMaterialList *materials )
+{
+   Opcode::RayCollider ray;
+   Opcode::CollisionFaces cfs;
+
+   IceMaths::Point dir( e.x - s.x, e.y - s.y, e.z - s.z );
+   const F32 rayLen = dir.Magnitude();
+   IceMaths::Ray vec( Point(s.x, s.y, s.z), dir.Normalize() );
+
+   ray.SetDestination( &cfs);
+   ray.SetFirstContact( false );
+   ray.SetClosestHit( true );
+   ray.SetPrimitiveTests( true );
+   ray.SetCulling( true );
+   ray.SetMaxDist( rayLen );
+
+   AssertFatal( ray.ValidateSettings() == NULL, "invalid ray settings" );
+
+   // Do collision.
+   bool safety = ray.Collide( vec, *mesh->mOptTree );
+   AssertFatal( safety, "TSMesh::castRayOpcode - no good ray collide!" );
+
+   // If no hit, just skip out.
+   if( cfs.GetNbFaces() == 0 )
+      return false;
+
+   // Got a hit!
+   AssertFatal( cfs.GetNbFaces() == 1, "bad" );
+   const Opcode::CollisionFace &face = cfs.GetFaces()[0];
+
+   // If the cast was successful let's check if the t value is less than what we had
+   // and toggle the collision boolean
+   // Stupid t... i prefer coffee
+   const F32 t = face.mDistance / rayLen;
+
+   if( t < 0.0f || t > 1.0f )
+      return false;
+
+   if( t <= info->t )
+   {
+      info->t = t;
+
+      // Calculate the normal.
+      Opcode::VertexPointers vp;
+      mesh->mOptTree->GetMeshInterface()->GetTriangle( vp, face.mFaceID );
+
+      if ( materials && vp.MatIdx >= 0 && vp.MatIdx < materials->size() )
+         info->material = materials->getMaterialInst( vp.MatIdx );
+
+      // Get the two edges.
+      IceMaths::Point baseVert = *vp.Vertex[0];
+      IceMaths::Point a = *vp.Vertex[1] - baseVert;
+      IceMaths::Point b = *vp.Vertex[2] - baseVert;
+
+      IceMaths::Point n;
+      n.Cross( a, b );
+      n.Normalize();
+
+      info->normal.set( n.x, n.y, n.z );
+
+      // generate UV coordinate across mesh based on 
+      // matching normals, this isn't done by default and is 
+      // primarily of interest in matching a collision point to 
+      // either a GUI control coordinate or finding a hit pixel in texture space
+      if (info->generateTexCoord)
+      {
+         baseVert = *vp.Vertex[0];
+         a = *vp.Vertex[1];
+         b = *vp.Vertex[2];
+
+         Point3F facePoint = (1.0f - face.mU - face.mV) * Point3F(baseVert.x, baseVert.y, baseVert.z)  
+            + face.mU * Point3F(a.x, a.y, a.z) + face.mV * Point3F(b.x, b.y, b.z);
+
+         U32 faces[1024];
+         U32 numFaces = 0;
+         for (U32 i = 0; i < mesh->mOptTree->GetMeshInterface()->GetNbTriangles(); i++)
+         {
+            if ( i == face.mFaceID )
+            {
+               faces[numFaces++] = i;
+            }
+            else
+            {
+               IceMaths::Point n2;
+
+               mesh->mOptTree->GetMeshInterface()->GetTriangle( vp, i );
+
+               baseVert = *vp.Vertex[0];
+               a = *vp.Vertex[1] - baseVert;
+               b = *vp.Vertex[2] - baseVert;
+               n2.Cross( a, b );
+               n2.Normalize();
+
+               F32 eps = .01f;
+               if ( mFabs(n.x - n2.x) < eps && mFabs(n.y - n2.y) < eps && mFabs(n.z - n2.z) < eps)
+               {
+                  faces[numFaces++] = i;
+               }
+            }
+
+            if (numFaces == 1024)
+            {
+               // too many faces in this collision mesh for UV generation
+               return true;
+            }
+
+         }
+
+         Point3F min(F32_MAX, F32_MAX, F32_MAX);
+         Point3F max(-F32_MAX, -F32_MAX, -F32_MAX);
+
+         for (U32 i = 0; i < numFaces; i++)
+         {
+            mesh->mOptTree->GetMeshInterface()->GetTriangle( vp, faces[i] );
+
+            for ( U32 j =0; j < 3; j++)
+            {
+               a = *vp.Vertex[j];
+
+               if (a.x < min.x)
+                  min.x = a.x;
+               if (a.y < min.y)
+                  min.y = a.y;
+               if (a.z < min.z)
+                  min.z = a.z;
+
+               if (a.x > max.x)
+                  max.x = a.x;
+               if (a.y > max.y)
+                  max.y = a.y;
+               if (a.z > max.z)
+                  max.z = a.z;
+
+            }
+
+         }
+
+         // slerp
+         Point3F s = ( (max - min) - (facePoint - min) ) / (max - min);
+
+         // compute axis
+         S32		bestAxis = 0;
+         F32      best = 0.f;
+
+         for (U32 i = 0 ; i < 6 ; i++)
+         {
+            F32 dot = mDot (info->normal, texGenAxis[i*3]);
+            if (dot > best)
+            {
+               best = dot;
+               bestAxis = i;
+            }
+         }
+
+         Point3F xv = texGenAxis[bestAxis*3+1];
+         Point3F yv = texGenAxis[bestAxis*3+2];
+
+         S32 sv, tv;
+
+         if (xv.x)
+            sv = 0;
+         else if (xv.y)
+            sv = 1;
+         else
+            sv = 2;
+
+         if (yv.x)
+            tv = 0;
+         else if (yv.y)
+            tv = 1;
+         else
+            tv = 2;
+
+         // handle coord translation
+         if (bestAxis == 2 || bestAxis == 3)
+         {
+            S32 x = sv;
+            sv = tv;
+            tv = x;
+
+            if (yv.z < 0)
+               s[sv] = 1.f - s[sv];
+         }
+
+         if (bestAxis < 2)
+         {
+            if (yv.y < 0)
+               s[sv] = 1.f - s[sv];
+         }
+
+         if (bestAxis > 3)
+         {
+            s[sv] = 1.f - s[sv];
+            if (yv.z > 0)
+               s[tv] = 1.f - s[tv];
+
+         }
+
+         // done!
+         info->texCoord.set(s[sv], s[tv]);
+
+      }
+
+      return true;
+   }
+
+   return false;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 MeshColliderPolysoupConvex::MeshColliderPolysoupConvex()
    :  box( 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f ),

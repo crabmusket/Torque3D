@@ -107,7 +107,8 @@ public:
 class MeshColliderBehaviorInstance : public ComponentInstance,
    public CollisionInterface,
    public PrepRenderImageInterface,
-   public BuildConvexInterface
+   public BuildConvexInterface,
+   public CastRayInterface
 {
    typedef ComponentInstance Parent;
 
@@ -125,6 +126,14 @@ protected:
       Vector<Point3F> vertA;
       Vector<Point3F> vertB;
       Vector<Point3F> vertC;
+
+      void clear()
+      {
+         vertA.clear();
+         vertB.clear();
+         vertC.clear();
+         triCount = 0;
+      }
    };
 
    DebugRenderStash mDebugRender;
@@ -137,6 +146,8 @@ public:
    virtual bool onAdd();
    virtual void onRemove();
    static void initPersistFields();
+
+   static void consoleInit();
 
    virtual void update();
 
@@ -162,6 +173,9 @@ public:
    bool buildConvexOpcode( TSShapeInstance* sI, S32 dl, const Box3F &bounds, Convex *c, Convex *list );
 
    bool buildMeshOpcode(  TSMesh *mesh, const MatrixF &meshToObjectMat, const Box3F &bounds, Convex *convex, Convex *list);
+
+   bool castRayOpcode( S32 dl, const Point3F & startPos, const Point3F & endPos, RayInfo *info);
+   bool castRayMeshOpcode(TSMesh *mesh, const Point3F &s, const Point3F &e, RayInfo *info, TSMaterialList *materials );
 
    virtual bool updateCollisions(F32 time, VectorF vector, VectorF velocity);
 

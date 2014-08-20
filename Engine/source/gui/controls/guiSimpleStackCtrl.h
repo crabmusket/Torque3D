@@ -39,10 +39,13 @@ class GuiSimpleStackCtrl : public GuiControl
    virtual void addObject(SimObject *obj);
    virtual void removeObject(SimObject *obj);
 
-   void updateStack();
+   virtual bool resize(const Point2I &newPosition, const Point2I &newExtent);
+
+   Point2I updateStack();
 
    bool mExtendParent;
    S32 mPadding;
+   S32 mBestExtent;
 
    DECLARE_CONOBJECT(GuiSimpleStackCtrl);
    DECLARE_DESCRIPTION( "A control that allows to edit multiple lines of text." );

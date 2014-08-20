@@ -20,3 +20,4 @@ exec("./interface/keybindField.cs");
 exec("./interface/fileField.cs");
 exec("./interface/stateMachineField.cs");
 exec("./interface/listField.cs");
+exec("./interface/materialField.cs");

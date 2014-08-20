@@ -32,6 +32,8 @@
 
 #include "gui/controls/guiPopUpCtrlEx.h"
 
+#include "gui/controls/guiSimpleStackCtrl.h"
+
 
 class GuiInspectorBehaviorGroup : public GuiInspectorGroup
 {
@@ -40,6 +42,8 @@ private:
    GuiControl* mAddCtrl;
 
    GuiPopUpMenuCtrlEx* mAddBhvrList;
+
+   GuiSimpleStackCtrl*                    mStack;
 
 public:
    DECLARE_CONOBJECT(GuiInspectorBehaviorGroup);
@@ -51,6 +55,7 @@ public:
    // inspectGroup is overridden in GuiInspectorBehaviorGroup to inspect an 
    // objects FieldDictionary (dynamic fields) instead of regular persistent
    // fields.
+   virtual bool onAdd();
    bool inspectGroup();
    virtual void updateAllFields();
 

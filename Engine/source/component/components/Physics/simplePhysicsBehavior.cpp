@@ -57,6 +57,7 @@ IMPLEMENT_CO_NETOBJECT_V1(SimplePhysicsBehavior);
 //////////////////////////////////////////////////////////////////////////
 ComponentInstance *SimplePhysicsBehavior::createInstance()
 {
+   //return Parent::createInstance<BoxColliderComponentInstance>();
    SimplePhysicsBehaviorInstance *instance = new SimplePhysicsBehaviorInstance(this);
 
    setupFields( instance );
@@ -198,9 +199,6 @@ void SimplePhysicsBehaviorInstance::processTick(const Move* move)
       mDelta.posVec = mOwner->getPosition();
       //mDelta.rot[0] = mOwner->getTransform();
 
-      // Update the physics based on the integration rate
-      //updateWorkingCollisionSet(getCollisionMask());
-
       updatePos(TickSec);
       updateForces();
 
@@ -241,81 +239,6 @@ void SimplePhysicsBehaviorInstance::updatePos(const F32 travelTime)
 
    Point3F newPos;
 
-   // DEBUG:
-   //Point3F savedVelocity = mVelocity;
-
-   /*if ( getPhysicsRep() )
-   {
-   mCollisionList.clear();
-
-   newPos = mPhysicsRep->move( mVelocity * travelTime, mCollisionList );
-
-   bool haveCollisions = false;
-   bool wasFalling = mFalling;
-   if (mCollisionList.getCount() > 0)
-   {
-   mFalling = false;
-   haveCollisions = true;
-   }
-
-   if (haveCollisions)
-   {
-   // Pick the collision that most closely matches our direction
-   VectorF velNormal = mVelocity;
-   velNormal.normalizeSafe();
-   const Collision *collision = &mCollisionList[0];
-   F32 collisionDot = mDot(velNormal, collision->normal);
-   const Collision *cp = collision + 1;
-   const Collision *ep = collision + mCollisionList.getCount();
-   for (; cp != ep; cp++)
-   {
-   F32 dp = mDot(velNormal, cp->normal);
-   if (dp < collisionDot)
-   {
-   collisionDot = dp;
-   collision = cp;
-   }
-   }
-
-   _doCollisionImpact( collision, wasFalling );
-
-   // Modify our velocity based on collisions
-   for (U32 i=0; i<mCollisionList.getCount(); ++i)
-   {
-   F32 bd = -mDot( mVelocity, mCollisionList[i].normal );
-   VectorF dv = mCollisionList[i].normal * (bd + sNormalElasticity);
-   mVelocity += dv;
-   }
-
-   // Store the last collision for use later on.  The handle collision
-   // code only expects a single collision object.
-   if (collisionList.getCount() > 0)
-   col = collisionList[collisionList.getCount() - 1];
-
-   // We'll handle any player-to-player collision, and the last collision
-   // with other obejct types.
-   for (U32 i=0; i<collisionList.getCount(); ++i)
-   {
-   Collision& colCheck = collisionList[i];
-   if (colCheck.object)
-   {
-   SceneObject* obj = static_cast<SceneObject*>(col.object);
-   if (obj->getTypeMask() & PlayerObjectType)
-   {
-   _handleCollision( colCheck );
-   }
-   else
-   {
-   col = colCheck;
-   }
-   }
-   }
-
-   _handleCollision( col );
-   }
-   }
-   else
-   {*/
    if ( mVelocity.isZero() )
       newPos = mDelta.posVec;
    else
@@ -360,7 +283,6 @@ Point3F SimplePhysicsBehaviorInstance::_move( const F32 travelTime )
    U32 count = 0;
    S32 sMoveRetryCount = 5;
 
-
    CollisionInterface* bI = mOwner->getComponent<CollisionInterface>();
 
    if(!bI)
@@ -393,27 +315,6 @@ Point3F SimplePhysicsBehaviorInstance::_move( const F32 travelTime )
             start -= mVelocity * newT;
             totalMotion -= velLen * newT;
          }
-
-         /*// Try stepping if there is a vertical surface
-         if (pBI->getCollisionList().getMaxHeight() < start.z + mDataBlock->maxStepHeight * scale.z) 
-         {
-         bool stepped = false;
-         for (U32 c = 0; c < collisionList.getCount(); c++) 
-         {
-         const Collision& cp = collisionList[c];
-         // if (mFabs(mDot(cp.normal,VectorF(0,0,1))) < sVerticalStepDot)
-         //    Dot with (0,0,1) just extracts Z component [lh]-
-         if (mFabs(cp.normal.z) < sVerticalStepDot)
-         {
-         stepped = step(&start,&maxStep,time);
-         break;
-         }
-         }
-         if (stepped)
-         {
-         continue;
-         }
-         }*/
 
          // Pick the surface most parallel to the face that was hit.
          const Collision *collision = bI->getCollision(0);

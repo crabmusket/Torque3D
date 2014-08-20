@@ -19,6 +19,7 @@
 #include "console/engineAPI.h"
 #include "lighting/lightQuery.h"
 #include "math/mTransform.h"
+#include "scene/sceneManager.h"
 
 #include "gfx/sim/debugDraw.h"  
 //
@@ -359,6 +360,9 @@ void RenderShapeBehaviorInstance::updateShape()
          //mOwner->setObjectBox(Box3F(Point3F(-3, -3, -3), Point3F(3, 3, 3)));
          //mOwner->resetWorldBox();
          //e->setMaskBits(Entity::BoundsMask);
+
+         if( mOwner->getSceneManager() != NULL )
+            mOwner->getSceneManager()->notifyObjectDirty( mOwner );
       }
    }
 }

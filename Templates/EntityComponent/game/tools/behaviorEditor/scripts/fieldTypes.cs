@@ -439,3 +439,25 @@ function BehaviorFieldStack::createAnimList(%this, %behavior, %fieldIndex)
 
    %this.add(%container);
 }
+
+// Shape File. Opens a load file window with shape file filters.
+BehaviorEditor::registerFieldType("material", "createMaterialGui");
+
+function BehaviorFieldStack::createMaterialGui(%this, %behavior, %fieldIndex)
+{
+   %fieldInfo = %behavior.template.getBehaviorField(%fieldIndex);
+   %name = getField(%fieldInfo, 0);
+   %description = %behavior.template.getBehaviorFieldDescription(%fieldIndex);
+   
+   %data =  %behavior.getFieldValue(%name, 0);
+   if(%data $= "")
+      %data = getField(%fieldInfo, 2);
+   
+   %control = %this.createMaterialProperty(%name, "models", %description, "Load a file", %data);
+   
+   %group = getField(%fieldInfo, 3);
+   %this.addControlToStack(%group, %behavior, %control);
+      
+   %editField = %control.findObjectByInternalName(%name @ "File");
+   %editField.object = %behavior;
+}

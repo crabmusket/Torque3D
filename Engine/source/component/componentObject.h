@@ -181,7 +181,6 @@ template< class T >
 void findComponentByType( SimSet* set, Vector<T*> &foundObjects )
 {
    T *curObj;
-   SimSet *curSet;
    ComponentInstance* compInst;
 
    set->lock();

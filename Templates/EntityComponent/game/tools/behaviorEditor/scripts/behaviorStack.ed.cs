@@ -22,7 +22,7 @@ function BehaviorEditor::createBehaviorRollout(%this, %behavior)
    
    %contExt = (%rollout.extent.x - 18);
    
-   %fieldContainer = new GuiStackControl()
+   /*%fieldContainer = new GuiStackControl()
    {
       class = "BehaviorFieldStack";
       superclass = "LBQuickEditContent";
@@ -35,7 +35,25 @@ function BehaviorEditor::createBehaviorRollout(%this, %behavior)
       rollout = %rollout;
       padding = 6;
    };
+   %rollout.stack = %fieldContainer;*/
+
+   %fieldContainer = new GuiSimpleStackCtrl()
+   {
+      class = "BehaviorFieldStack";
+      superclass = "LBQuickEditContent";
+      Profile = "EditorContainerProfile";
+      HorizSizing = "right";
+      VertSizing = "bottom";
+      Position = "0 36";
+      Extent = (%rollout.extent.x - 18) SPC "4";
+      object = %behavior;
+      rollout = %rollout;
+      padding = 6;
+	  extendParent = false;
+   };
    %rollout.stack = %fieldContainer;
+
+   %rollout.add( %fieldContainer );
    
    %button = new GuiIconButtonCtrl()
    {
@@ -127,7 +145,6 @@ function BehaviorEditor::createBehaviorRollout(%this, %behavior)
    }
 
    %fieldContainer.add( %button );
-   %rollout.add( %fieldContainer );
    %rollout.add( %checkBox );
    %rollout.add( %helpBtn );
    
@@ -139,7 +156,9 @@ function BehaviorRollout::onCollapsed( %this )
    // Force resize
    //%this.parentRollout.stack.updateStack();
    
-   //%this.parentRollout.sizeToContents();
+   %this.parentRollout.sizeToContents();
+   //InspectorBehaviorStack.updateStack();
+   InspectorBehaviorGroup.sizeToContents();
 }
 
 function BehaviorRollout::onExpanded( %this )
@@ -147,12 +166,15 @@ function BehaviorRollout::onExpanded( %this )
    // Force resize
    //%this.parentRollout.stack.updateStack();
    
-   //%this.parentRollout.sizeToContents();
+   %this.parentRollout.sizeToContents();
+   //InspectorBehaviorStack.updateStack();
+   InspectorBehaviorGroup.sizeToContents();
 }
 
 function BehaviorRollout::onChildResized( %this, %child )
 {
    %this.sizeToContents();
+   InspectorBehaviorGroup.updateStack();
 }
 
 function RemoveBehaviorButton::onClick( %this )
@@ -232,7 +254,7 @@ function BehaviorFieldStack::createBehaviorGroup(%this, %groupName, %groupObject
       clickCollapse = false;
    };
    
-   %fieldContainer = new GuiStackControl()
+   /*%fieldContainer = new GuiStackControl()
    {
       class = "BehaviorFieldStack";
       superclass = "LBQuickEditContent";
@@ -241,6 +263,19 @@ function BehaviorFieldStack::createBehaviorGroup(%this, %groupName, %groupObject
       VertSizing = "bottom";
       Position = "0 36";
       Extent = (%this.extent.x - 11) SPC "4";
+      padding = 4;
+   };*/
+
+   %fieldContainer = new GuiSimpleStackCtrl()
+   {
+	  class = "BehaviorFieldStack";
+      superclass = "LBQuickEditContent";
+      Profile = "EditorContainerProfile";
+      HorizSizing = "right";
+      VertSizing = "bottom";
+      Position = "0 36";
+      Extent = (%this.extent.x - 11) SPC "4";
+	  extendParent = false;
       padding = 4;
    };
    

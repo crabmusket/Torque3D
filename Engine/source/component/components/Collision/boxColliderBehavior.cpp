@@ -35,6 +35,8 @@
 
 extern bool gEditingMission;
 
+static bool sRenderBoxColliders = false;
+
 //Docs
 ConsoleDocClass( BoxColliderBehavior,
    "@brief The Box Collider component uses a box or rectangular convex shape for collisions.\n\n"
@@ -250,15 +252,7 @@ IMPLEMENT_CO_NETOBJECT_V1(BoxColliderBehavior);
 //////////////////////////////////////////////////////////////////////////
 ComponentInstance *BoxColliderBehavior::createInstance()
 {
-   BoxColliderBehaviorInstance *instance = new BoxColliderBehaviorInstance(this);
-
-   setupFields( instance );
-
-   if(instance->registerObject())
-      return instance;
-
-   delete instance;
-   return NULL;
+   return Parent::createInstance<BoxColliderBehaviorInstance>();
 }
 
 void BoxColliderBehavior::initPersistFields()
@@ -284,7 +278,7 @@ BoxColliderBehaviorInstance::BoxColliderBehaviorInstance( Component *btemplate )
 
    CollisionMoveMask = ( TerrainObjectType     | PlayerObjectType  | 
       StaticShapeObjectType | VehicleObjectType |
-      VehicleBlockerObjectType | DynamicShapeObjectType | StaticObjectType);
+      VehicleBlockerObjectType | DynamicShapeObjectType | StaticObjectType | EntityObjectType);
 
 }
 
@@ -329,6 +323,14 @@ void BoxColliderBehaviorInstance::initPersistFields()
 {
    Parent::initPersistFields();
    addField( "colliderSize", TypePoint3F, Offset(colliderScale, BoxColliderBehaviorInstance), "");
+}
+
+void BoxColliderBehaviorInstance::consoleInit()
+{
+   Con::addVariable("$BoxCollider::renderCollision", TypeBool, &sRenderBoxColliders, 
+      "@brief Determines if the box colliders collision mesh should be rendered.\n\n"
+      "This is mainly used for the tools and debugging.\n"
+	   "@ingroup GameObjects\n");
 }
 
 U32 BoxColliderBehaviorInstance::packUpdate(NetConnection *con, U32 mask, BitStream *stream)
@@ -699,15 +701,15 @@ void BoxColliderBehaviorInstance::updateWorkingCollisionSet(const U32 mask)
 
 void BoxColliderBehaviorInstance::prepRenderImage( SceneRenderState *state )
 {
-   if(gEditingMission)
+   if(sRenderBoxColliders)
    {
       if(mConvexList == NULL)
          return;
 
-      DebugDrawer * debugDraw = DebugDrawer::get();  
+      /*DebugDrawer * debugDraw = DebugDrawer::get();  
       if (debugDraw)  
       {  
-         /*Point3F min = mWorkingQueryBox.minExtents;
+         Point3F min = mWorkingQueryBox.minExtents;
          Point3F max = mWorkingQueryBox.maxExtents;
 
          debugDraw->drawBox(mWorkingQueryBox.minExtents, mWorkingQueryBox.maxExtents, ColorI(255, 0, 255, 128)); 
@@ -728,18 +730,83 @@ void BoxColliderBehaviorInstance::prepRenderImage( SceneRenderState *state )
             pConvex->render(
 
             pList = pList->wLink.mNext;
-         }*/
-         mConvexList->render();
-      } 
+         }
+         
+      } */
 
-      // Box for the center of Mass
-      /*GFXStateBlockDesc desc;
-      desc.setBlend(false, GFXBlendSrcAlpha, GFXBlendInvSrcAlpha);
-      desc.setZReadWrite(false);
-      desc.fillMode = GFXFillWireframe;
-
-      GFX->getDrawUtil()->drawCube( desc, Point3F(0.1f,0.1f,0.1f), Point3F(0,0,0), ColorI(255, 255, 255), &mOwner->getRenderTransform() );
-
-      mConvexList->render();*/
+      ObjectRenderInst *ri = state->getRenderPass()->allocInst<ObjectRenderInst>();
+      ri->renderDelegate.bind( this, &BoxColliderBehaviorInstance::renderConvex );
+      ri->objectIndex = -1;
+      ri->type = RenderPassManager::RIT_Editor;
+      state->getRenderPass()->addInst( ri );
    }
+}
+
+void BoxColliderBehaviorInstance::renderConvex( ObjectRenderInst *ri, SceneRenderState *state, BaseMatInstance *overrideMat )
+{
+   GFX->enterDebugEvent( ColorI(255,0,255), "BoxColliderBehaviorInstance_renderConvex" );
+
+   GFXStateBlockDesc desc;
+   desc.setZReadWrite( true, false );
+   desc.setBlend( true );
+   desc.setCullMode( GFXCullNone );
+   desc.fillMode = GFXFillWireframe;
+
+   GFXStateBlockRef sb = GFX->createStateBlock( desc );
+   GFX->setStateBlock( sb );
+
+   /*PrimBuild::color3i( 255, 0, 255 );
+
+   Point3F *pnt;
+
+   PrimBuild::begin( GFXTriangleList, mDebugRender.triCount * 3 );      
+
+   for(U32 i=0; i < mDebugRender.triCount; i++)
+   {
+      pnt = &mDebugRender.vertA[i];
+      PrimBuild::vertex3fv( pnt );
+
+      pnt = &mDebugRender.vertB[i];
+      PrimBuild::vertex3fv( pnt );
+
+      pnt = &mDebugRender.vertC[i];
+      PrimBuild::vertex3fv( pnt );
+   }
+
+   PrimBuild::end();*/
+
+   /*BoxConvex* bC = new BoxConvex();
+   bC->init(mOwner);
+   bC->mSize = colliderScale;
+   mOwner->getObjBox().getCenter(&bC->mCenter);*/
+
+   ConcretePolyList polyList;
+   //bC->getPolyList( &polyList );
+
+   Box3F convexBox = mConvexList->getBoundingBox(mOwner->getTransform(), mOwner->getScale());
+
+   polyList.addBox(convexBox);
+
+   PrimBuild::color3i( 255, 0, 255 );
+
+   ConcretePolyList::Poly *p;
+   Point3F *pnt;
+
+   for ( p = polyList.mPolyList.begin(); p < polyList.mPolyList.end(); p++ )
+   {
+      PrimBuild::begin( GFXLineStrip, p->vertexCount + 1 );      
+
+      for ( U32 i = 0; i < p->vertexCount; i++ )
+      {
+         pnt = &polyList.mVertexList[polyList.mIndexList[p->vertexStart + i]];
+         PrimBuild::vertex3fv( pnt );
+      }
+
+      pnt = &polyList.mVertexList[polyList.mIndexList[p->vertexStart]];
+      PrimBuild::vertex3fv( pnt );
+
+      PrimBuild::end();
+   }  
+
+   GFX->leaveDebugEvent();
 }

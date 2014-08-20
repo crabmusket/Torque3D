@@ -6,6 +6,7 @@ GuiSimpleStackCtrl::GuiSimpleStackCtrl()
 {
 	mExtendParent = true;
 	mPadding = 5;
+   mBestExtent = -1;
 }
 
 void GuiSimpleStackCtrl::initPersistFields()
@@ -20,70 +21,97 @@ void GuiSimpleStackCtrl::addObject(SimObject *obj)
 {
 	Parent::addObject(obj);
    
-	updateStack();
+	setExtent(updateStack());
 }
 
 void GuiSimpleStackCtrl::removeObject(SimObject *obj)
 {
 	Parent::removeObject(obj);
    
-	updateStack();
+	setExtent(updateStack());
 }
 
-void GuiSimpleStackCtrl::updateStack()
+Point2I GuiSimpleStackCtrl::updateStack()
 {
+   if(mExtendParent && !getParent())
+      return mMinExtent;
+
    S32 ypos = 0;
    S32 extent = 0;
 
    //resize the control and position it in the stack
-   for(U32 i=0; i < size(); i++)
+   U32 children = size();
+   for(U32 i=0; i < children; i++)
    {
       GuiControl *ctrl = dynamic_cast<GuiControl*>(at(i));
       
-	  if(ctrl->getParent()->getId() == getId())
+      if(ctrl->getParent()->getId() == getId())
       {      
          Point2I ext = ctrl->getExtent();
          
-		 //we want to keep it aligned to the side
-		 //so keep x to 0
-		 Point2I pos = Point2I(0,0);
+         //we want to keep it aligned to the side
+         //so keep x to 0
+         Point2I pos = Point2I(0,0);
          
          if(i == 0)
             pos.y = 0;
          else
-         {
             pos.y = ypos + mPadding;  
-         }
 
-		 ctrl->setPosition(pos);
+         ctrl->setPosition(pos);
          
-		 ypos = pos.y + ctrl->getExtent().y;
+         ypos = pos.y + ctrl->getExtent().y;
                   
          extent = ypos;
       }
    }
-   
-   if(extent != 0)
+
+   if(mBestExtent != extent)
    {
+      //setExtent(Point2I(getParent()->getExtent().x, extent));
+      mBestExtent = extent;
+   }
+
+   return Point2I(getParent()->getExtent().x, mBestExtent);
+
+   /*if(extent != 0)
+   {
+      Point2I curExt = getExtent();
+      if(curExt.y != extent)
+         curExt.y = extent;
+
+      setExtent(curExt);
+
       if(mExtendParent)
       {
-         S32 extentDif = extent - getExtent().y;
+         Point2I parentExt = getParent()->getExtent();
+         if(parentExt.y < curExt.y)
+         {
+            S32 extentDif = curExt.y - parentExt.y;
 
-		 Point2I curExt = getParent()->getExtent();
-		 curExt.y += extentDif;
+            parentExt.y += extentDif;
 
-         getParent()->setExtent(curExt);
+            getParent()->setExtent(parentExt);
+         }
       }
-      
-	  Point2I curExt = getExtent();
-	  curExt.y = extent;
+   }*/
+}
 
-	  setExtent(curExt);
-   }
+bool GuiSimpleStackCtrl::resize(const Point2I &newPosition, const Point2I &newExtent)
+{
+   Point2I stackSize = updateStack();
+
+   Point2I modExtent = Point2I(newExtent.x, stackSize.y);
+
+   //if(stackSize.y != newExtent.y)
+   //   modExtent.y = stackSize.y;
+
+   return Parent::resize(newPosition, modExtent);
 }
 
 ConsoleMethod(GuiSimpleStackCtrl, updateStack, void, 2, 2, "() - Get the template name of this behavior\n"
 																	 "@return (string name) The name of the template this behaivor was created from")
 {
-   object->updateStack();
+   Point2I stackSize = object->updateStack();
+   object->setExtent(stackSize);
 }

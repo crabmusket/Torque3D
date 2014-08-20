@@ -122,6 +122,8 @@ function initializeWorldEditor()
    EVisibility.addOption( "Frustum Lock", "$Scene::lockCull", "" );
    EVisibility.addOption( "Disable Zone Culling", "$Scene::disableZoneCulling", "" );
    EVisibility.addOption( "Disable Terrain Occlusion", "$Scene::disableTerrainOcclusion", "" );
+   EVisibility.addOption( "Debug Render: Mesh Colliders", "$MeshCollider::renderCollision", "" );
+   EVisibility.addOption( "Debug Render: Box Colliders", "$BoxCollider::renderCollision", "" );
 }
 
 function destroyWorldEditor()

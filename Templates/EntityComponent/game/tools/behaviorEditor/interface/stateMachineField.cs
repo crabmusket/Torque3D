@@ -67,12 +67,15 @@ function StateMachineEditor::addNewNode(%this, %stateName)
    if(%stateName $= "")
       %stateName = "New State";
       
-    %node = new VisualNode();
+    %node = new visualWebNode();
+	//{
+	//	profile = "GuiMenuButtonProfile";
+	//};
 	stateMachineNodeTree.add(%node);
 	
 	%node.nodeName = %stateName;
 	
-	%node.addInputSocket("In");
+	//%node.addInputSocket("In");
    
     %this.behavior.addState(%stateName);
 }

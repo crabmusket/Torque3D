@@ -30,6 +30,10 @@
 #include "component/components/collision/collisionInterfaces.h"
 #endif
 
+#ifndef _RENDERPASSMANAGER_H_
+#include "renderInstance/renderPassManager.h"
+#endif
+
 class TSShapeInstance;
 class SceneRenderState;
 class BoxColliderBehaviorInstance;
@@ -74,7 +78,8 @@ public:
 class BoxColliderBehaviorInstance : public ComponentInstance,
    public CollisionInterface,
    public PrepRenderImageInterface,
-   public BuildConvexInterface
+   public BuildConvexInterface,
+   public CastRayInterface
 {
    typedef ComponentInstance Parent;
 
@@ -89,10 +94,12 @@ public:
    virtual bool onAdd();
    virtual void onRemove();
    static void initPersistFields();
+   static void consoleInit();
 
    virtual void processTick(const Move* move);
 
    virtual void prepRenderImage( SceneRenderState *state );
+   void renderConvex( ObjectRenderInst *ri, SceneRenderState *state, BaseMatInstance *overrideMat );
 
    virtual U32 packUpdate(NetConnection *con, U32 mask, BitStream *stream);
    virtual void unpackUpdate(NetConnection *con, BitStream *stream);

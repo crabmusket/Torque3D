@@ -70,6 +70,9 @@ public:
 
    /// Create a ComponentInstance from this template
    /// @return   ComponentInstance   returns the newly created ComponentInstance object
+   template <class T>
+   ComponentInstance* createInstance();
+
    virtual ComponentInstance *createInstance();
 
    bool setupFields( ComponentInstance *bi, bool forceSetup = false );
@@ -133,4 +136,23 @@ public:
    /// @}
 
 };
+
+template <class T>
+ComponentInstance* Component::createInstance() 
+{
+   T* instance = new T(this);
+   ComponentInstance* binstance = dynamic_cast<ComponentInstance*>(instance);
+   if(binstance != NULL)
+   {
+      setupFields( binstance );
+
+      if(binstance->registerObject())
+         return binstance;
+   }
+
+   delete instance;
+   delete binstance;
+   return NULL;
+}
+
 #endif // _COMPONENT_H_

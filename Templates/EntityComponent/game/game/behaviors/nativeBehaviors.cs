@@ -2,6 +2,10 @@
 //Since they don't need any setup other than declaration,  we merely declare them here
 
 singleton RenderShapeBehavior(RenderShape);
+
+RenderShape.beginGroup("Materials");
+RenderShape.addBehaviorField(MaterialSlot0, "Material for the given material slot", material, "");
+RenderShape.endGroup();
 /*function RenderShapeBehavior::onAdd(%this)
 {
    %this.shapeName = %this.shapeName;

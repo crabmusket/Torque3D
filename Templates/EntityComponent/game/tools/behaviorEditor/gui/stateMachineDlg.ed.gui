@@ -27,11 +27,10 @@ new GuiControl(StateMachineEditor) {
       //command = "PlayerStateEditor.delete();";
       accelerator = "escape";
 	
-	  new guiVisualNodeCtrl(stateMachineNodeTree)
+	  new guiVisualNodeWebCtrl(stateMachineNodeTree)
 	  {
 		 position = "1 18";
 		 extent = "299 450";
-		 nodeProfile = visualNodeProfile;
 	  }; 
 
       /*new GuiScrollCtrl() {

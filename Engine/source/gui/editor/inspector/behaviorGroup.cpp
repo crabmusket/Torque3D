@@ -37,13 +37,34 @@ ConsoleDocClass( GuiInspectorBehaviorGroup,
    "@internal"
 );
 
+bool GuiInspectorBehaviorGroup::onAdd()
+{
+   if(!Parent::onAdd())
+      return false;
+}
+
 //-----------------------------------------------------------------------------
 // GuiInspectorBehaviorGroup - add custom controls
 //-----------------------------------------------------------------------------
 bool GuiInspectorBehaviorGroup::createContent()
 {
-   if(!Parent::createContent())
+   //if(!Parent::createContent())
+   //   return false;
+
+   // Create our field stack control
+   mStack = new GuiSimpleStackCtrl();
+
+   // Prefer GuiTransperantProfile for the stack.
+   mStack->setDataField( StringTable->insert("profile"), NULL, "GuiInspectorStackProfile" );
+   if( !mStack->registerObject("InspectorBehaviorStack") )
+   {
+      SAFE_DELETE( mStack );
       return false;
+   }
+
+   addObject( mStack );
+   mStack->setField( "padding", "4" );
+   mStack->mExtendParent = true;
 
    //give the necessary padding for the nested controls so it looks nice.
    setMargin(RectI(4,0,4,4));

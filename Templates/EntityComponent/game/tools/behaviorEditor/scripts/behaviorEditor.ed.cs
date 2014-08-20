@@ -50,6 +50,7 @@ function GuiInspectorBehaviorGroup::CreateContent(%this)
    
    // Whenever we create form content, we must return it to the base
    //return %base;
+   %this.setName("InspectorBehaviorGroup");
 }
 
 function GuiInspectorBehaviorGroup::InspectObject( %this, %targetObject )
@@ -63,12 +64,12 @@ function GuiInspectorBehaviorGroup::InspectObject( %this, %targetObject )
       %this.stack.addGuiControl(%behavior);
    }
    
-   %this.stack.updateStack();
+   //%this.stack.updateStack();
    
-   %this.sizeToContents();
+   //%this.sizeToContents();
    
-   %this.instantCollapse();
-   %this.instantExpand();
+   //%this.instantCollapse();
+   //%this.instantExpand();
 }
 
 function BehaviorEditor::registerFieldType(%type, %create)

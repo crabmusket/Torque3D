@@ -89,7 +89,8 @@ ConsoleDocClass( Entity,
 
 Entity::Entity()
 {
-   mTypeMask |= DynamicShapeObjectType | StaticObjectType;
+   //mTypeMask |= DynamicShapeObjectType | StaticObjectType | ;
+   mTypeMask |= EntityObjectType;
    mNetFlags.set(Ghostable | ScopeAlways);
 
    mPhysicsRep = NULL;
