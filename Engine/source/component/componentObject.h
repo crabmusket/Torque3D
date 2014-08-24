@@ -131,6 +131,128 @@ public:
    virtual ComponentInstance *getComponentByType( StringTableEntry behaviorTypeName );
    virtual ComponentInstance *getComponent( Component *bTemplate );
 
+   struct ComponentSelection
+   {
+      /// A Predicate is some check on an object to see whether it should be
+      /// included in the iteration.
+      struct Predicate { virtual bool check(SimSet::iterator) const = 0; };
+      /// An iterator keeps a list of predicates that it should test all objects
+      /// against.
+      Vector<Predicate*> predicates;
+
+      /// Check that an object is of a certain class by attempting to cast to
+      /// the target class. Kind of hacky but ah well. It also allows you to
+      /// store a reference to the casted object.
+      template <class T> struct DynamicCastPredicate : public Predicate
+      {
+         T** handle;
+         DynamicCastPredicate(T** h = NULL) : handle(h) {}
+         bool check(SimSet::iterator bi) const
+         {
+            T* t = dynamic_cast<T*>(*bi);
+            if(t)
+            {
+               if(handle)
+                  *handle = t;
+               return true;
+            }
+            return false;
+         }
+      };
+
+      /// Add a DynamicCastPredicate to this iterator.
+      template <class T> ComponentSelection& with(T** handle)
+      {
+         predicates.push_back(new DynamicCastPredicate<T>(handle));
+         return *this;
+      }
+
+      /// Dynamic cast to ComponentInstance and check whether the instance is
+      /// enabled.
+      /*struct EnabledCheckPredicate : public Predicate
+      {
+         bool check(SimSet::iterator bi) const
+         {
+            ComponentInstance *c = dynamic_cast<ComponentInstance*>(*bi);
+            return c && c->isEnabled();
+         }
+      };*/
+
+      /// Check all predicates against a particular object.
+      bool check(SimSet::iterator bi) const
+      {
+         for(U32 i = 0; i < predicates.size(); i++)
+         {
+            if(!predicates[i]->check(bi))
+               return false;
+         }
+         return true;
+      }
+
+      SimSet& set;
+      ComponentSelection(SimSet &s, bool includeDisabled) : set(s)
+      {
+         /*if(!includeDisabled)
+            predicates.push_back(new EnabledCheckPredicate());*/
+      }
+
+      struct Iterator
+      {
+         SimSet::iterator it, end;
+         const ComponentSelection& sel;
+         Iterator(const ComponentSelection& s, SimSet::iterator i, SimSet::iterator e)
+            : sel(s), it(i), end(e)
+         {
+            if(it != end && !sel.check(it))
+               (*this)++;
+         }
+
+         Iterator& operator++ (int) { return ++(*this); }
+         Iterator& operator++ ()
+         {
+            if(it != end)
+            {
+               while(true)
+               {
+                  if(++it != end)
+                  {
+                     if(sel.check(it))
+                        break;
+                  }
+                  else
+                     break;
+               }
+            }
+            return *this;
+         }
+
+         /// Check for equality of iterators, and referential equality of
+         /// parent selections. This is an optimisation, so beware if you try
+         /// to do anything fancy that retains iterators.
+         bool operator!= (const Iterator& other)
+         {
+            return it != other.it || &sel != &other.sel;
+         }
+      };
+
+      /// An iterator at the beginning of this selection. Note that the
+      Iterator begin()
+      {
+         return Iterator(*this, set.begin(), set.end());
+      }
+
+      Iterator end()
+      {
+         return Iterator(*this, set.end(), set.end());
+      }
+   };
+
+   /// Return a new iterator over this object's list of components.
+   ComponentSelection selectComponents(bool includeDisabled = true)
+   {
+      return ComponentSelection(mComponents, includeDisabled);
+   }
+
    //template <class T>
    //static void findComponentByType( Simset* objectsList, Vector<T*> &foundObjects );
    template <class T>
