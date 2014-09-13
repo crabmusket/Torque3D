@@ -24,6 +24,18 @@ function CheetahCar::onAdd(%this, %obj)
 {
    Parent::onAdd(%this, %obj);
 
+   %this.attachDetails(%obj);
+}
+
+function CheetahCar::onNewDataBlock(%this, %obj)
+{
+   Parent::onNewDataBlock(%this, %obj);
+
+   %this.attachDetails(%obj);
+}
+
+function CheetahCar::attachDetails(%this, %obj)
+{
    %obj.setWheelTire(0,CheetahCarTire);
    %obj.setWheelTire(1,CheetahCarTire);
    %obj.setWheelTire(2,CheetahCarTireRear);
@@ -39,6 +51,13 @@ function CheetahCar::onAdd(%this, %obj)
    // Steer with the front tires
    %obj.setWheelSteering(0, 1);
    %obj.setWheelSteering(1, 1);
+
+   if(isObject(%obj.rightBrakeLight))
+      %obj.rightBrakeLight.delete();
+   if(isObject(%obj.leftBrakeLight))
+      %obj.leftBrakeLight.delete();
+   if(isObject(%obj.turret))
+      %obj.turret.delete();
 
    // Add tail lights
    %obj.rightBrakeLight = new PointLight() 
