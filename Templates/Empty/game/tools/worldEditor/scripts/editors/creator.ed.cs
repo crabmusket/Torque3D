@@ -63,6 +63,8 @@ function EWCreatorWindow::init( %this )
       %this.registerMissionObject( "DustEmitter", "Dust Emitter" );
       %this.registerMissionObject( "DustSimulation", "Dust Simulation" );
       %this.registerMissionObject( "DustEffecter", "Dust Effecter" );
+
+      %this.registerMissionObject( "RibbonNode", "Ribbon" );
       
    %this.endGroup();
 
