@@ -20,7 +20,7 @@ new SimGroup(MissionGroup) {
       Position = "0 0 0";
       rotation = "1 0 0 0";
       scale = "1 1 1";
-      Material = "BlackSkyMat";
+      Material = "BlueSkyMat";
       drawBottom = "0";
       fogBandHeight = "0";
    };
