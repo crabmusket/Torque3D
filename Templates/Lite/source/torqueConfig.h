@@ -32,7 +32,7 @@
 //not only to your game proper, but also to all of your tools.
 
 /// What's the name of your application? Used in a variety of places.
-#define TORQUE_APP_NAME            "Empty"
+#define TORQUE_APP_NAME            "Lite"
 
 /// What version of the application specific source code is this?
 ///
