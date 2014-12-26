@@ -30,7 +30,6 @@
 #include "core/dataChunker.h"
 #endif
 
-
 //--------------------------------------
 /// A global table for the hashing and tracking of strings.
 ///
@@ -141,7 +140,6 @@ private:
    /// @param  len      Length of string in bytes.
    /// @param  caseSens Determines whether case matters.
    StringTableEntry lookupn(const char *string, S32 len, bool caseSens = false);
-
 
    /// Resize the StringTable to be able to hold newSize items. This
    /// is called automatically by the StringTable when the table is

@@ -51,7 +51,55 @@ typedef char           UTF8;        ///< Compiler independent 8  bit Unicode enc
 typedef unsigned short UTF16;       ///< Compiler independent 16 bit Unicode encoded character
 typedef unsigned int   UTF32;       ///< Compiler independent 32 bit Unicode encoded character
 
-typedef const char* StringTableEntry;
+struct StringTableEntry {
+   friend class _StringTable;
+
+   StringTableEntry();
+   StringTableEntry(const char* ptr);
+
+   inline bool isNull() const
+   {
+      return mStr == 0;
+   }
+   inline bool isEmpty() const
+   {
+      return mStr != 0 && mStr[0];
+   }
+
+   inline const char* c_str() const
+   {
+      return mStr;
+   }
+   inline operator bool()
+   {
+      return mStr != 0;
+   }
+   operator const char*() const
+   {
+      return mStr;
+   }
+
+   inline bool operator== (const StringTableEntry &other) const
+   {
+      return mStr == other.mStr;
+   }
+   inline bool operator!= (const StringTableEntry &other) const
+   {
+      return !(*this == other);
+   }
+
+   inline const char& operator[] (int i)
+   {
+      return mStr[i];
+   }
+   inline char operator*() const
+   {
+      return *mStr;
+   }
+
+private:
+   const char* mStr;
+};
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //-------------------------------------- Type constants-------------------------------------------------//

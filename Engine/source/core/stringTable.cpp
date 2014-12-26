@@ -132,9 +132,9 @@ StringTableEntry _StringTable::insert(const char* _val, const bool caseSens)
    walk = &buckets[key % numBuckets];
    while((temp = *walk) != NULL)   {
       if(caseSens && !dStrcmp(temp->val, val))
-         return temp->val;
+         return StringTableEntry(temp->val);
       else if(!caseSens && !dStricmp(temp->val, val))
-         return temp->val;
+         return StringTableEntry(temp->val);
       walk = &(temp->next);
    }
    char *ret = 0;
@@ -149,7 +149,7 @@ StringTableEntry _StringTable::insert(const char* _val, const bool caseSens)
    if(itemCount > 2 * numBuckets) {
       resize(4 * numBuckets - 1);
    }
-   return ret;
+   return StringTableEntry(ret);
 }
 
 //--------------------------------------
@@ -170,12 +170,12 @@ StringTableEntry _StringTable::lookup(const char* val, const bool  caseSens)
    walk = &buckets[key % numBuckets];
    while((temp = *walk) != NULL)   {
       if(caseSens && !dStrcmp(temp->val, val))
-            return temp->val;
+            return StringTableEntry((const char*)temp->val);
       else if(!caseSens && !dStricmp(temp->val, val))
-         return temp->val;
+         return StringTableEntry((const char*)temp->val);
       walk = &(temp->next);
    }
-   return NULL;
+   return StringTableEntry(NULL);
 }
 
 //--------------------------------------
@@ -186,12 +186,12 @@ StringTableEntry _StringTable::lookupn(const char* val, S32 len, const bool  cas
    walk = &buckets[key % numBuckets];
    while((temp = *walk) != NULL) {
       if(caseSens && !dStrncmp(temp->val, val, len) && temp->val[len] == 0)
-         return temp->val;
+         return StringTableEntry((const char*)temp->val);
       else if(!caseSens && !dStrnicmp(temp->val, val, len) && temp->val[len] == 0)
-         return temp->val;
+         return StringTableEntry((const char*)temp->val);
       walk = &(temp->next);
    }
-   return NULL;
+   return StringTableEntry(NULL);
 }
 
 //--------------------------------------
@@ -234,3 +234,8 @@ void _StringTable::resize(const U32 _newSize)
    }
 }
 
+//--------------------------------------
+StringTableEntry::StringTableEntry()
+{
+   mStr = StringTable->insert("").c_str();
+}
