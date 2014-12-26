@@ -414,9 +414,9 @@ void GuiMeshRoadEditorCtrl::on3DMouseDown(const Gui3DMouseEvent & event)
 
 		MeshRoad *newRoad = new MeshRoad;  
 		
-		newRoad->mMaterialName[Top] = mMaterialName[Top];
-		newRoad->mMaterialName[Bottom] = mMaterialName[Bottom];
-		newRoad->mMaterialName[Side] = mMaterialName[Side];
+		newRoad->mMaterialName[Top] = (const char*)mMaterialName[Top];
+		newRoad->mMaterialName[Bottom] = (const char*)mMaterialName[Bottom];
+		newRoad->mMaterialName[Side] = (const char*)mMaterialName[Side];
 			
       newRoad->registerObject();
 

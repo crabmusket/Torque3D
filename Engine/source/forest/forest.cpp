@@ -336,7 +336,7 @@ void Forest::createNewFile()
       levelDirectory = "levels";
    }
    missionName.replace( "tools/levels", levelDirectory );
-   missionName = Platform::makeRelativePathName(missionName, Platform::getMainDotCsDir());
+   missionName = (const char*)Platform::makeRelativePathName(missionName, Platform::getMainDotCsDir());
 
    Torque::Path basePath( missionName );
    String fileName = Torque::FS::MakeUniquePath( basePath.getPath(), basePath.getFileName(), "forest" );

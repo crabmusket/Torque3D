@@ -349,7 +349,7 @@ void ParticleEmitterData::packData(BitStream* stream)
       stream->write(dataBlockIds[i]);
    stream->writeFlag(sortParticles);
    stream->writeFlag(reverseOrder);
-   if (stream->writeFlag(textureName != 0))
+   if (stream->writeFlag(!textureName.isNull()))
      stream->writeString(textureName);
 
    if (stream->writeFlag(alignParticles))
@@ -499,7 +499,7 @@ bool ParticleEmitterData::onAdd()
       softnessDistance = 0.0f;
    }
 
-   if (particleString == NULL && dataBlockIds.size() == 0) 
+   if (particleString.isNull() && dataBlockIds.size() == 0) 
    {
       Con::warnf(ConsoleLogEntry::General, "ParticleEmitterData(%s) no particleString, invalid datablock", getName());
       return false;
@@ -529,7 +529,7 @@ bool ParticleEmitterData::onAdd()
 
    // load the particle datablocks...
    //
-   if( particleString != NULL )
+   if( !particleString.isNull() )
    {
       //   particleString is once again a list of particle datablocks so it
       //   must be parsed to extract the particle references.

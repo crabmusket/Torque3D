@@ -1260,7 +1260,7 @@ bool fxFoliageReplicator::onAdd()
    if ( isClientObject() )
    {
       // Yes, so load foliage texture.
-      if( mFieldData.mFoliageFile != NULL && dStrlen(mFieldData.mFoliageFile) > 0 )
+      if( !mFieldData.mFoliageFile.isNull() && dStrlen(mFieldData.mFoliageFile) > 0 )
          mFieldData.mFoliageTexture = GFXTexHandle( mFieldData.mFoliageFile, &GFXDefaultStaticDiffuseProfile, avar("%s() - mFieldData.mFoliageTexture (line %d)", __FUNCTION__, __LINE__) );
 
       if ((GFXTextureObject*) mFieldData.mFoliageTexture == NULL)
@@ -1791,7 +1791,7 @@ void fxFoliageReplicator::unpackUpdate(NetConnection * con, BitStream * stream)
       setTransform(ReplicatorObjectMatrix);
 
       // Load Foliage Texture on the client.
-      if( mFieldData.mFoliageFile != NULL && dStrlen(mFieldData.mFoliageFile) > 0 )
+      if( !mFieldData.mFoliageFile.isNull() && dStrlen(mFieldData.mFoliageFile) > 0 )
          mFieldData.mFoliageTexture = GFXTexHandle( mFieldData.mFoliageFile, &GFXDefaultStaticDiffuseProfile, avar("%s() - mFieldData.mFoliageTexture (line %d)", __FUNCTION__, __LINE__) );
 
       if ((GFXTextureObject*) mFieldData.mFoliageTexture == NULL)

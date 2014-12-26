@@ -84,7 +84,7 @@ void GuiDirectoryFileListCtrl::openDirectory()
    if( mFilePath && mFilePath[ 0 ] )
       path = String::ToString( "%s/%s", Platform::getMainDotCsDir(), mFilePath );
    else
-      path = Platform::getMainDotCsDir();
+      path = (const char*)Platform::getMainDotCsDir();
    
    Vector<Platform::FileInfo> fileVector;
    Platform::dumpPath( path, fileVector, 0 );

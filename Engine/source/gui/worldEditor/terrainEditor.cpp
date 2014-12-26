@@ -417,7 +417,7 @@ void BoxBrush::rebuild()
    Point3F center( F32(mSize.x - 1) / 2.0f * squareSize, F32(mSize.y - 1) / 2.0f * squareSize, 0.0f );
    
    Filter filter;
-   filter.set(1, &mTerrainEditor->mSoftSelectFilter);
+   filter.set(1, (const char**)&mTerrainEditor->mSoftSelectFilter);
    
    const Point3F mousePos = mTerrainEditor->getMousePos();   
 
@@ -542,7 +542,7 @@ void EllipseBrush::rebuild()
    Point3F center( F32(mSize.x - 1) / 2.0f * squareSize, F32(mSize.y - 1) / 2.0f * squareSize, 0.0f );
    
    Filter filter;
-   filter.set(1, &mTerrainEditor->mSoftSelectFilter);
+   filter.set(1, (const char**)&mTerrainEditor->mSoftSelectFilter);
    
    const Point3F mousePos = mTerrainEditor->getMousePos();   
 

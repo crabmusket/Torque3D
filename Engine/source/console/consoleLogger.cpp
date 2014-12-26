@@ -125,7 +125,7 @@ bool ConsoleLogger::init()
 
 bool ConsoleLogger::attach()
 {
-   if( mFilename == NULL )
+   if( mFilename.isNull() )
    {
       Con::errorf( "ConsoleLogger failed to attach: no filename supplied." );
       return false;

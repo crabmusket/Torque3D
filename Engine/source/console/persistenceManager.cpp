@@ -1799,7 +1799,7 @@ bool PersistenceManager::setDirty(SimObject* inObject, const char* inFileName)
 
    // Otherwise default to the simObject's filename.
    if ( saveFile.isEmpty() )
-      saveFile = inObject->getFilename();   
+      saveFile = (const char*)inObject->getFilename();   
 
    // Error if still no filename.
    if ( saveFile.isEmpty() )

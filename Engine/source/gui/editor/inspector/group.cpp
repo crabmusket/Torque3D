@@ -513,7 +513,7 @@ bool GuiInspectorGroup::inspectGroup()
 
 //-----------------------------------------------------------------------------
 
-bool GuiInspectorGroup::updateFieldValue( StringTableEntry fieldName, StringTableEntry arrayIdx )
+bool GuiInspectorGroup::updateFieldValue( StringTableEntry fieldName, const char* arrayIdx )
 {
    // Check if we contain a field of this name,
    // if so update its value and return true.

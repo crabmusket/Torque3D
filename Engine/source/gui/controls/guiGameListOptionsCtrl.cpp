@@ -397,7 +397,7 @@ StringTableEntry GuiGameListOptionsCtrl::getCurrentOption(S32 rowIndex) const
    return StringTable->insert("", false);
 }
 
-bool GuiGameListOptionsCtrl::selectOption(S32 rowIndex, const char * theOption)
+bool GuiGameListOptionsCtrl::selectOption(S32 rowIndex, StringTableEntry theOption)
 {
    if (! isValidRowIndex(rowIndex))
    {

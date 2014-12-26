@@ -112,7 +112,7 @@ void ImposterCaptureMaterialHook::init( BaseMatInstance *inMat )
    features.addFeature( MFT_AlphaTest );
    features.addFeature( MFT_IsTranslucent );
 
-   const String &matName = inMat->getMaterial()->getName();
+   String matName = inMat->getMaterial()->getName();
 
    mDiffuseMatInst = MATMGR->createMatInstance( matName );
    mDiffuseMatInst->getFeaturesDelegate().bind( &ImposterCaptureMaterialHook::_overrideFeatures );

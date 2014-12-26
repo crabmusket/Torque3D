@@ -288,7 +288,7 @@ void Namespace::dumpClasses( bool dumpScript, bool dumpEngine )
       {
          if(parentWalk->mHashSequence != 0)
             break;
-         if(parentWalk->mPackage == 0)
+         if(parentWalk->mPackage.isNull())
          {
             parentWalk->mHashSequence = 1;   // Mark as traversed.
             stack.push_back(parentWalk);

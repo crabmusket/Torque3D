@@ -224,7 +224,7 @@ void GuiFileTreeCtrl::onItemSelected( Item *item )
 {
    Con::executef( this, "onSelectPath", avar("%s",item->getValue()) );
 
-   mSelPath = item->getValue();
+   mSelPath = (const char*)item->getValue();
    if( _hasChildren( mSelPath ) )
       item->setVirtualParent( true );
 }

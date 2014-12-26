@@ -70,7 +70,7 @@ void SimObjectMemento::save( SimObject *object )
 
    // Steal the data away from the stream.
    mState = (UTF8*)stream.takeBuffer();
-   mObjectName = object->getName();
+   mObjectName = (const char*)object->getName();
 }
 
 SimObject *SimObjectMemento::restore() const

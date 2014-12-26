@@ -102,7 +102,7 @@ extern "C" {
 
    void* script_get_stringtable_entry(const char* string)
    {
-      return (void*)StringTable->insert(string);
+      return (void*)(const char*)StringTable->insert(string);
    }
 
    // FIELD ACCESS

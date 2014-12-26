@@ -66,7 +66,7 @@ EndImplementEnumType;
 
 GuiTheoraCtrl::GuiTheoraCtrl()
 {
-   mFilename         = StringTable->EmptyString();
+   mFilename         = (const char*)StringTable->EmptyString();
    mDone             = false;
    mStopOnSleep      = false;
    mMatchVideoSize   = true;

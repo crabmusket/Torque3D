@@ -402,7 +402,7 @@ void GuiRoadEditorCtrl::on3DMouseDown(const Gui3DMouseEvent & event)
 		DecalRoad *newRoad = new DecalRoad;
 		
 
-		newRoad->mMaterialName = mMaterialName;
+		newRoad->mMaterialName = (const char*)mMaterialName;
 
       newRoad->registerObject();
 

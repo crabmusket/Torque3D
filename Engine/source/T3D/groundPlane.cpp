@@ -214,7 +214,7 @@ void GroundPlane::_updateMaterial()
    // If the material name matches then don't 
    // bother updating it.
    if (  mMaterial && 
-         mMaterialName.compare( mMaterial->getMaterial()->getName() ) == 0 )
+         mMaterialName.compare( (const char*)mMaterial->getMaterial()->getName() ) == 0 )
       return;
 
    SAFE_DELETE( mMaterial );

@@ -356,11 +356,11 @@ bool CodeBlock::read(StringTableEntry fileName, Stream &st)
          fullPath = fileName;
 
       if(dStrnicmp(exePath, fileName, dStrlen(exePath)) == 0)
-         name = StringTable->insert(fileName + dStrlen(exePath) + 1, true);
+         name = StringTable->insert((const char*)fileName + dStrlen(exePath) + 1, true);
       else if(dStrnicmp(cwd, fileName, dStrlen(cwd)) == 0)
-         name = StringTable->insert(fileName + dStrlen(cwd) + 1, true);
+         name = StringTable->insert((const char*)fileName + dStrlen(cwd) + 1, true);
 
-      if(fullPath == NULL)
+      if(fullPath.isNull())
       {
          char buf[1024];
          fullPath = StringTable->insert(Platform::makeFullPathName(fileName, buf, sizeof(buf)), true);
@@ -582,11 +582,11 @@ const char *CodeBlock::compileExec(StringTableEntry fileName, const char *inStri
          fullPath = fileName;
 
       if(dStrnicmp(exePath, fileName, dStrlen(exePath)) == 0)
-         name = StringTable->insert(fileName + dStrlen(exePath) + 1, true);
+         name = StringTable->insert((const char*)fileName + dStrlen(exePath) + 1, true);
       else if(dStrnicmp(cwd, fileName, dStrlen(cwd)) == 0)
-         name = StringTable->insert(fileName + dStrlen(cwd) + 1, true);
+         name = StringTable->insert((const char*)fileName + dStrlen(cwd) + 1, true);
 
-      if(fullPath == NULL)
+      if(fullPath.isNull())
       {
          char buf[1024];
          fullPath = StringTable->insert(Platform::makeFullPathName(fileName, buf, sizeof(buf)), true);
@@ -681,7 +681,7 @@ String CodeBlock::getFunctionArgs( U32 ip )
 
       // Try to capture junked parameters
       if( var[ 0 ] )
-         str.append( var + 1 );
+         str.append( (const char*)var + 1 );
       else
          str.append( "JUNK" );
    }

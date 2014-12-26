@@ -324,7 +324,7 @@ void GuiTreeViewCtrl::Item::setValue(StringTableEntry val)
       return;
    }
 
-   mScriptInfo.mValue = const_cast<char*>(val); // mValue really ought to be a StringTableEntry
+   mScriptInfo.mValue = const_cast<char*>((const char*)val); // mValue really ought to be a StringTableEntry
 
    // Update Render Data
    if( !mProfile.isNull() )

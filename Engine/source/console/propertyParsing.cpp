@@ -482,7 +482,7 @@ namespace PropertyInfo
          if(String(data->getName()).isEmpty())
             result = data->getIdString();
          else
-            result = data->getName();
+            result = (const char*)data->getName();
          return true;
       }
       return false;

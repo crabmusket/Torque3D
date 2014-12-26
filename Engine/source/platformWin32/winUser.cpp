@@ -35,7 +35,7 @@ typedef long SHANDLE_PTR;
 
 #define CSIDL_PROFILE 0x0028
 
-const char *Platform::getUserDataDirectory() 
+StringTableEntry Platform::getUserDataDirectory() 
 {
    TCHAR szBuffer[ MAX_PATH + 1 ];
 
@@ -61,7 +61,7 @@ const char *Platform::getUserDataDirectory()
    return StringTable->insert( path );
 }
 
-const char *Platform::getUserHomeDirectory() 
+StringTableEntry Platform::getUserHomeDirectory() 
 {
    TCHAR szBuffer[ MAX_PATH + 1 ];
    if(! SHGetSpecialFolderPath( NULL, szBuffer, CSIDL_PERSONAL, false ) )

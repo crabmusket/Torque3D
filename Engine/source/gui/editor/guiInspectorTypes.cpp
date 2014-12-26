@@ -573,7 +573,7 @@ ConsoleMethod( GuiInspectorTypeFileName, apply, void, 3,3, "apply(newValue);" )
 {
    String path( (const char*)argv[2] );
    if ( path.isNotEmpty() )
-      path = Platform::makeRelativePathName( path, Platform::getMainDotCsDir() );
+      path = (const char*)Platform::makeRelativePathName( path, Platform::getMainDotCsDir() );
       
    object->setData( path.c_str() );
 }

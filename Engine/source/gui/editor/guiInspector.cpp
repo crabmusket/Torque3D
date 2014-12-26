@@ -233,7 +233,7 @@ GuiInspectorGroup* GuiInspector::findExistentGroup( StringTableEntry groupName )
 
 //-----------------------------------------------------------------------------
 
-void GuiInspector::updateFieldValue( StringTableEntry fieldName, StringTableEntry arrayIdx )
+void GuiInspector::updateFieldValue( StringTableEntry fieldName, const char* arrayIdx )
 {
    // We don't know which group contains the field of this name,
    // so ask each group in turn, and break when a group returns true

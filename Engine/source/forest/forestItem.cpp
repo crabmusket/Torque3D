@@ -158,7 +158,7 @@ void ForestItemData::packData(BitStream* stream)
 
    String localName = getInternalName();
    if ( localName.isEmpty() )
-      localName = getName();
+      localName = (const char*)getName();
 
    stream->write( localName );
 

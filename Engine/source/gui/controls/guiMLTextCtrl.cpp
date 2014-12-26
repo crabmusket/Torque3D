@@ -1628,7 +1628,7 @@ void GuiMLTextCtrl::reflow()
    mLineInsert = &mLineList;
 
    mCurStyle = allocStyle(NULL);
-   mCurStyle->font = allocFont((char *) mProfile->mFontType, dStrlen(mProfile->mFontType), mProfile->mFontSize);
+   mCurStyle->font = allocFont(mProfile->mFontType, dStrlen(mProfile->mFontType), mProfile->mFontSize);
    if(!mCurStyle->font)
       return;
    mCurStyle->color = mProfile->mFontColor;

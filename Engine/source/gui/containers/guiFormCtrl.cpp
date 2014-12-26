@@ -213,7 +213,7 @@ bool GuiFormCtrl::resize(const Point2I &newPosition, const Point2I &newExtent)
       static char buf[256];
 
       mUseSmallCaption = true;
-      mSmallCaption = StringTable->insert("");
+      mSmallCaption = (const char*)StringTable->insert("");
 
       S32 strlen = dStrlen((const char*)mCaption);
       for(S32 i=strlen; i>=0; --i)
@@ -226,7 +226,7 @@ bool GuiFormCtrl::resize(const Point2I &newPosition, const Point2I &newExtent)
 
          if(textWidth < newTextArea)
          {
-            mSmallCaption = StringTable->insert(buf, true);
+            mSmallCaption = (const char*)StringTable->insert(buf, true);
             break;
          }
       }

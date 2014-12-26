@@ -112,7 +112,6 @@ struct ConsoleLogEntry
    const char *mString;
 };
 
-typedef const char *StringTableEntry;
 extern char *typeValueEmpty;
 
 class ConsoleValue

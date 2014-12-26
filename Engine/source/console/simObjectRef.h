@@ -113,7 +113,7 @@ T* SimObjectRef<T>::_get()
    {
       if ( mId != 0 )
          Sim::findObject( mId, mObject );   
-      else if ( mName != NULL && dStrlen( mName ) != 0 )
+      else if ( !mName.isNull() && dStrlen( mName ) != 0 )
          Sim::findObject( mName, mObject );
    }
 

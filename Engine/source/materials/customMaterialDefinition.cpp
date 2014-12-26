@@ -140,7 +140,7 @@ bool CustomMaterial::onAdd()
          
          // Assert sampler names are defined on ShaderData
          S32 pos = -1;
-         String samplerName = entry->slotName + dStrlen(samplerDecl);
+         String samplerName = (const char*)(entry->slotName + dStrlen(samplerDecl));
          samplerName.insert(0, '$');
          mShaderData->hasSamplerDef(samplerName, pos);
          

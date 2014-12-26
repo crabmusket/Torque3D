@@ -481,7 +481,7 @@ public:
    virtual bool resize( const Point2I &newPosition, const Point2I &newExtent );
    virtual bool updateRects();
    virtual void updateData();
-   virtual StringTableEntry getValue();
+   virtual const char* getValue();
    virtual void setValue( StringTableEntry value );
 
 protected:

@@ -232,7 +232,7 @@ void DecalData::onStaticModified( const char *slotName, const char *newValue )
    // To allow changing name live.
    else if ( dStricmp( slotName, "name" ) == 0 )
    {
-      lookupName = getName();
+      lookupName = (const char*)getName();
    }
    else if ( dStricmp( slotName, "renderPriority" ) == 0 )
    {
@@ -248,7 +248,7 @@ bool DecalData::preload( bool server, String &errorStr )
    // Server assigns name to lookupName,
    // client assigns lookupName in unpack.
    if ( server )
-      lookupName = getName();
+      lookupName = (const char*)getName();
 
    return true;
 }

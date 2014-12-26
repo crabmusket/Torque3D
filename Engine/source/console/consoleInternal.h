@@ -224,7 +224,7 @@ class Namespace
       /// @note Must not be called on namespaces coming from packages.
       void incRefCountToParent()
       {
-         AssertFatal( mPackage == NULL, "Namespace::incRefCountToParent - Must not be called on a namespace coming from a package!" );
+         AssertFatal( mPackage.isNull(), "Namespace::incRefCountToParent - Must not be called on a namespace coming from a package!" );
          mRefCountToParent ++;
       }
 

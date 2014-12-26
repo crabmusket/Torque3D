@@ -135,7 +135,7 @@ void Dictionary::exportVariables(const char *varString, const char *fileName, bo
       Entry *walk = hashTable->data[i];
       while(walk)
       {
-         if(FindMatch::isMatch((char *) searchStr, (char *) walk->name))
+         if(FindMatch::isMatch(searchStr, walk->name))
             sortList.push_back(walk);
 
          walk = walk->nextEntry;
@@ -199,7 +199,7 @@ void Dictionary::exportVariables( const char *varString, Vector<String> *names, 
       Entry *walk = hashTable->data[i];
       while ( walk )
       {
-         if ( FindMatch::isMatch( (char*)searchStr, (char*)walk->name ) )
+         if ( FindMatch::isMatch( searchStr, walk->name ) )
             sortList.push_back( walk );
 
          walk = walk->nextEntry;
@@ -253,7 +253,7 @@ void Dictionary::deleteVariables(const char *varString)
       Entry *walk = hashTable->data[i];
       while(walk)
       {
-         Entry *matchedEntry = (FindMatch::isMatch((char *) searchStr, (char *) walk->name)) ? walk : NULL;
+         Entry *matchedEntry = FindMatch::isMatch(searchStr, walk->name) ? walk : NULL;
          walk = walk->nextEntry;
          if (matchedEntry)
             remove(matchedEntry); // assumes remove() is a stable remove (will not reorder entries on remove)
@@ -922,7 +922,7 @@ void Namespace::clearEntries()
 
 Namespace *Namespace::find(StringTableEntry name, StringTableEntry package)
 {
-   if ( name == NULL && package == NULL )
+   if ( name.isNull() && package.isNull() )
       return mGlobalNamespace;
 
    for(Namespace *walk = mNamespaceList; walk; walk = walk->mNext)
@@ -942,7 +942,7 @@ Namespace *Namespace::find(StringTableEntry name, StringTableEntry package)
 
 bool Namespace::unlinkClass( Namespace *parent )
 {
-   AssertFatal( mPackage == NULL, "Namespace::unlinkClass - Must not be called on a namespace coming from a package!" );
+   AssertFatal( mPackage.isNull(), "Namespace::unlinkClass - Must not be called on a namespace coming from a package!" );
 
    // Skip additions to this namespace coming from packages.
 
@@ -1733,7 +1733,7 @@ String Namespace::Entry::getPrototypeString() const
    if( mType == ScriptCallbackType )
       str.append( cb.mCallbackName );
    else
-      str.append( mFunctionName );
+      str.append( (const char*)mFunctionName );
       
    str.append( getArgumentsString() );
       

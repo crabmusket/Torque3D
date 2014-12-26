@@ -485,7 +485,7 @@ bool StandardMainLoop::handleCommandLine( S32 argc, const char **argv )
             U32 len = path - (const char*)szPathCopy;
             szPathCopy[len+1] = 0;
 
-            Platform::setCurrentDirectory(szPathCopy);
+            Platform::setCurrentDirectory((const char*)szPathCopy);
 
             // Re-locate the game:/ asset mount.
 

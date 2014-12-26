@@ -2107,7 +2107,7 @@ S32 ShapeBase::getNodeIndex(U32 imageSlot,StringTableEntry nodeName)
 {
    MountedImage& image = mMountedImageList[imageSlot];
    if (image.dataBlock)
-      return image.dataBlock->shape[getImageShapeIndex(image)]->findNode(nodeName);
+      return image.dataBlock->shape[getImageShapeIndex(image)]->findNode((const char*)nodeName);
    else
       return -1;
 }

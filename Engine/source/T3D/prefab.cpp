@@ -561,7 +561,7 @@ void ExplodePrefabUndoAction::redo()
    String name;
 
    if ( prefab->getName() && prefab->getName()[0] != '\0' )   
-      name = prefab->getName();   
+      name = (const char*)prefab->getName();
    else
       name = "prefab";
 

@@ -51,8 +51,8 @@ bool Box3F::collideLine(const Point3F& start, const Point3F& end, F32* t, Point3
 {
    // Collide against bounding box. Need at least this for the editor.
    F32 st,et;
-   F32 fst = 0;
-   F32 fet = 1;
+   F32 tmin = 0;
+   F32 tmax = 1;
    const F32* bmin = &minExtents.x;
    const F32* bmax = &maxExtents.x;
    const F32* si   = &start.x;
@@ -61,37 +61,52 @@ bool Box3F::collideLine(const Point3F& start, const Point3F& end, F32* t, Point3
    static const Point3F na[3] = { Point3F(1.0f, 0.0f, 0.0f), Point3F(0.0f, 1.0f, 0.0f), Point3F(0.0f, 0.0f, 1.0f) };
    Point3F finalNormal(0.0f, 0.0f, 0.0f);
 
+   // Iterate over 3 dimensions http://youtu.be/gECEO2HXewk
    for (S32 i = 0; i < 3; i++) {
-	  bool	n_neg = false;
+      bool	n_neg = false;
+      // If the ray is increasing in this dimension,
       if (si[i] < ei[i]) {
+         // we can early out if the ray starts beyond the maximum, or ends below the minimum.
          if (si[i] > bmax[i] || ei[i] < bmin[i])
             return false;
+         // Otherwise, we have to do it the hard way.
          F32 di = ei[i] - si[i];
+         // st represents the t from the start. If we start outside the box (start < min) then
+         // then st is the distance to that point / the total ray length. Otherwise, if we
+         // start in the box, st is 0 (immediate collision). If we didn't do this check, st would
+         // end up with a negative value.
          st = (si[i] < bmin[i]) ? (bmin[i] - si[i]) / di : 0.0f;
+         // Same deal again. et represents the t at which the ray exits the box.
          et = (ei[i] > bmax[i]) ? (bmax[i] - si[i]) / di : 1.0f;
-		 n_neg = true;
+         // And the normal will be pointing negatively since the ray is travelling positively.
+         n_neg = true;
       }
       else {
+         // Same sitch - early out if the ray is totally outside the box.
          if (ei[i] > bmax[i] || si[i] < bmin[i])
             return false;
          F32 di = ei[i] - si[i];
          st = (si[i] > bmax[i]) ? (bmax[i] - si[i]) / di : 0.0f;
          et = (ei[i] < bmin[i]) ? (bmin[i] - si[i]) / di : 1.0f;
       }
-      if (st > fst) {
-         fst = st;
-		 finalNormal = na[i];
-		 if ( n_neg )
-			finalNormal.neg();
+      // If the intersection in this dimension is further away than the current intersection
+      // point found in other dimensions, then it must be the new closest intersection point.
+      if (st > tmin) {
+         tmin = st;
+         // And it determines the normal to be used.
+         finalNormal = na[i];
+         if ( n_neg )
+            finalNormal.neg();
       }
-      if (et < fet)
-         fet = et;
+      // If the ending t happens before max t, shrink max t.
+      if (et < tmax)
+         tmax = et;
 
-      if (fet < fst)
+      if (tmax < tmin)
          return false;
    }
 
-   *t = fst;
+   *t = tmin;
    *n = finalNormal;
    return true;
 }

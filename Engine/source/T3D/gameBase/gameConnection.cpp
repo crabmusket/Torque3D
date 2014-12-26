@@ -874,7 +874,7 @@ void GameConnection::writeDemoStartBlock(ResizeBitStream *stream)
       if(!dStrnicmp(entry->slotName, "demo", 4))
       {
          stream->writeFlag(true);
-         stream->writeString(entry->slotName + 4);
+         stream->writeString((const char*)entry->slotName + 4);
          stream->writeString(entry->value);
          stream->validate();
       }

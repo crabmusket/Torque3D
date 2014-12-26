@@ -407,7 +407,7 @@ void SFXEmitter::unpackUpdate( NetConnection *conn, BitStream *stream )
 
    // filename
    if ( _readDirtyFlag( stream, Filename ) )
-      mLocalProfile.mFilename = stream->readSTString();
+      mLocalProfile.mFilename = (const char*)stream->readSTString();
 
    // volume
    if ( _readDirtyFlag( stream, Volume ) )

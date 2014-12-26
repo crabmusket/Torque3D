@@ -58,7 +58,7 @@ IMPLEMENT_CALLBACK( GuiRolloutCtrl, onCollapsed, void, (), (),
 GuiRolloutCtrl::GuiRolloutCtrl()
 {
    mExpanded.set(0,0,200,60);
-   mCaption             = StringTable->EmptyString();
+   mCaption             = (const char*)StringTable->EmptyString();
    mIsExpanded          = true;
    mIsAnimating         = false;
    mCollapsing          = false;

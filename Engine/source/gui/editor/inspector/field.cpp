@@ -472,7 +472,7 @@ void GuiInspectorField::setInspectorProfile()
 
 //-----------------------------------------------------------------------------
 
-void GuiInspectorField::setValue( StringTableEntry newValue )
+void GuiInspectorField::setValue( const char* newValue )
 {
    GuiTextEditCtrl *ctrl = dynamic_cast<GuiTextEditCtrl*>( mEdit );
    if( ctrl != NULL )
@@ -604,7 +604,7 @@ void GuiInspectorField::_setFieldDocs( StringTableEntry docs )
       if( newline )
          mFieldDocs = String( docs, newline - docs );
       else
-         mFieldDocs = docs;
+         mFieldDocs = (const char*)docs;
    }
 }
 

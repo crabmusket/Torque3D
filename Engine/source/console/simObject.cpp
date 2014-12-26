@@ -1837,7 +1837,7 @@ String SimObject::_getLogMessage(const char* fmt, void* args) const
 {
    String objClass = "UnknownClass";
    if(getClassRep())
-      objClass = getClassRep()->getClassName();
+      objClass = (const char*)getClassRep()->getClassName();
       
    String objName = getName();
    if(objName.isEmpty())

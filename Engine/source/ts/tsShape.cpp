@@ -1918,9 +1918,9 @@ void TSShape::createEmptyShape()
    billboardDetails.set(NULL, 0);
 
    names.setSize(3);
-      names[0] = StringTable->insert("Detail2");
-      names[1] = StringTable->insert("Mesh2");
-      names[2] = StringTable->insert("Mesh");
+      names[0] = (const char*)StringTable->insert("Detail2");
+      names[1] = (const char*)StringTable->insert("Mesh2");
+      names[2] = (const char*)StringTable->insert("Mesh");
 
    radius = 0.866025f;
    tubeRadius = 0.707107f;

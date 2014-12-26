@@ -106,7 +106,7 @@ bool GuiTextCtrl::onAdd()
    if(!Parent::onAdd())
       return false;
       
-   dStrncpy(mText, (UTF8*)mInitialText, MAX_STRING_LENGTH);
+   dStrncpy(mText, mInitialText, MAX_STRING_LENGTH);
    mText[MAX_STRING_LENGTH] = '\0';
    
    

@@ -1451,7 +1451,7 @@ bool isCurrentScriptToolScript()
    return false;
 #else
    const StringTableEntry cbFullPath = CodeBlock::getCurrentCodeBlockFullPath();
-   if(cbFullPath == NULL)
+   if(cbFullPath.isNull())
       return false;
    const StringTableEntry exePath = Platform::getMainDotCsDir();
 

@@ -36,6 +36,7 @@ class DataChunker;
 #include "platform/platform.h"
 #include "console/ast.h"
 #include "console/codeBlock.h"
+#include "core/stringTable.h"
 
 #ifndef _TVECTOR_H_
 #include "core/util/tVector.h"
@@ -239,9 +240,9 @@ namespace Compiler
    inline StringTableEntry CodeToSTE(U32 *code, U32 ip)
    {
 #ifdef TORQUE_CPU_X64
-      return (StringTableEntry)(*((U64*)(code+ip)));
+      return StringTable->fromRawUnsafe(reinterpret_cast<void*>(*((U64*)(code+ip))));
 #else
-      return (StringTableEntry)(*(code+ip));
+      return StringTable->fromRawUnsafe(reinterpret_cast<void*>(*(code+ip)));
 #endif
    }
 

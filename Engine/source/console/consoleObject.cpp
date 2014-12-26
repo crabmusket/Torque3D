@@ -583,7 +583,7 @@ String ConsoleObject::_getLogMessage(const char* fmt, void* args) const
 {
    String objClass = "UnknownClass";
    if(getClassRep())
-      objClass = getClassRep()->getClassName();
+      objClass = (const char*)getClassRep()->getClassName();
    
    String formattedMessage = String::VToString(fmt, args);
    return String::ToString("%s - Object at %x - %s", 
@@ -740,7 +740,7 @@ DefineEngineFunction( enumerateConsoleClassesByCategory, const char*, ( String c
           && ( repCategory[ categoryLength ] == ' ' || repCategory[ categoryLength ] == '\0' ) )
       {
          classes.push_back( rep );
-         bufSize += dStrlen( rep->getClassName() + 1 );
+         bufSize += dStrlen( (const char*)rep->getClassName() + 1 );
       }
    }
 

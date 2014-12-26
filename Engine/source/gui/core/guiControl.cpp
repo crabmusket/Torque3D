@@ -213,7 +213,7 @@ GuiControl::GuiControl() : mAddGroup( NULL ),
    mAcceleratorKey      = StringTable->EmptyString();
    mLangTableName       = StringTable->EmptyString();
    
-   mTooltip = StringTable->EmptyString();
+   mTooltip = (const char*)StringTable->EmptyString();
    mRenderTooltipDelegate.bind( this, &GuiControl::defaultTooltipRender );
 
    mCanSaveFieldDictionary = false;

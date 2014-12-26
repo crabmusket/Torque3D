@@ -1164,7 +1164,7 @@ void Platform::getVolumeInformationList( Vector<VolumeInformation>& out_rVolumeI
 
    if( ! drives.empty() )
    {
-      Vector<StringTableEntry>::iterator i;
+      Vector<const char*>::iterator i;
       for( i = drives.begin(); i != drives.end(); i++ )
       {
          VolumeInformation info;

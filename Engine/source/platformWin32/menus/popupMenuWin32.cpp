@@ -647,7 +647,7 @@ void PopupMenu::attachToMenuBar(GuiCanvas *owner, S32 pos)
    mii.cbSize = sizeof(MENUITEMINFOA);
 
    mii.fMask = MIIM_STRING|MIIM_DATA;
-   mii.dwTypeData = (LPSTR)mBarTitle;
+   mii.dwTypeData = (LPSTR)(const char*)mBarTitle;
    mii.fMask |= MIIM_ID;
    mii.wID = mData->mMenuID;
    mii.fMask |= MIIM_SUBMENU;
