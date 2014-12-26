@@ -64,6 +64,7 @@ public:
    String(const StringChar *str);
    String(const StringChar *str, SizeType size);
    String(const UTF16 *str);
+   String(const StringTableEntry& ste);
    ~String();
 
    const UTF8  *c_str() const;   ///< Return the string as a native type

@@ -141,6 +141,12 @@ private:
    /// @param  caseSens Determines whether case matters.
    StringTableEntry lookupn(const char *string, S32 len, bool caseSens = false);
 
+   /// Get a StringTableEntry from a raw address. BE WARNED: this function is
+   /// dangerous as it sllows you to convert an arbitrary memory address to
+   /// a StringTableEntry. It is used by TorqueScript's interpreter, and should
+   /// NOT be used anywhere else.
+   StringTableEntry fromRawUnsafe(void* ptr);
+
    /// Resize the StringTable to be able to hold newSize items. This
    /// is called automatically by the StringTable when the table is
    /// full past a certain threshhold.

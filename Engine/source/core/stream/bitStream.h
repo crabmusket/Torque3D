@@ -249,6 +249,7 @@ public:
 
    void readString(char stringBuf[256]);
    void writeString(const char *stringBuf, S32 maxLen=255);
+   void writeString(const StringTableEntry& stringBuf, S32 maxLen=255);
 
    bool hasCapability(const Capability) const { return true; }
    U32  getPosition() const;

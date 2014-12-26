@@ -699,6 +699,11 @@ void BitStream::writeString(const char *string, S32 maxLen)
    HuffmanProcessor::g_huffProcessor.writeHuffBuffer(this, string, maxLen);
 }
 
+void BitStream::writeString(const StringTableEntry &string, S32 maxLen)
+{
+   writeString(string.c_str(), maxLen);
+}
+
 void HuffmanProcessor::buildTables()
 {
    AssertFatal(m_tablesBuilt == false, "Cannot build tables twice!");

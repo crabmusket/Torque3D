@@ -118,7 +118,7 @@ public:
 
    /// Reads a string and inserts it into the StringTable
    /// @see StringTable
-   const char *readSTString(bool casesens = false);
+   StringTableEntry readSTString(bool casesens = false);
    /// Reads a string of maximum 255 characters long
    virtual void readString(char stringBuf[256]);
    /// Reads a string that could potentially be more than 255 characters long.

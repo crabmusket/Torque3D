@@ -570,6 +570,20 @@ String::String(const StringChar *str, SizeType len)
       _string = StringData::Empty();
 }
 
+String::String(const StringTableEntry& ste)
+{
+   PROFILE_SCOPE(String_char_constructor);
+   if( ste.isEmpty() )
+   {
+      _string = StringData::Empty();
+   }
+   else
+   {
+      U32 len = dStrlen(ste.c_str());
+      _string = new ( len ) StringData( ste.c_str() );
+   }
+}
+
 String::String(const UTF16 *str)
 {
    PROFILE_SCOPE(String_UTF16_constructor);

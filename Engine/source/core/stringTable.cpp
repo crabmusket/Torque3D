@@ -195,6 +195,12 @@ StringTableEntry _StringTable::lookupn(const char* val, S32 len, const bool  cas
 }
 
 //--------------------------------------
+StringTableEntry _StringTable::fromRawUnsafe(void* ptr)
+{
+   return StringTableEntry((const char*)ptr);
+}
+
+//--------------------------------------
 void _StringTable::resize(const U32 _newSize)
 {
    /// avoid a possible 0 division

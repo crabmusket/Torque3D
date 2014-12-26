@@ -67,6 +67,13 @@ public:
       _split(file);
    }
 
+   Path( const StringTableEntry& ste )
+      :  mIsDirtyFileName( true ),
+         mIsDirtyPath( true )
+   {
+      _split(ste.c_str());
+   }
+
    Path& operator = ( const String &file ) { _split(file); mIsDirtyPath = mIsDirtyFileName = true; return *this; }
    operator String() const { return getFullPath(); }
 

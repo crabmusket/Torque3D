@@ -131,7 +131,7 @@ void Stream::readString(char buf[256])
    buf[len] = 0;
 }
 
-const char *Stream::readSTString(bool casesens)
+StringTableEntry Stream::readSTString(bool casesens)
 {
    char buf[256];
    readString(buf);
