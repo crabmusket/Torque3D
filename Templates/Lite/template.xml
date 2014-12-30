@@ -1,0 +1,6 @@
+<template>
+	<package path="Core" inclusion="required" />
+	<package path="Shaders" inclusion="required" />
+	<package path="Batch Scripts" inclusion="recommended" />
+	<package path="Editor" inclusion="recommended" />
+</template>
