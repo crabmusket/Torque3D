@@ -106,7 +106,7 @@
 };
 //--- OBJECT WRITE END ---
 
-new ScriptMsgListener(NavEditorConsoleListener);
+new EventManager(NavEditorConsoleListener);
 getNavMeshEventManager().subscribe(NavEditorConsoleListener, "NavMeshCreated");
 getNavMeshEventManager().subscribe(NavEditorConsoleListener, "NavMeshRemoved");
 getNavMeshEventManager().subscribe(NavEditorConsoleListener, "NavMeshStartUpdate");
