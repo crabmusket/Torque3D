@@ -1,4 +1,4 @@
 <template>
-	<package path="Shaders" inclusion="recommended" />
-	<package path="Editor" inclusion="recommended" />
+	<package name="Shaders" inclusion="recommended" />
+	<package name="Editor" inclusion="recommended" />
 </template>
